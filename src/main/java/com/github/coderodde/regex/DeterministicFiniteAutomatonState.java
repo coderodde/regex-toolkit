@@ -24,6 +24,11 @@ public final class DeterministicFiniteAutomatonState {
     }
     
     @Override
+    public String toString() {
+        return "[State \"" + name + "\"]";
+    }
+    
+    @Override
     public int hashCode() {
         return hashCode;
     }

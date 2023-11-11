@@ -9,7 +9,7 @@ import java.util.Objects;
  * @version 1.6 (Nov 10, 2023)
  * @since 1.6 (Nov 10, 2023)
  */
-public final class DeterministicFiniteAutomatonState {
+public class DeterministicFiniteAutomatonState {
     
     private final String name;
     private final int hashCode;

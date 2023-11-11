@@ -7,10 +7,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *
- * @author rodio
+ * This class implements sets for storing the accepting states of a DFA.
+ * 
+ * @author Rodion "rodde" Efremov
+ * @version 1.6 (Nov 11, 2023)
+ * @since 1.6 (Nov 11, 2023)
  */
-public final class DeterministicFiniteAutomatonAcceptingStateSet {
+public class DeterministicFiniteAutomatonAcceptingStateSet {
     
     private final Map<String, DeterministicFiniteAutomatonState> stateMap = 
             new HashMap<>();

@@ -8,8 +8,11 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- *
- * @author PotilasKone
+ * This class implements a transition function for a NFA.
+ * 
+ * @author Rodion "rodde" Efremov
+ * @version 1.6 (Nov 12, 2023)
+ * @since 1.6 (Nov 12, 2023)
  */
 public final class NondeterministicFiniteAutomatonTransitionFunction {
     
@@ -34,5 +37,17 @@ public final class NondeterministicFiniteAutomatonTransitionFunction {
         }
         
         map.get(sourceState).get(character).add(targetState);
+    }
+    
+    public Set<NondeterministicFiniteAutomatonState> 
+        runTransition(
+                NondeterministicFiniteAutomatonState sourceState, 
+                Character character) {
+            
+        if (!map.containsKey(sourceState)) {
+            return null;
+        }
+            
+        return map.get(sourceState).get(character);
     }
 }

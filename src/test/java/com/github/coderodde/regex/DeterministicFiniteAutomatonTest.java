@@ -32,6 +32,8 @@ public class DeterministicFiniteAutomatonTest {
         
         assertTrue(dfa.matches("1001101"));
         assertTrue(dfa.matches("01"));
+        
+        assertFalse(dfa.matches("a01"));
         assertFalse(dfa.matches("00100"));
         assertFalse(dfa.matches("0"));
         assertFalse(dfa.matches(""));
@@ -61,6 +63,7 @@ public class DeterministicFiniteAutomatonTest {
         assertTrue(dfa.matches("10"));
         assertTrue(dfa.matches("0"));
         
+        assertFalse(dfa.matches("a0"));
         assertFalse(dfa.matches(""));
         assertFalse(dfa.matches("1"));
         assertFalse(dfa.matches("01"));

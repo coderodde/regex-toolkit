@@ -2,17 +2,13 @@ package com.github.coderodde.regex;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class NondeterministicFiniteAutomatonTransitionFunctionTest {
     
     @Test
-    public void onFailure() {
+    public void transitionFunctionWorks() {
         NondeterministicFiniteAutomatonTransitionFunction transitionFunction = 
                 new NondeterministicFiniteAutomatonTransitionFunction();
         

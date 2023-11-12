@@ -1,6 +1,10 @@
 package com.github.coderodde.regex;
 
+import com.github.coderodde.regex.RegexCharacter.RegexCharacterType;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -23,5 +27,56 @@ public final class Utils {
         }
         
         return set;
+    }
+    
+    public static boolean 
+        isSyntacticallyCorrectRegularExpression(String regex) {
+        
+    }
+    
+    public static List<RegexCharacter> 
+        convertPatternToRegexCharacterList(String text) {
+        List<RegexCharacter> list = new ArrayList<>();
+        
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+            
+            switch (ch) {
+                case '?':
+                    list.add(getRegexChar(RegexCharacterType.QUESTION_MARK));
+                    break;
+                    
+                case '*':
+                    list.add(getRegexChar(RegexCharacterType.KLEENE_STAR));
+                    break;
+                    
+                case '+':
+                    list.add(getRegexChar(RegexCharacterType.PLUS));
+                    break;
+                    
+                case '|':
+                    list.add(getRegexChar(RegexCharacterType.CHOICE));
+                    break;
+                    
+                case '(':
+                    list.add(getRegexChar(RegexCharacterType.LEFT_PARENTHESIS));
+                    break;
+                    
+                case ')':
+                    list.add(
+                            getRegexChar(
+                                    RegexCharacterType.RIGHT_PARENTHESIS));
+                    break;
+            }
+            
+            
+        }
+        
+        return list;
+    }
+        
+    private static RegexCharacter 
+        getRegexChar(RegexCharacterType regexCharacterType) {
+        return new RegexCharacter(regexCharacterType);
     }
 }

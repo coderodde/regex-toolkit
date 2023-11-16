@@ -33,7 +33,7 @@ public final class NondeterministicFiniteAutomaton {
                         initialState,
                         "The input initial state is null.");
         
-        stateSet.addDeterministicFiniteAutomatonState(initialState);
+        stateSet.addNondeterministicFiniteAutomatonState(initialState);
     }
     
     public NondeterministicFiniteAutomatonStateSet getStateSet() {

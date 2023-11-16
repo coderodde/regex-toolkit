@@ -1,5 +1,7 @@
 package com.github.coderodde.regex;
 
+import java.util.Objects;
+
 /**
  * This class specifies the regular expression token type.
  * 
@@ -54,5 +56,12 @@ public final class RegexToken {
             default:
                 throw new IllegalStateException("Unknown token type.");
         }
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        RegexToken other = (RegexToken) o;
+        return tokenType.equals(other.tokenType) 
+            && Objects.equals(character, other.character);
     }
 }

@@ -39,29 +39,28 @@ public final class RegexTokenizer {
                     break;
                     
                 case '(':
-                    if (isTextCharacter(previousCharacter)) {
-                        tokens.add(new RegexToken(RegexTokenType.CONCATENATION));
-                    } else if (previousCharacter == '*') {
-                        tokens.add(new RegexToken(RegexTokenType.CONCATENATION));
-                    } else if (previousCharacter == ')') {
-                        tokens.add(new RegexToken(RegexTokenType.CONCATENATION));
+                    if (isTextCharacter(previousCharacter)
+                            || previousCharacter == '*'
+                            || previousCharacter == ')') {
+                        tokens.add(
+                                new RegexToken(RegexTokenType.CONCATENATION));
                     }
                     
                     tokens.add(new RegexToken(RegexTokenType.LEFT_PARENTHESIS));
                     break;
                     
                 case ')':
-                    tokens.add(new RegexToken(RegexTokenType.RIGHT_PARENTHESIS));
+                    tokens.add(
+                            new RegexToken(RegexTokenType.RIGHT_PARENTHESIS));
                     break;
                     
                 default:
                     // Once here, the ch is an alphabet character:
-                    if (isTextCharacter(previousCharacter)) {
-                        tokens.add(new RegexToken(RegexTokenType.CONCATENATION));
-                    } else if (previousCharacter == '*') {
-                        tokens.add(new RegexToken(RegexTokenType.CONCATENATION));
-                    } else if (previousCharacter == ')') {
-                        tokens.add(new RegexToken(RegexTokenType.CONCATENATION));
+                    if (isTextCharacter(previousCharacter)
+                            || previousCharacter == '*'
+                            || previousCharacter == ')') {
+                        tokens.add(
+                                new RegexToken(RegexTokenType.CONCATENATION));
                     }
                     
                     tokens.add(new RegexToken(RegexTokenType.CHARACTER, ch));

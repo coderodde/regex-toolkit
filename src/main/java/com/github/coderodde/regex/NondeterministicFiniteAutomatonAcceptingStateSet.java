@@ -21,7 +21,7 @@ public class NondeterministicFiniteAutomatonAcceptingStateSet {
     private final Set<NondeterministicFiniteAutomatonState> acceptiongStateSet = 
             new HashSet<>();
     
-    public boolean addDeterministicFiniteAutomatonState(
+    public boolean addNondeterministicFiniteAutomatonState(
             NondeterministicFiniteAutomatonState state) {
         
         if (acceptiongStateSet.contains(state)) {

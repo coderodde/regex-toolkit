@@ -1,5 +1,9 @@
 package com.github.coderodde.regex;
 
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -9,7 +13,7 @@ import java.util.Set;
  */
 public final class NondeterministicFiniteAutomaton {
     
-    private NondeterministicFiniteAutomatonState inititalState;
+    private NondeterministicFiniteAutomatonState initialState;
     
     private final NondeterministicFiniteAutomatonStateSet stateSet = 
               new NondeterministicFiniteAutomatonStateSet();
@@ -24,10 +28,12 @@ public final class NondeterministicFiniteAutomaton {
     
     public void setInitialState(
             NondeterministicFiniteAutomatonState initialState) {
-        this.inititalState = 
+        this.initialState = 
                 Objects.requireNonNull(
                         initialState,
                         "The input initial state is null.");
+        
+        stateSet.addNondeterministicFiniteAutomatonState(initialState);
     }
     
     public NondeterministicFiniteAutomatonStateSet getStateSet() {
@@ -55,7 +61,71 @@ public final class NondeterministicFiniteAutomaton {
     }
     
     private Set<NondeterministicFiniteAutomatonState> runNFA(String text) {
-        return null;
+        Set<NondeterministicFiniteAutomatonState> startSet = 
+                new HashSet<>(Arrays.asList(initialState));
+        
+        Set<NondeterministicFiniteAutomatonState> currentStates =
+                epsilonExpand(startSet);
+        
+        for (int i = 0; i != text.length(); i++) {
+            char ch = text.charAt(i);
+            
+            Set<NondeterministicFiniteAutomatonState> nextStates = 
+                    new HashSet<>();
+        
+            for (NondeterministicFiniteAutomatonState q : currentStates) {
+                Set<NondeterministicFiniteAutomatonState> nextState = 
+                        getTransitionFunction().runTransition(q, ch);
+                
+                if (nextState == null) {
+                    return null;
+                }
+                
+                nextStates.addAll(nextState);
+            }
+                
+            currentStates = epsilonExpand(nextStates);
+        }
+        
+        return currentStates;
+    }
+    
+    private Set<NondeterministicFiniteAutomatonState> 
+        epsilonExpand(Set<NondeterministicFiniteAutomatonState> set) {
+            
+        Set<NondeterministicFiniteAutomatonState> expandedSet = 
+                new HashSet<>(set);
+        
+        Deque<NondeterministicFiniteAutomatonState> queue = new ArrayDeque<>();
+        Set<NondeterministicFiniteAutomatonState> visited = new HashSet<>();
+        
+        for (NondeterministicFiniteAutomatonState state : expandedSet) {
+            if (!visited.contains(state)) {
+                visited.add(state);
+                queue.addLast(state);
+            } else {
+                System.out.println("yeah");
+            }
+        }
+        
+        while (!queue.isEmpty()) {
+            NondeterministicFiniteAutomatonState state = queue.removeFirst();
+            Set<NondeterministicFiniteAutomatonState> epsilonFollowerStates = 
+                    getTransitionFunction().getEpsilonFollowerStates(state);
+            
+            for (NondeterministicFiniteAutomatonState s :
+                    epsilonFollowerStates) {
+                if (!visited.contains(s)) {
+                    visited.add(s);
+                    queue.addLast(s);
+                    expandedSet.add(s);
+                } else {
+                    System.out.println("fuck");
+                }
+            }
+        }
+        
+        return expandedSet;
     }
     
     private boolean isAcceptingStateSet(

@@ -14,7 +14,7 @@ public final class DeterministicFiniteAutomaton {
     /**
      * The initial state of the DFA.
      */
-    private final DeterministicFiniteAutomatonState initialState;
+    private DeterministicFiniteAutomatonState initialState;
     
     /**
      * The total set of states. Contains also accepting states.
@@ -36,18 +36,13 @@ public final class DeterministicFiniteAutomaton {
             transitionFunction =
             new DeterministicFiniteAutomatonTransitionFunction();
     
-    /**
-     * Constructs an empty DFA accepting only the empty language.
-     * 
-     * @param initialState the initial state.
-     */
-    public DeterministicFiniteAutomaton(
+    public void setInitialState(
             DeterministicFiniteAutomatonState initialState) {
-        this.initialState = 
+        this.initialState =
                 Objects.requireNonNull(
                         initialState,
                         "The input initial state is null.");
-        
+    
         this.stateSet.addDeterministicFiniteAutomatonState(initialState);
     }
     

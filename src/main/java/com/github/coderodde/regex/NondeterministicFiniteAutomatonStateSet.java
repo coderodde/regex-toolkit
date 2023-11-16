@@ -32,7 +32,7 @@ public final class NondeterministicFiniteAutomatonStateSet {
      * @return {@code true} only if the state set has changed, i.e., the state
      *         is added.
      */
-    public boolean addDeterministicFiniteAutomatonState(
+    public boolean addNondeterministicFiniteAutomatonState(
             NondeterministicFiniteAutomatonState state) {
         
         if (stateSet.contains(state)) {

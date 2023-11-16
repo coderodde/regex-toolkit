@@ -16,8 +16,9 @@ public class DeterministicFiniteAutomatonTest {
         DeterministicFiniteAutomatonState q2 = 
                 new DeterministicFiniteAutomatonState("q2");
         
-        DeterministicFiniteAutomaton dfa = 
-                new DeterministicFiniteAutomaton(q0);
+        DeterministicFiniteAutomaton dfa = new DeterministicFiniteAutomaton();
+        
+        dfa.setInitialState(q0);
         
         dfa.getStateSet().addDeterministicFiniteAutomatonState(q1);
         dfa.getStateSet().addDeterministicFiniteAutomatonState(q2);
@@ -47,8 +48,9 @@ public class DeterministicFiniteAutomatonTest {
         DeterministicFiniteAutomatonState b = 
                 new DeterministicFiniteAutomatonState("b");
         
-        DeterministicFiniteAutomaton dfa = 
-                new DeterministicFiniteAutomaton(a);
+        DeterministicFiniteAutomaton dfa = new DeterministicFiniteAutomaton();
+        
+        dfa.setInitialState(a);
         
         dfa.getStateSet().addDeterministicFiniteAutomatonState(a);
         dfa.getStateSet().addDeterministicFiniteAutomatonState(b);

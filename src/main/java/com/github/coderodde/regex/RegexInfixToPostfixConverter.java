@@ -20,7 +20,7 @@ public final class RegexInfixToPostfixConverter {
      * Converts a regular expression expressed in the infix notation of regular
      * expression token lists. This algorithm is essentially the
      * <a href="https://en.wikipedia.org/wiki/Shunting_yard_algorithm">Shunting yard algorithm</a> by
-     * <a href="https://en.wikipedia.org/wiki/Edsger_W._Dijkstra">Edsger W. Diskstra</a>.
+     * <a href="https://en.wikipedia.org/wiki/Edsger_W._Dijkstra">Edsger W. Dijkstra</a>.
      * 
      * @param infixRegex
      * @return the input regular expression in postfix notation.
@@ -61,7 +61,7 @@ public final class RegexInfixToPostfixConverter {
             RegexToken topToken = operatorStack.removeLast();
 
             if (topToken.getTokenType() == RegexTokenType.LEFT_PARENTHESIS) {
-                throw new BadRegexParenthesationException();
+                throw new BadRegexException();
             }
 
             output.addLast(topToken);
@@ -139,13 +139,13 @@ public final class RegexInfixToPostfixConverter {
         }
         
         if (operatorStack.isEmpty()) {
-            throw new BadRegexParenthesationException();
+            throw new BadRegexException();
         }
         
         RegexToken topToken = operatorStack.removeLast();
         
         if (topToken.getTokenType() != RegexTokenType.LEFT_PARENTHESIS) {
-            throw new BadRegexParenthesationException();
+            throw new BadRegexException();
         }
     }
     

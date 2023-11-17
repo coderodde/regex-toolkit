@@ -1,6 +1,11 @@
 package com.github.coderodde.regex;
 
-import java.text.BreakIterator;
+import static com.github.coderodde.regex.TestUtils.getCharToken;
+import static com.github.coderodde.regex.TestUtils.getConcatenation;
+import static com.github.coderodde.regex.TestUtils.getKleeneStar;
+import static com.github.coderodde.regex.TestUtils.getLeftParenthesis;
+import static com.github.coderodde.regex.TestUtils.getRightParenthesis;
+import static com.github.coderodde.regex.TestUtils.getUnion;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -234,29 +239,5 @@ public class RegexTokenizerTest {
                               getCharToken('b'));
         
         assertEquals(expectedTokens, tokens);
-    }
-    
-    private static RegexToken getCharToken(char ch) {
-        return new RegexToken(RegexTokenType.CHARACTER, ch);
-    }
-    
-    private static RegexToken getConcatenation() {
-        return new RegexToken(RegexTokenType.CONCATENATION);
-    }
-    
-    private static RegexToken getUnion() {
-        return new RegexToken(RegexTokenType.UNION);
-    }
-    
-    private static RegexToken getKleeneStar() {
-        return new RegexToken(RegexTokenType.KLEEN_STAR);
-    }
-    
-    private static RegexToken getLeftParenthesis() {
-        return new RegexToken(RegexTokenType.LEFT_PARENTHESIS);
-    }
-    
-    private static RegexToken getRightParenthesis() {
-        return new RegexToken(RegexTokenType.RIGHT_PARENTHESIS);
     }
 }

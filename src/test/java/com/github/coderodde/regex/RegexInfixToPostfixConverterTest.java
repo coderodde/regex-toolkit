@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import javax.imageio.ImageIO;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -186,6 +187,35 @@ public class RegexInfixToPostfixConverterTest {
         
 //        System.out.println(inputTokens);
 //        System.out.println(tokens);
+    }
+    
+    @Test(expected = BadRegexException.class)
+    public void throwsOnSingleLeftParenthesis() {
+        converter.convert(Arrays.asList(getLeftParenthesis()));
+    }
+    
+    @Test(expected = BadRegexException.class)
+    public void throwsOnSingleRightParenthesis() {
+        converter.convert(Arrays.asList(getLeftParenthesis()));
+    }
+    
+    @Test(expected = BadRegexException.class)
+    public void throwsOnBadParenthesation1() {
+        converter.convert(Arrays.asList(getRightParenthesis(),
+                                        getLeftParenthesis()));
+    }
+    
+    @Test(expected = BadRegexException.class)
+    public void throwsOnBadParenthesation2() {
+        converter.convert(Arrays.asList(getLeftParenthesis(),
+                                        getRightParenthesis(),
+                                        getRightParenthesis()));
+    }
+    
+    @Test(expected = BadRegexException.class)
+    public void throwsOnBadRegex1() {
+        RegexToken a = getCharToken('a');
+        converter.convert(Arrays.asList(a, a, getUnion()));
     }
     
     private static void assertEq(Deque<RegexToken> expectedTokens,

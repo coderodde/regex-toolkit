@@ -3,7 +3,9 @@ package com.github.coderodde.regex;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -61,6 +63,18 @@ public final class NondeterministicFiniteAutomaton {
         }
     
         return isAcceptingStateSet(finalStateSet);
+    }
+    
+    public DeterministicFiniteAutomaton convertToDFA() {
+        Set<NondeterministicFiniteAutomatonState> startState =
+                new HashSet<>(Arrays.asList(initialState));
+        
+        startState = epsilonExpand(startState);
+        
+        Map<Set<NondeterministicFiniteAutomatonState>, 
+            DeterministicFiniteAutomatonState> stateMap = new HashMap<>();
+        
+        return null;
     }
     
     private Set<NondeterministicFiniteAutomatonState> simulateNFA(String text) {

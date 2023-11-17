@@ -8,7 +8,7 @@ package com.github.coderodde.regex;
  * @since 1.6 (Nov 15, 2023)
  */
 public enum RegexTokenType {
-    KLEEN_STAR,
+    KLEENE_STAR,
     UNION,
     CONCATENATION,
     CHARACTER,

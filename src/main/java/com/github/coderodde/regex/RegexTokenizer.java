@@ -31,7 +31,7 @@ public final class RegexTokenizer {
         for (char ch : regex.toCharArray()) {
             switch (ch) {
                 case '*':
-                    tokens.add(new RegexToken(RegexTokenType.KLEEN_STAR));
+                    tokens.add(new RegexToken(RegexTokenType.KLEENE_STAR));
                     break;
                     
                 case '|':

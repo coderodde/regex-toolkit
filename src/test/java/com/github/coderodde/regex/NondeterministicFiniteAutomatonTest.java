@@ -49,7 +49,7 @@ public class NondeterministicFiniteAutomatonTest {
     }
     
     @Test
-    public void acceptsStrings() {
+    public void match() {
         NondeterministicFiniteAutomaton nfa = 
                 new NondeterministicFiniteAutomaton();
         

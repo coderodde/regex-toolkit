@@ -237,7 +237,7 @@ public final class Utils {
                 stack.addLast(ch);
             } else if (ch == ')') {
                 if (stack.isEmpty()) {
-                    throw new BadRegexException();
+                    throw new InvalidRegexException();
                 }
                 
                 stack.removeLast();
@@ -245,7 +245,7 @@ public final class Utils {
         }
         
         if (!stack.isEmpty()) {
-            throw new BadRegexException();
+            throw new InvalidRegexException();
         }
     }
 }

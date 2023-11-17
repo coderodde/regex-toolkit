@@ -8,6 +8,6 @@ package com.github.coderodde.regex;
  * @version 1.6 (Nov 12, 2023)
  * @since 1.6 (Nov 12, 2023)
  */
-public final class BadRegexException extends RuntimeException {
+public final class InvalidRegexException extends RuntimeException {
     
 }

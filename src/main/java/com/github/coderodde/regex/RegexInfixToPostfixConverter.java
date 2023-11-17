@@ -61,7 +61,7 @@ public final class RegexInfixToPostfixConverter {
             RegexToken topToken = operatorStack.removeLast();
 
             if (topToken.getTokenType() == RegexTokenType.LEFT_PARENTHESIS) {
-                throw new BadRegexException();
+                throw new InvalidRegexException();
             }
 
             output.addLast(topToken);
@@ -139,13 +139,13 @@ public final class RegexInfixToPostfixConverter {
         }
         
         if (operatorStack.isEmpty()) {
-            throw new BadRegexException();
+            throw new InvalidRegexException();
         }
         
         RegexToken topToken = operatorStack.removeLast();
         
         if (topToken.getTokenType() != RegexTokenType.LEFT_PARENTHESIS) {
-            throw new BadRegexException();
+            throw new InvalidRegexException();
         }
     }
     

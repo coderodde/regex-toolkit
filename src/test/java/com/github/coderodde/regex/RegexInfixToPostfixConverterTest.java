@@ -187,22 +187,22 @@ public class RegexInfixToPostfixConverterTest {
         assertEq(expectedTokens, tokens);
     }
     
-    @Test(expected = BadRegexException.class)
+    @Test(expected = InvalidRegexException.class)
     public void throwsOnSingleLeftParenthesis() {
         converter.convert(Arrays.asList(left));
     }
     
-    @Test(expected = BadRegexException.class)
+    @Test(expected = InvalidRegexException.class)
     public void throwsOnSingleRightParenthesis() {
         converter.convert(Arrays.asList(right));
     }
     
-    @Test(expected = BadRegexException.class)
+    @Test(expected = InvalidRegexException.class)
     public void throwsOnBadParenthesation1() {
         converter.convert(Arrays.asList(right, left));
     }
     
-    @Test(expected = BadRegexException.class)
+    @Test(expected = InvalidRegexException.class)
     public void throwsOnBadParenthesation2() {
         converter.convert(Arrays.asList(left, right, right));
     }

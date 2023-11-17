@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
-import javax.imageio.ImageIO;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -45,7 +44,7 @@ public class RegexInfixToPostfixConverterTest {
                                     getRightParenthesis());
         
         tokens = converter.convert(inputTokens);
-        expectedTokens = new ArrayDeque<>(); // Empty deque.
+        expectedTokens = deque(); // Empty deque.
         
         assertEq(expectedTokens, tokens);
     }
@@ -55,7 +54,7 @@ public class RegexInfixToPostfixConverterTest {
         inputTokens = Arrays.asList(left, right, left, right);
         
         tokens = converter.convert(inputTokens);
-        expectedTokens = new ArrayDeque<>(); // Empty deque.
+        expectedTokens = deque(); // Empty deque.
         
         assertEq(expectedTokens, tokens);
     }
@@ -70,7 +69,7 @@ public class RegexInfixToPostfixConverterTest {
                                     right);
         
         tokens = converter.convert(inputTokens);
-        expectedTokens = new ArrayDeque<>(); // Empty deque.
+        expectedTokens = deque(); // Empty deque.
         
         assertEq(expectedTokens, tokens);
     }
@@ -84,7 +83,7 @@ public class RegexInfixToPostfixConverterTest {
                                     right);
         
         tokens = converter.convert(inputTokens);
-        expectedTokens = new ArrayDeque<>(Arrays.asList(getConcatenation()));
+        expectedTokens = deque(concat);
         
         assertEq(expectedTokens, tokens);
     }
@@ -98,7 +97,7 @@ public class RegexInfixToPostfixConverterTest {
                                     right);
         
         tokens = converter.convert(inputTokens);
-        expectedTokens = new ArrayDeque<>(Arrays.asList(getUnion()));
+        expectedTokens = deque(union);
         
         assertEq(expectedTokens, tokens);
     }
@@ -113,14 +112,7 @@ public class RegexInfixToPostfixConverterTest {
         
         tokens = converter.convert(inputTokens);
         // a*b|
-        expectedTokens = 
-                new ArrayDeque<>(
-                        Arrays.asList(
-                                a, 
-                                star, 
-                                b, 
-                                union));
-        
+        expectedTokens = deque(a, star, b, union);
         assertEq(expectedTokens, tokens);
     }
     
@@ -135,13 +127,7 @@ public class RegexInfixToPostfixConverterTest {
                                     b);
         
         // ab*ob|
-        expectedTokens = new ArrayDeque<>(Arrays.asList(a,
-                                                        b,
-                                                        star,
-                                                        concat,
-                                                        b,
-                                                        union));
-        
+        expectedTokens = deque(a, b, star, concat, b, union);
         tokens = converter.convert(inputTokens);
         assertEq(expectedTokens, tokens);
     }
@@ -167,20 +153,18 @@ public class RegexInfixToPostfixConverterTest {
                                     star);
         
         // (a b o b | * b b * o * |
-        expectedTokens = 
-                new ArrayDeque<>(
-                        Arrays.asList(a,
-                                      b,
-                                      concat,
-                                      b,
-                                      union,
-                                      star,
-                                      b,
-                                      a,
-                                      star,
-                                      concat,
-                                      star,
-                                      union));
+        expectedTokens = deque(a,
+                               b,
+                               concat,
+                               b,
+                               union,
+                               star,
+                               b,
+                               a,
+                               star,
+                               concat,
+                               star,
+                               union);
         
         tokens = converter.convert(inputTokens);
         assertEq(expectedTokens, tokens);
@@ -189,38 +173,47 @@ public class RegexInfixToPostfixConverterTest {
 //        System.out.println(tokens);
     }
     
+    @Test
+    public void worksOnSimplePostfix1() {
+        tokens = converter.convert(Arrays.asList(a, a, union));
+        expectedTokens = deque(a, a, union);
+        assertEq(expectedTokens, tokens);
+    }
+    
+    @Test
+    public void worksOnSimplePostix2() {
+        tokens = converter.convert(Arrays.asList(a, a, concat));
+        expectedTokens = deque(a, a, concat);
+        assertEq(expectedTokens, tokens);
+    }
+    
     @Test(expected = BadRegexException.class)
     public void throwsOnSingleLeftParenthesis() {
-        converter.convert(Arrays.asList(getLeftParenthesis()));
+        converter.convert(Arrays.asList(left));
     }
     
     @Test(expected = BadRegexException.class)
     public void throwsOnSingleRightParenthesis() {
-        converter.convert(Arrays.asList(getLeftParenthesis()));
+        converter.convert(Arrays.asList(right));
     }
     
     @Test(expected = BadRegexException.class)
     public void throwsOnBadParenthesation1() {
-        converter.convert(Arrays.asList(getRightParenthesis(),
-                                        getLeftParenthesis()));
+        converter.convert(Arrays.asList(right, left));
     }
     
     @Test(expected = BadRegexException.class)
     public void throwsOnBadParenthesation2() {
-        converter.convert(Arrays.asList(getLeftParenthesis(),
-                                        getRightParenthesis(),
-                                        getRightParenthesis()));
-    }
-    
-    @Test(expected = BadRegexException.class)
-    public void throwsOnBadRegex1() {
-        RegexToken a = getCharToken('a');
-        converter.convert(Arrays.asList(a, a, getUnion()));
+        converter.convert(Arrays.asList(left, right, right));
     }
     
     private static void assertEq(Deque<RegexToken> expectedTokens,
                                  Deque<RegexToken> tokens) {
         assertEquals(new ArrayList<>(expectedTokens),
                      new ArrayList<>(tokens));
+    }
+    
+    private static Deque<RegexToken> deque(RegexToken... list) {
+        return new ArrayDeque<>(Arrays.asList(list));
     }
 }

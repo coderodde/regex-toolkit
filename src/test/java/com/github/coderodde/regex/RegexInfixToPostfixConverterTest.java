@@ -123,6 +123,31 @@ public class RegexInfixToPostfixConverterTest {
     }
     
     @Test
+    public void onMiddleSizeRegex() {
+        RegexToken a = getCharToken('a');
+        RegexToken b = getCharToken('b');
+ 
+        // ab*|b
+        inputTokens = Arrays.asList(a,
+                                    getConcatenation(),
+                                    b,
+                                    getKleeneStar(),
+                                    getUnion(),
+                                    b);
+        
+        // ab*ob|
+        expectedTokens = new ArrayDeque<>(Arrays.asList(a,
+                                                        b,
+                                                        getKleeneStar(),
+                                                        getConcatenation(),
+                                                        b,
+                                                        getUnion()));
+        
+        tokens = converter.convert(inputTokens);
+        assertEq(expectedTokens, tokens);
+    }
+    
+    @Test
     public void onComplexRegex() {
         RegexToken a = getCharToken('a');
         RegexToken b = getCharToken('b');
@@ -140,12 +165,32 @@ public class RegexInfixToPostfixConverterTest {
                                     getLeftParenthesis(),
                                     b,
                                     getConcatenation(),
-                                    b,
+                                    a,
                                     getKleeneStar(),
                                     getRightParenthesis(),
                                     getKleeneStar());
         
-        System.out.println(inputTokens);
+        // (a b o b | * b b * o * |
+        expectedTokens = 
+                new ArrayDeque<>(
+                        Arrays.asList(a,
+                                      b,
+                                      getConcatenation(),
+                                      b,
+                                      getUnion(),
+                                      getKleeneStar(),
+                                      b,
+                                      a,
+                                      getKleeneStar(),
+                                      getConcatenation(),
+                                      getKleeneStar(),
+                                      getUnion()));
+        
+        tokens = converter.convert(inputTokens);
+        assertEq(expectedTokens, tokens);
+        
+//        System.out.println(inputTokens);
+//        System.out.println(tokens);
     }
     
     private static void assertEq(Deque<RegexToken> expectedTokens,

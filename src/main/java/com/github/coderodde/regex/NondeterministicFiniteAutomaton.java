@@ -9,7 +9,9 @@ import java.util.Set;
 
 /**
  *
- * @author PotilasKone
+ * @author Rodion "rodde" Efremov
+ * @version 1.6 (Nov 17, 2023)
+ * @since 1.6 (Nov 17, 2023)
  */
 public final class NondeterministicFiniteAutomaton {
     
@@ -51,7 +53,8 @@ public final class NondeterministicFiniteAutomaton {
     }
         
     public boolean matches(String text) {
-        Set<NondeterministicFiniteAutomatonState> finalStateSet = runNFA(text);
+        Set<NondeterministicFiniteAutomatonState> finalStateSet = 
+                simulateNFA(text);
         
         if (finalStateSet == null) {
             return false;
@@ -60,7 +63,7 @@ public final class NondeterministicFiniteAutomaton {
         return isAcceptingStateSet(finalStateSet);
     }
     
-    private Set<NondeterministicFiniteAutomatonState> runNFA(String text) {
+    private Set<NondeterministicFiniteAutomatonState> simulateNFA(String text) {
         Set<NondeterministicFiniteAutomatonState> startSet = 
                 new HashSet<>(Arrays.asList(initialState));
         
@@ -77,11 +80,9 @@ public final class NondeterministicFiniteAutomaton {
                 Set<NondeterministicFiniteAutomatonState> nextState = 
                         getTransitionFunction().runTransition(q, ch);
                 
-                if (nextState == null) {
-                    return null;
+                if (nextState != null) {
+                    nextStates.addAll(nextState);
                 }
-                
-                nextStates.addAll(nextState);
             }
                 
             currentStates = epsilonExpand(nextStates);
@@ -90,7 +91,7 @@ public final class NondeterministicFiniteAutomaton {
         return currentStates;
     }
     
-    private Set<NondeterministicFiniteAutomatonState> 
+    Set<NondeterministicFiniteAutomatonState> 
         epsilonExpand(Set<NondeterministicFiniteAutomatonState> set) {
             
         Set<NondeterministicFiniteAutomatonState> expandedSet = 
@@ -103,8 +104,6 @@ public final class NondeterministicFiniteAutomaton {
             if (!visited.contains(state)) {
                 visited.add(state);
                 queue.addLast(state);
-            } else {
-                System.out.println("yeah");
             }
         }
         
@@ -119,8 +118,6 @@ public final class NondeterministicFiniteAutomaton {
                     visited.add(s);
                     queue.addLast(s);
                     expandedSet.add(s);
-                } else {
-                    System.out.println("fuck");
                 }
             }
         }

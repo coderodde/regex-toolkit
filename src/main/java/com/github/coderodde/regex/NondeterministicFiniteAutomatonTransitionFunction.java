@@ -39,12 +39,10 @@ public final class NondeterministicFiniteAutomatonTransitionFunction {
             map.get(sourceState).put(
                     character, 
                     new HashSet<>(Arrays.asList(targetState)));
-            System.out.println("a");
         }
         
         if (!map.get(sourceState).containsKey(character)) {
             map.get(sourceState).put(character, new HashSet<>());
-            System.out.println("b");
         }
         
         map.get(sourceState).get(character).add(targetState);

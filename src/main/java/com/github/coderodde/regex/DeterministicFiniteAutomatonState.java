@@ -11,26 +11,25 @@ import java.util.Objects;
  */
 public class DeterministicFiniteAutomatonState {
     
-    private final String name;
-    private final int hashCode;
+    private final int id;
     
-    public DeterministicFiniteAutomatonState(String name) {
-        this.name = Objects.requireNonNull(name);
-        this.hashCode = name.hashCode();
-    }
-    
-    public String getStateName() {
-        return name;
+    /**
+     * Constructs a new deterministic finite automaton state.
+     * 
+     * @param id the ID of the new state.
+     */
+    public DeterministicFiniteAutomatonState(int id) {
+        this.id = id;
     }
     
     @Override
     public String toString() {
-        return "[State \"" + name + "\"]";
+        return "[State \"" + id + "\"]";
     }
     
     @Override
     public int hashCode() {
-        return hashCode;
+        return id;
     }
     
     @Override
@@ -38,10 +37,6 @@ public class DeterministicFiniteAutomatonState {
         DeterministicFiniteAutomatonState otherState = 
                 (DeterministicFiniteAutomatonState) o;
         
-        if (Objects.requireNonNull(otherState).hashCode != this.hashCode) {
-            return false;
-        }
-        
-        return getStateName().equals(otherState.getStateName());
+        return id == otherState.id;
     }
 }

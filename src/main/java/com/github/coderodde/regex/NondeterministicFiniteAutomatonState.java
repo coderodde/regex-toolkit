@@ -11,11 +11,11 @@ public final class NondeterministicFiniteAutomatonState
         extends DeterministicFiniteAutomatonState {
     
     /**
-     * Constructs a state in a NFA.
+     * Constructs a state for a nondeterministic finite automaton.
      * 
-     * @param name the name of the state.
+     * @param id the ID of the state.
      */
-    public NondeterministicFiniteAutomatonState(String name) {
-        super(name);
+    public NondeterministicFiniteAutomatonState(int id) {
+        super(id);
     }
 }

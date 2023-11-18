@@ -1,9 +1,7 @@
 package com.github.coderodde.regex;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -15,26 +13,16 @@ import java.util.Set;
  */
 public class DeterministicFiniteAutomatonAcceptingStateSet {
     
-    private final Map<String, DeterministicFiniteAutomatonState> stateMap = 
-            new HashMap<>();
-    
-    private final Set<DeterministicFiniteAutomatonState> acceptiongStateSet = 
+    private final Set<DeterministicFiniteAutomatonState> acceptingStateSet = 
             new HashSet<>();
     
-    public boolean addDeterministicFiniteAutomatonState(
+    public void addDeterministicFiniteAutomatonState(
             DeterministicFiniteAutomatonState state) {
-        
-        if (acceptiongStateSet.contains(state)) {
-            return false;
-        }
-        
-        acceptiongStateSet.add(state);
-        stateMap.put(state.getStateName(), state);
-        return true;
+        acceptingStateSet.add(state);
     }
     
     public Set<DeterministicFiniteAutomatonState> getAcceptingStateSet() {
         return Collections.<DeterministicFiniteAutomatonState>
-                unmodifiableSet(acceptiongStateSet);
+                unmodifiableSet(acceptingStateSet);
     }
 }

@@ -229,9 +229,7 @@ public final class NFACompiler {
         nfaStack.addLast(resultNFA);
     }
     
-    private String getNextStateName() {
-        return new StringBuilder()
-                .append(stateCounter++)
-                .toString();
+    private int getNextStateName() {
+        return stateCounter++;
     }
 }

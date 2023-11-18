@@ -8,13 +8,13 @@ public class DeterministicFiniteAutomatonTransitionFunctionTest {
     @Test
     public void test() {
         DeterministicFiniteAutomatonState state1 = 
-                new DeterministicFiniteAutomatonState("q0");
+                new DeterministicFiniteAutomatonState(0);
         
         DeterministicFiniteAutomatonState state2 = 
-                new DeterministicFiniteAutomatonState("q1");
+                new DeterministicFiniteAutomatonState(1);
         
         DeterministicFiniteAutomatonState state3 = 
-                new DeterministicFiniteAutomatonState("q2");
+                new DeterministicFiniteAutomatonState(2);
         
         DeterministicFiniteAutomatonTransitionFunction transitionFunction = 
                 new DeterministicFiniteAutomatonTransitionFunction();

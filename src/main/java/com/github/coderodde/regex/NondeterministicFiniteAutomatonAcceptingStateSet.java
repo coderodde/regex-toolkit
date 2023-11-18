@@ -15,30 +15,20 @@ import java.util.Set;
  */
 public class NondeterministicFiniteAutomatonAcceptingStateSet {
     
-    private final Map<String, DeterministicFiniteAutomatonState> stateMap = 
-            new HashMap<>();
-    
-    private final Set<NondeterministicFiniteAutomatonState> acceptiongStateSet = 
+    private final Set<NondeterministicFiniteAutomatonState> acceptingStateSet = 
             new HashSet<>();
     
-    public boolean addNondeterministicFiniteAutomatonState(
+    public void addNondeterministicFiniteAutomatonState(
             NondeterministicFiniteAutomatonState state) {
-        
-        if (acceptiongStateSet.contains(state)) {
-            return false;
-        }
-        
-        acceptiongStateSet.add(state);
-        stateMap.put(state.getStateName(), state);
-        return true;
+        acceptingStateSet.add(state);
     }
     
     public Set<NondeterministicFiniteAutomatonState> getStates() {
         return Collections.<NondeterministicFiniteAutomatonState>
-                unmodifiableSet(acceptiongStateSet);
+                unmodifiableSet(acceptingStateSet);
     }
     
     public void clear() {
-        acceptiongStateSet.clear();
+        acceptingStateSet.clear();
     }
 }

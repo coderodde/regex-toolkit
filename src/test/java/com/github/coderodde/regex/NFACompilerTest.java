@@ -8,13 +8,26 @@ import static org.junit.Assert.*;
 public class NFACompilerTest {
     
     @Test
-    public void testOnValidRegex1() {
+    public void onSingleCharacterRegex() {
         NondeterministicFiniteAutomaton nfa = getNFA("a");
         
         assertTrue(nfa.matches("a"));
         
         assertFalse(nfa.matches(""));
         assertFalse(nfa.matches("aa"));
+        assertFalse(nfa.matches("ab"));
+        assertFalse(nfa.matches("b"));
+    }
+    
+    @Test
+    public void onUnionRegex() {
+        NondeterministicFiniteAutomaton nfa = getNFA("b|c");
+        
+        assertTrue(nfa.matches("b"));
+        assertTrue(nfa.matches("c"));
+        
+        assertFalse(nfa.matches("a"));
+        assertFalse(nfa.matches("bc"));
     }
     
     private static NondeterministicFiniteAutomaton getNFA(String regex) {

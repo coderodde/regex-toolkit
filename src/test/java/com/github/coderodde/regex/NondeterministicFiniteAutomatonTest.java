@@ -16,13 +16,13 @@ public class NondeterministicFiniteAutomatonTest {
                 new NondeterministicFiniteAutomaton();
         
         NondeterministicFiniteAutomatonState q0 = 
-                new NondeterministicFiniteAutomatonState("q0");
+                new NondeterministicFiniteAutomatonState(0);
         
         NondeterministicFiniteAutomatonState q1 = 
-                new NondeterministicFiniteAutomatonState("q1");
+                new NondeterministicFiniteAutomatonState(1);
         
         NondeterministicFiniteAutomatonState q2 = 
-                new NondeterministicFiniteAutomatonState("q2");
+                new NondeterministicFiniteAutomatonState(2);
         
         nfa.setInitialState(q0);
         
@@ -54,16 +54,16 @@ public class NondeterministicFiniteAutomatonTest {
                 new NondeterministicFiniteAutomaton();
         
         NondeterministicFiniteAutomatonState q0 = 
-                new NondeterministicFiniteAutomatonState("0");
+                new NondeterministicFiniteAutomatonState(0);
         
         NondeterministicFiniteAutomatonState q1 = 
-                new NondeterministicFiniteAutomatonState("1");
+                new NondeterministicFiniteAutomatonState(1);
         
         NondeterministicFiniteAutomatonState q2 = 
-                new NondeterministicFiniteAutomatonState("2");
+                new NondeterministicFiniteAutomatonState(2);
         
         NondeterministicFiniteAutomatonState q3 = 
-                new NondeterministicFiniteAutomatonState("3");
+                new NondeterministicFiniteAutomatonState(3);
         
         nfa.setInitialState(q0);
         

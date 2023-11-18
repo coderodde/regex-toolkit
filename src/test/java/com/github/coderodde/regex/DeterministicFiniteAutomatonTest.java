@@ -8,13 +8,13 @@ public class DeterministicFiniteAutomatonTest {
     @Test
     public void on10DFA() {
         DeterministicFiniteAutomatonState q0 = 
-                new DeterministicFiniteAutomatonState("q0");
+                new DeterministicFiniteAutomatonState(0);
         
         DeterministicFiniteAutomatonState q1 = 
-                new DeterministicFiniteAutomatonState("q1");
+                new DeterministicFiniteAutomatonState(1);
         
         DeterministicFiniteAutomatonState q2 = 
-                new DeterministicFiniteAutomatonState("q2");
+                new DeterministicFiniteAutomatonState(2);
         
         DeterministicFiniteAutomaton dfa = new DeterministicFiniteAutomaton();
         
@@ -41,10 +41,10 @@ public class DeterministicFiniteAutomatonTest {
     @Test
     public void on10DFA2() {
         DeterministicFiniteAutomatonState a = 
-                new DeterministicFiniteAutomatonState("a");
+                new DeterministicFiniteAutomatonState(0);
         
         DeterministicFiniteAutomatonState b = 
-                new DeterministicFiniteAutomatonState("b");
+                new DeterministicFiniteAutomatonState(1);
         
         DeterministicFiniteAutomaton dfa = new DeterministicFiniteAutomaton();
         

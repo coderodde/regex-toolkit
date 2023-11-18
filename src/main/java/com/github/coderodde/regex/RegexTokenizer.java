@@ -2,6 +2,7 @@ package com.github.coderodde.regex;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This class implements regex tokenizer. The idea behind tokenization is to
@@ -25,6 +26,11 @@ public final class RegexTokenizer {
      * @return the list of {@link RegexToken} objects.
      */
     public List<RegexToken> tokenize(String regex) {
+        Utils.validateRegularExpressionParentheses(
+                Objects.requireNonNull(
+                        regex, "The input regular expression is null.")
+        );
+        
         List<RegexToken> tokens = new ArrayList<>();
         char previousCharacter = '\0';
         

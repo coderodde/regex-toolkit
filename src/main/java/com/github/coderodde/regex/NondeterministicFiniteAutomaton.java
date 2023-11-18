@@ -30,6 +30,10 @@ public final class NondeterministicFiniteAutomaton {
                   transitionFunction = 
               new NondeterministicFiniteAutomatonTransitionFunction();
     
+    public NondeterministicFiniteAutomatonState getInititalState() {
+        return initialState;
+    }
+    
     public void setInitialState(
             NondeterministicFiniteAutomatonState initialState) {
         this.initialState = 
@@ -145,11 +149,11 @@ public final class NondeterministicFiniteAutomaton {
         Set<NondeterministicFiniteAutomatonState> largeSet;
         
         if (finalStateSet.size() < 
-                acceptingStateSet.getAcceptingStateSet().size()) {
+                acceptingStateSet.getStates().size()) {
             smallSet = finalStateSet;
-            largeSet = acceptingStateSet.getAcceptingStateSet();
+            largeSet = acceptingStateSet.getStates();
         } else {
-            smallSet = acceptingStateSet.getAcceptingStateSet();
+            smallSet = acceptingStateSet.getStates();
             largeSet = finalStateSet;
         }
         

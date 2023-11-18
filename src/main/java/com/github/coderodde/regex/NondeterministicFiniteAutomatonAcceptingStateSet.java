@@ -33,7 +33,7 @@ public class NondeterministicFiniteAutomatonAcceptingStateSet {
         return true;
     }
     
-    public Set<NondeterministicFiniteAutomatonState> getAcceptingStateSet() {
+    public Set<NondeterministicFiniteAutomatonState> getStates() {
         return Collections.<NondeterministicFiniteAutomatonState>
                 unmodifiableSet(acceptiongStateSet);
     }

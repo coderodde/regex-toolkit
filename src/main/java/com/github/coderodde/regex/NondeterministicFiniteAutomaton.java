@@ -19,9 +19,6 @@ public final class NondeterministicFiniteAutomaton {
     
     private NondeterministicFiniteAutomatonState initialState;
     
-    private final NondeterministicFiniteAutomatonStateSet stateSet = 
-              new NondeterministicFiniteAutomatonStateSet();
-    
     private final NondeterministicFiniteAutomatonAcceptingStateSet 
                   acceptingStateSet = 
               new NondeterministicFiniteAutomatonAcceptingStateSet();
@@ -40,12 +37,6 @@ public final class NondeterministicFiniteAutomaton {
                 Objects.requireNonNull(
                         initialState,
                         "The input initial state is null.");
-        
-        stateSet.addNondeterministicFiniteAutomatonState(initialState);
-    }
-    
-    public NondeterministicFiniteAutomatonStateSet getStateSet() {
-        return stateSet;
     }
     
     public NondeterministicFiniteAutomatonAcceptingStateSet 

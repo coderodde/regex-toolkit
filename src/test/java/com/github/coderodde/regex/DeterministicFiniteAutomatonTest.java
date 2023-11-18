@@ -20,8 +20,6 @@ public class DeterministicFiniteAutomatonTest {
         
         dfa.setInitialState(q0);
         
-        dfa.getStateSet().addDeterministicFiniteAutomatonState(q1);
-        dfa.getStateSet().addDeterministicFiniteAutomatonState(q2);
         dfa.getAcceptingStateSet().addDeterministicFiniteAutomatonState(q2);
         
         dfa.getTransitionFunction().connect(q0, q0, '1');
@@ -52,8 +50,6 @@ public class DeterministicFiniteAutomatonTest {
         
         dfa.setInitialState(a);
         
-        dfa.getStateSet().addDeterministicFiniteAutomatonState(a);
-        dfa.getStateSet().addDeterministicFiniteAutomatonState(b);
         dfa.getAcceptingStateSet().addDeterministicFiniteAutomatonState(b);
         
         dfa.getTransitionFunction().connect(a, a, '1');

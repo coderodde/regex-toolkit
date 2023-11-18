@@ -17,12 +17,6 @@ public final class DeterministicFiniteAutomaton {
     private DeterministicFiniteAutomatonState initialState;
     
     /**
-     * The total set of states. Contains also accepting states.
-     */
-    private final DeterministicFiniteAutomatonStateSet stateSet = 
-              new DeterministicFiniteAutomatonStateSet();
-    
-    /**
      * The set of accepting states.
      */
     private final DeterministicFiniteAutomatonAcceptingStateSet 
@@ -42,17 +36,6 @@ public final class DeterministicFiniteAutomaton {
                 Objects.requireNonNull(
                         initialState,
                         "The input initial state is null.");
-    
-        this.stateSet.addDeterministicFiniteAutomatonState(initialState);
-    }
-    
-    /**
-     * Exposes the state set.
-     * 
-     * @return the state set. 
-     */
-    public DeterministicFiniteAutomatonStateSet getStateSet() {
-        return stateSet;
     }
     
     /**

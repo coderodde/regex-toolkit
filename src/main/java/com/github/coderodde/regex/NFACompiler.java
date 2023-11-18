@@ -12,33 +12,37 @@ import java.util.Deque;
  * @version 1.6 (Nov 17, 2023)
  * @since 1.6 (Nov 17, 2023)
  */
-public final class NFAConstructor {
+public final class NFACompiler {
     
     private int stateCounter = 0;
     private final Deque<RegexToken> postfixRegex;
     private final Deque<NondeterministicFiniteAutomaton> nfaStack =
             new ArrayDeque<>();
     
-    private NFAConstructor(Deque<RegexToken> postfixRegex) {
+    private NFACompiler(Deque<RegexToken> postfixRegex) {
         this.postfixRegex = postfixRegex;
     }
     
-    public NFAConstructor() {
+    public NFACompiler() {
         this.postfixRegex = null;
     }
     
     public NondeterministicFiniteAutomaton
         construct(Deque<RegexToken> postfixRegex) {
-        return new NFAConstructor(postfixRegex).constructImpl();
+        return new NFACompiler(postfixRegex).compileImpl();
     }
          
-    private NondeterministicFiniteAutomaton constructImpl() {
+    /**
+     * This method compiles the input postfix regular expression into a NFA. 
+     * This algorithm is known as 
+     * <a href="https://en.wikipedia.org/wiki/Thompson%27s_construction">Thompson's construction</a>.
+     * 
+     * @return an {@code NondeterministicFiniteAutomaton} recognizing the same 
+     *         language as the input postfix regex.
+     */
+    private NondeterministicFiniteAutomaton compileImpl() {
         while (true) {
             RegexToken token = postfixRegex.removeFirst();
-            
-            if (postfixRegex.isEmpty()) {
-                return null;
-            }
             
             switch (token.getTokenType()) {
                 case CHARACTER:
@@ -61,6 +65,10 @@ public final class NFAConstructor {
                     throw new IllegalArgumentException(
                             "Unknown regex token type: " + token);
             }
+            
+            if (postfixRegex.isEmpty()) {
+                return nfaStack.getLast();
+            }
         }
     }
         
@@ -70,7 +78,6 @@ public final class NFAConstructor {
         
         NondeterministicFiniteAutomatonState initialState = 
                 new NondeterministicFiniteAutomatonState(getNextStateName());
-        
         
         NondeterministicFiniteAutomatonState acceptingState = 
                 new NondeterministicFiniteAutomatonState(getNextStateName());
@@ -84,6 +91,8 @@ public final class NFAConstructor {
            .connect(initialState, 
                     acceptingState, 
                     token.getCharacter());
+        
+        nfaStack.addLast(nfa);
     }
     
     private void processUnion() {

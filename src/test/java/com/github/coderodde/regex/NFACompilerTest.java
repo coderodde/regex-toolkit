@@ -5,9 +5,9 @@ import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class NFAConstructorTest {
+public class NFACompilerTest {
     
-//    @Test
+    @Test
     public void testOnValidRegex1() {
         NondeterministicFiniteAutomaton nfa = getNFA("a");
         
@@ -22,6 +22,6 @@ public class NFAConstructorTest {
         Deque<RegexToken> postfixTokens = 
                 new RegexInfixToPostfixConverter().convert(infixTokens);
         
-        return new NFAConstructor().construct(postfixTokens);
+        return new NFACompiler().construct(postfixTokens);
     }
 }

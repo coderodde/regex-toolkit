@@ -10,12 +10,18 @@ package com.github.coderodde.regex;
 public final class NondeterministicFiniteAutomatonState 
         extends DeterministicFiniteAutomatonState {
     
+    final NondeterministicFiniteAutomatonTransitionFunction transitionFunction;
+    
     /**
      * Constructs a state for a nondeterministic finite automaton.
      * 
      * @param id the ID of the state.
      */
-    public NondeterministicFiniteAutomatonState(int id) {
+    NondeterministicFiniteAutomatonState(
+            int id, 
+            NondeterministicFiniteAutomatonTransitionFunction 
+                    transitionFunction) {
         super(id);
+        this.transitionFunction = transitionFunction;
     }
 }

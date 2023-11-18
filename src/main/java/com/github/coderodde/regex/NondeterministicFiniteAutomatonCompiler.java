@@ -12,24 +12,26 @@ import java.util.Deque;
  * @version 1.6 (Nov 17, 2023)
  * @since 1.6 (Nov 17, 2023)
  */
-public final class NFACompiler {
+public final class NondeterministicFiniteAutomatonCompiler {
     
     private int stateCounter = 0;
     private final Deque<RegexToken> postfixRegex;
     private final Deque<NondeterministicFiniteAutomaton> nfaStack =
             new ArrayDeque<>();
     
-    private NFACompiler(Deque<RegexToken> postfixRegex) {
+    private NondeterministicFiniteAutomatonCompiler(
+            Deque<RegexToken> postfixRegex) {
         this.postfixRegex = postfixRegex;
     }
     
-    public NFACompiler() {
+    public NondeterministicFiniteAutomatonCompiler() {
         this.postfixRegex = null;
     }
     
     public NondeterministicFiniteAutomaton
         construct(Deque<RegexToken> postfixRegex) {
-        return new NFACompiler(postfixRegex).compileImpl();
+        return new NondeterministicFiniteAutomatonCompiler(postfixRegex)
+                .compileImpl();
     }
          
     /**
@@ -77,10 +79,14 @@ public final class NFACompiler {
                 new NondeterministicFiniteAutomaton();
         
         NondeterministicFiniteAutomatonState initialState = 
-                new NondeterministicFiniteAutomatonState(getNextStateName());
+                new NondeterministicFiniteAutomatonState(
+                        getNextStateName(), 
+                        null);
         
         NondeterministicFiniteAutomatonState acceptingState = 
-                new NondeterministicFiniteAutomatonState(getNextStateName());
+                new NondeterministicFiniteAutomatonState(
+                        getNextStateName(),
+                        null);
         
         nfa.setInitialState(initialState);
         
@@ -111,10 +117,14 @@ public final class NFACompiler {
                 new NondeterministicFiniteAutomaton();
         
         NondeterministicFiniteAutomatonState initialState = 
-                new NondeterministicFiniteAutomatonState(getNextStateName());
+                new NondeterministicFiniteAutomatonState(
+                        getNextStateName(),
+                        null);
         
         NondeterministicFiniteAutomatonState acceptingState =
-                new NondeterministicFiniteAutomatonState(getNextStateName());
+                new NondeterministicFiniteAutomatonState(
+                        getNextStateName(),
+                        null);
         
         resultNFA.setInitialState(initialState);
         resultNFA.getAcceptingStateSet()
@@ -141,6 +151,9 @@ public final class NFACompiler {
             resultNFA.getTransitionFunction()
                      .addEpsilonConnection(as, acceptingState);
         }
+        
+        nfa1.getAcceptingStateSet().clear();
+        nfa2.getAcceptingStateSet().clear();
         
         nfaStack.addLast(resultNFA);
     }
@@ -192,10 +205,14 @@ public final class NFACompiler {
     
     private void processKleeneStar() {
         NondeterministicFiniteAutomatonState resultNFAInitialState = 
-                new NondeterministicFiniteAutomatonState(getNextStateName());
+                new NondeterministicFiniteAutomatonState(
+                        getNextStateName(), 
+                        null);
         
         NondeterministicFiniteAutomatonState resultNFAAcceptingState = 
-                new NondeterministicFiniteAutomatonState(getNextStateName());
+                new NondeterministicFiniteAutomatonState(
+                        getNextStateName(), 
+                        null);
         
         NondeterministicFiniteAutomaton automaton = nfaStack.removeLast();
         

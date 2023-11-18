@@ -15,14 +15,17 @@ public class NondeterministicFiniteAutomatonTest {
         NondeterministicFiniteAutomaton nfa =
                 new NondeterministicFiniteAutomaton();
         
+        NondeterministicFiniteAutomatonTransitionFunction transitionFunction = 
+                new NondeterministicFiniteAutomatonTransitionFunction();
+        
         NondeterministicFiniteAutomatonState q0 = 
-                new NondeterministicFiniteAutomatonState(0);
+                new NondeterministicFiniteAutomatonState(0, transitionFunction);
         
         NondeterministicFiniteAutomatonState q1 = 
-                new NondeterministicFiniteAutomatonState(1);
+                new NondeterministicFiniteAutomatonState(1, transitionFunction);
         
         NondeterministicFiniteAutomatonState q2 = 
-                new NondeterministicFiniteAutomatonState(2);
+                new NondeterministicFiniteAutomatonState(2, transitionFunction);
         
         nfa.setInitialState(q0);
         
@@ -53,17 +56,20 @@ public class NondeterministicFiniteAutomatonTest {
         NondeterministicFiniteAutomaton nfa = 
                 new NondeterministicFiniteAutomaton();
         
+        NondeterministicFiniteAutomatonTransitionFunction transitionFunction = 
+                new NondeterministicFiniteAutomatonTransitionFunction();
+        
         NondeterministicFiniteAutomatonState q0 = 
-                new NondeterministicFiniteAutomatonState(0);
+                new NondeterministicFiniteAutomatonState(0, transitionFunction);
         
         NondeterministicFiniteAutomatonState q1 = 
-                new NondeterministicFiniteAutomatonState(1);
+                new NondeterministicFiniteAutomatonState(1, transitionFunction);
         
         NondeterministicFiniteAutomatonState q2 = 
-                new NondeterministicFiniteAutomatonState(2);
+                new NondeterministicFiniteAutomatonState(2, transitionFunction);
         
         NondeterministicFiniteAutomatonState q3 = 
-                new NondeterministicFiniteAutomatonState(3);
+                new NondeterministicFiniteAutomatonState(3, transitionFunction);
         
         nfa.setInitialState(q0);
         

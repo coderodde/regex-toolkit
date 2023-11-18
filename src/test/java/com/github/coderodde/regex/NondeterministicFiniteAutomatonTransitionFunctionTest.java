@@ -13,13 +13,13 @@ public class NondeterministicFiniteAutomatonTransitionFunctionTest {
                 new NondeterministicFiniteAutomatonTransitionFunction();
         
         NondeterministicFiniteAutomatonState state1 = 
-                new NondeterministicFiniteAutomatonState(0);
+                new NondeterministicFiniteAutomatonState(0, null);
         
         NondeterministicFiniteAutomatonState state2 = 
-                new NondeterministicFiniteAutomatonState(1);
+                new NondeterministicFiniteAutomatonState(1, null);
         
         NondeterministicFiniteAutomatonState state3 = 
-                new NondeterministicFiniteAutomatonState(2);
+                new NondeterministicFiniteAutomatonState(2, null);
         
         assertNull(
                 transitionFunction.runTransition(state1, Character.MIN_VALUE));

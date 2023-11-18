@@ -17,11 +17,13 @@ public final class NFAConstructor {
     private final Deque<NondeterministicFiniteAutomaton> nfaStack =
             new ArrayDeque<>();
     
+    private NFAConstructor(Deque<RegexToken> postfixRegex) {
+        this.postfixRegex = postfixRegex;
+    }
+    
     public NondeterministicFiniteAutomaton
-         construct(Deque<RegexToken> postfixRegex) {
-        NFAConstructor nfaConstructor = new NFAConstructor();
-        nfaConstructor.postfixRegex = postfixRegex;
-        return nfaConstructor.constructImpl(); 
+        construct(Deque<RegexToken> postfixRegex) {
+        return new NFAConstructor(postfixRegex).constructImpl();
     }
          
     private NondeterministicFiniteAutomaton constructImpl() {

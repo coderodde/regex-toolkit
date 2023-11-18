@@ -37,4 +37,8 @@ public class NondeterministicFiniteAutomatonAcceptingStateSet {
         return Collections.<NondeterministicFiniteAutomatonState>
                 unmodifiableSet(acceptiongStateSet);
     }
+    
+    public void clear() {
+        acceptiongStateSet.clear();
+    }
 }

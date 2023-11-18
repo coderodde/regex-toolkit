@@ -5,6 +5,8 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 /**
+ * This class provides a method for converting regular expressions in postfix
+ * notation into NFAs.
  * 
  * @author Rodion "rodde" Efremov
  * @version 1.6 (Nov 17, 2023)
@@ -12,8 +14,8 @@ import java.util.Deque;
  */
 public final class NFAConstructor {
     
-    private Deque<RegexToken> postfixRegex;
     private int stateCounter = 0;
+    private final Deque<RegexToken> postfixRegex;
     private final Deque<NondeterministicFiniteAutomaton> nfaStack =
             new ArrayDeque<>();
     
@@ -42,6 +44,14 @@ public final class NFAConstructor {
                 case UNION:
                     processUnion();
                     break;
+                    
+                case KLEENE_STAR:
+                    processKleeneStar();
+                    break;
+                    
+                default:
+                    throw new IllegalArgumentException(
+                            "Unknown regex token type: " + token);
             }
         }
         
@@ -141,13 +151,19 @@ public final class NFAConstructor {
         NondeterministicFiniteAutomaton resultNFA =
                 new NondeterministicFiniteAutomaton();
         
-        resultNFA.setInitialState(nfa1.getInititalState());
+        NondeterministicFiniteAutomatonState resultNFAInitialState = 
+                nfa1.getInititalState();
+        
+        NondeterministicFiniteAutomatonState resultNFAAcceptingState = 
+                nfa2.getAcceptingStateSet()
+                    .getStates()
+                    .iterator()
+                    .next();
+        
+        resultNFA.setInitialState(resultNFAInitialState);
         resultNFA.getAcceptingStateSet()
                  .addNondeterministicFiniteAutomatonState(
-                         nfa2.getAcceptingStateSet()
-                             .getStates()
-                             .iterator()
-                             .next());
+                         resultNFAAcceptingState);
         
         NondeterministicFiniteAutomatonState nfa1AcceptingState = 
                 nfa1.getAcceptingStateSet()
@@ -155,10 +171,65 @@ public final class NFAConstructor {
                     .iterator()
                     .next();
         
-        nfa2.setInitialState(nfa1AcceptingState);
+        NondeterministicFiniteAutomatonState nfa2InitialState = 
+                nfa2.getInititalState();
         
-        nfa1.getTransitionFunction().connect(nfa1AcceptingState, nfa1.getInititalState(), Character.MIN_VALUE);
+        resultNFA.getTransitionFunction()
+                 .addEpsilonConnection(nfa1AcceptingState, 
+                                       nfa2InitialState);
         
+        nfaStack.addLast(resultNFA);
+    }
+    
+    private void processKleeneStar() {
+        NondeterministicFiniteAutomatonState resultNFAInitialState = 
+                new NondeterministicFiniteAutomatonState(getNextStateName());
+        
+        NondeterministicFiniteAutomatonState resultNFAAcceptingState = 
+                new NondeterministicFiniteAutomatonState(getNextStateName());
+        
+        NondeterministicFiniteAutomaton automaton = nfaStack.removeLast();
+        
+        NondeterministicFiniteAutomatonState automatonInitialState = 
+                automaton.getInititalState();
+        
+        NondeterministicFiniteAutomatonState automatonAcceptingState = 
+                automaton.getAcceptingStateSet().getStates().iterator().next();
+        
+        automaton.getAcceptingStateSet().clear();
+        
+        NondeterministicFiniteAutomaton resultNFA = 
+                new NondeterministicFiniteAutomaton();
+        
+        resultNFA.setInitialState(resultNFAInitialState);
+        resultNFA.getAcceptingStateSet()
+                 .addNondeterministicFiniteAutomatonState(resultNFAAcceptingState);
+        
+        resultNFA.getStateSet()
+                 .addNondeterministicFiniteAutomatonState(
+                         resultNFAAcceptingState);
+        
+        resultNFA.getStateSet()
+                 .addNondeterministicFiniteAutomatonState(
+                         automatonInitialState);
+        
+        resultNFA.getStateSet()
+                 .addNondeterministicFiniteAutomatonState(
+                         automatonAcceptingState);
+        
+        resultNFA.getTransitionFunction()
+                 .addEpsilonConnection(resultNFAInitialState,
+                                       automatonInitialState);
+        
+        resultNFA.getTransitionFunction()
+                 .addEpsilonConnection(automatonAcceptingState, 
+                                       resultNFAAcceptingState);
+        
+        resultNFA.getTransitionFunction()
+                 .addEpsilonConnection(automatonAcceptingState, 
+                                       automatonInitialState);
+        
+        nfaStack.addLast(resultNFA);
     }
     
     private String getNextStateName() {

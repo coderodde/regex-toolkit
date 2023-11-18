@@ -36,6 +36,10 @@ public final class NFAConstructor {
                 case CONCATENATION:
                     processConcatenation();
                     break;
+                    
+                case UNION:
+                    processUnion();
+                    break;
             }
         }
         
@@ -67,6 +71,59 @@ public final class NFAConstructor {
                     token.getCharacter());
     }
     
+    private void processUnion() {
+        if (nfaStack.isEmpty()) {
+            throw new InvalidRegexException();
+        }
+        
+        NondeterministicFiniteAutomaton nfa1 = nfaStack.removeLast();
+        
+        if (nfaStack.isEmpty()) {
+            throw new InvalidRegexException();
+        }
+        
+        NondeterministicFiniteAutomaton nfa2 = nfaStack.removeLast();
+        NondeterministicFiniteAutomaton resultNFA =
+                new NondeterministicFiniteAutomaton();
+        
+        NondeterministicFiniteAutomatonState initialState = 
+                new NondeterministicFiniteAutomatonState(getNextStateName());
+        
+        NondeterministicFiniteAutomatonState acceptingState =
+                new NondeterministicFiniteAutomatonState(getNextStateName());
+        
+        resultNFA.setInitialState(initialState);
+        resultNFA.getAcceptingStateSet()
+                 .addNondeterministicFiniteAutomatonState(acceptingState);
+        
+        resultNFA.getStateSet()
+                 .addNondeterministicFiniteAutomatonState(acceptingState);
+        
+        resultNFA.getTransitionFunction()
+                 .addEpsilonConnection(initialState, 
+                                       nfa1.getInititalState());
+        resultNFA.getTransitionFunction()
+                 .addEpsilonConnection(initialState, 
+                                       nfa2.getInititalState());
+        
+        // TODO: remove for?
+        for (NondeterministicFiniteAutomatonState as : 
+                nfa1.getAcceptingStateSet().getStates()) {
+            
+            resultNFA.getTransitionFunction()
+                     .addEpsilonConnection(as, acceptingState);
+        }
+        
+        for (NondeterministicFiniteAutomatonState as :
+                nfa2.getAcceptingStateSet().getStates()) {
+            
+            resultNFA.getTransitionFunction()
+                     .addEpsilonConnection(as, acceptingState);
+        }
+        
+        nfaStack.addLast(resultNFA);
+    }
+    
     private void processConcatenation() {
         if (nfaStack.isEmpty()) {
             throw new InvalidRegexException();
@@ -82,9 +139,24 @@ public final class NFAConstructor {
         NondeterministicFiniteAutomaton resultNFA =
                 new NondeterministicFiniteAutomaton();
         
+        resultNFA.setInitialState(nfa1.getInititalState());
+        resultNFA.getAcceptingStateSet()
+                 .addNondeterministicFiniteAutomatonState(
+                         nfa2.getAcceptingStateSet()
+                             .getStates()
+                             .iterator()
+                             .next());
         
+        NondeterministicFiniteAutomatonState nfa1AcceptingState = 
+                nfa1.getAcceptingStateSet()
+                    .getStates()
+                    .iterator()
+                    .next();
         
-        nfaStack.addLast(resultNFA);
+        nfa2.setInitialState(nfa1AcceptingState);
+        
+        nfa1.getTransitionFunction().connect(nfa1AcceptingState, nfa1.getInititalState(), Character.MIN_VALUE);
+        
     }
     
     private String getNextStateName() {

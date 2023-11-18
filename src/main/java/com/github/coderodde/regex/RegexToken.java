@@ -41,7 +41,7 @@ public final class RegexToken {
             case CONCATENATION:
                 return "o";
                 
-            case KLEEN_STAR:
+            case KLEENE_STAR:
                 return "*";
                 
             case LEFT_PARENTHESIS:

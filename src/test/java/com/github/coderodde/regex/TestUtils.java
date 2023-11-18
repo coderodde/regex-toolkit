@@ -15,7 +15,7 @@ class TestUtils {
     }
     
     static RegexToken getKleeneStar() {
-        return new RegexToken(RegexTokenType.KLEEN_STAR);
+        return new RegexToken(RegexTokenType.KLEENE_STAR);
     }
     
     static RegexToken getLeftParenthesis() {

@@ -11,22 +11,22 @@ import static org.junit.Assert.*;
 
 public class UtilsTest {
     
-    @Test(expected = BadRegexException.class)
+    @Test(expected = InvalidRegexException.class)
     public void throwsOnValidateRegularExpressionParentheses1() {
         Utils.validateRegularExpressionParentheses("(");
     }
     
-    @Test(expected = BadRegexException.class)
+    @Test(expected = InvalidRegexException.class)
     public void throwsOnValidateRegularExpressionParentheses2() {
         Utils.validateRegularExpressionParentheses("((");
     }
     
-    @Test(expected = BadRegexException.class)
+    @Test(expected = InvalidRegexException.class)
     public void throwsOnValidateRegularExpressionParentheses3() {
         Utils.validateRegularExpressionParentheses(")(");
     }
     
-    @Test(expected = BadRegexException.class)
+    @Test(expected = InvalidRegexException.class)
     public void throwsOnValidateRegularExpressionParentheses4() {
         Utils.validateRegularExpressionParentheses(")a(");
     }

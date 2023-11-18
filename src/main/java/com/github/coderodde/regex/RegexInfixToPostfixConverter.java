@@ -35,7 +35,7 @@ public final class RegexInfixToPostfixConverter {
         for (RegexToken regexToken : infixRegex) {
             switch (regexToken.getTokenType()) {
                 case CHARACTER:
-                case KLEEN_STAR:
+                case KLEENE_STAR:
                     output.addLast(regexToken);
                     break;
                     
@@ -61,7 +61,7 @@ public final class RegexInfixToPostfixConverter {
             RegexToken topToken = operatorStack.removeLast();
 
             if (topToken.getTokenType() == RegexTokenType.LEFT_PARENTHESIS) {
-                throw new BadRegexException();
+                throw new InvalidRegexException();
             }
 
             output.addLast(topToken);
@@ -139,19 +139,19 @@ public final class RegexInfixToPostfixConverter {
         }
         
         if (operatorStack.isEmpty()) {
-            throw new BadRegexException();
+            throw new InvalidRegexException();
         }
         
         RegexToken topToken = operatorStack.removeLast();
         
         if (topToken.getTokenType() != RegexTokenType.LEFT_PARENTHESIS) {
-            throw new BadRegexException();
+            throw new InvalidRegexException();
         }
     }
     
     private static int getOperatorPrecedence(RegexTokenType tokenType) {
         switch (tokenType) {
-            case KLEEN_STAR:
+            case KLEENE_STAR:
                 return 2;
                 
             case CONCATENATION:

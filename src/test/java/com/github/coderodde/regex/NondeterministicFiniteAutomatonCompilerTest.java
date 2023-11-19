@@ -31,6 +31,35 @@ public class NondeterministicFiniteAutomatonCompilerTest {
     }
     
     @Test
+    public void onKleeneStarOverSingleChar() {
+        NondeterministicFiniteAutomaton nfa = getNFA("1*");
+        
+        assertTrue(nfa.matches(""));
+        assertTrue(nfa.matches("1"));
+        assertTrue(nfa.matches("11"));
+        assertTrue(nfa.matches("111"));
+        
+        assertFalse(nfa.matches("0"));
+        assertFalse(nfa.matches("10"));
+        assertFalse(nfa.matches("01"));
+    }
+    
+    @Test
+    public void onKleeneStar() {
+        NondeterministicFiniteAutomaton nfa = getNFA("(01)*");
+        
+        assertTrue(nfa.matches(""));
+        assertTrue(nfa.matches("01"));
+        assertTrue(nfa.matches("0101"));
+        assertTrue(nfa.matches("010101"));
+        
+        assertFalse(nfa.matches("0"));
+        assertFalse(nfa.matches("1"));
+        assertFalse(nfa.matches("10"));
+        assertFalse(nfa.matches("010"));
+    }
+    
+    @Test
     public void onTwoCharacterConcatenation() {
         NondeterministicFiniteAutomaton nfa = getNFA("aa");
         

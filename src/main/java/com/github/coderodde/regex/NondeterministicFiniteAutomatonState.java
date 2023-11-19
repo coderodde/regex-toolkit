@@ -1,5 +1,10 @@
 package com.github.coderodde.regex;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * This class implements the state in a non-deterministic finite automaton.
  * 
@@ -10,18 +15,41 @@ package com.github.coderodde.regex;
 public final class NondeterministicFiniteAutomatonState 
         extends DeterministicFiniteAutomatonState {
     
-    final NondeterministicFiniteAutomatonTransitionFunction transitionFunction;
+    private final Map<Character, 
+                      Set<NondeterministicFiniteAutomatonState>> map = 
+            new HashMap<>();
+    
+    private final Set<NondeterministicFiniteAutomatonState> epsilonSet = 
+            new HashSet<>();
     
     /**
      * Constructs a state for a nondeterministic finite automaton.
      * 
      * @param id the ID of the state.
      */
-    NondeterministicFiniteAutomatonState(
-            int id, 
-            NondeterministicFiniteAutomatonTransitionFunction 
-                    transitionFunction) {
+    NondeterministicFiniteAutomatonState(int id) {
         super(id);
-        this.transitionFunction = transitionFunction;
+    }
+    
+    void addTransition(Character character, 
+                       NondeterministicFiniteAutomatonState nextState) {
+        if (!map.containsKey(character)) {
+            map.put(character, new HashSet<>());
+        }
+            
+        map.get(character).add(nextState);
+    }
+    
+    void addEpsilonTransition(NondeterministicFiniteAutomatonState nextState) {
+        epsilonSet.add(nextState);
+    }
+    
+    Set<NondeterministicFiniteAutomatonState> 
+        getFollowingStates(Character character) {
+        return map.get(character);
+    }
+        
+    Set<NondeterministicFiniteAutomatonState> getEpsilonStates() {
+        return epsilonSet;
     }
 }

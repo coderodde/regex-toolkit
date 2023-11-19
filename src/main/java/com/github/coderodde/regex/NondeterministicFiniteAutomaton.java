@@ -20,10 +20,6 @@ public final class NondeterministicFiniteAutomaton {
     private NondeterministicFiniteAutomatonState initialState;
     private NondeterministicFiniteAutomatonState acceptingState;
     
-    private final NondeterministicFiniteAutomatonTransitionFunction
-                  transitionFunction = 
-              new NondeterministicFiniteAutomatonTransitionFunction();
-    
     public NondeterministicFiniteAutomatonState getInitialState() {
         return initialState;
     }
@@ -42,12 +38,7 @@ public final class NondeterministicFiniteAutomaton {
     
     public void setAcceptingState(
             NondeterministicFiniteAutomatonState acceptingState) {
-        this.acceptingState = Objects.requireNonNull(acceptingState, "fds");
-    }
-        
-    public NondeterministicFiniteAutomatonTransitionFunction 
-        getTransitionFunction() {
-        return transitionFunction;
+        this.acceptingState = acceptingState;
     }
         
     public boolean matches(String text) {
@@ -87,8 +78,8 @@ public final class NondeterministicFiniteAutomaton {
                     new HashSet<>();
         
             for (NondeterministicFiniteAutomatonState q : currentStates) {
-                Set<NondeterministicFiniteAutomatonState> nextState = 
-                        getTransitionFunction().runTransition(q, ch);
+                Set<NondeterministicFiniteAutomatonState> nextState =
+                        q.getFollowingStates(ch);
                 
                 if (nextState != null) {
                     nextStates.addAll(nextState);
@@ -120,7 +111,7 @@ public final class NondeterministicFiniteAutomaton {
         while (!queue.isEmpty()) {
             NondeterministicFiniteAutomatonState state = queue.removeFirst();
             Set<NondeterministicFiniteAutomatonState> epsilonFollowerStates = 
-                    getTransitionFunction().getEpsilonFollowerStates(state);
+                    state.getEpsilonStates();
             
             for (NondeterministicFiniteAutomatonState s :
                     epsilonFollowerStates) {

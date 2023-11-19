@@ -19,7 +19,7 @@ public class NondeterministicFiniteAutomatonCompilerTest {
         assertFalse(nfa.matches("b"));
     }
     
-//    @Test
+    @Test
     public void onUnionRegex() {
         NondeterministicFiniteAutomaton nfa = getNFA("b|c");
         
@@ -35,6 +35,7 @@ public class NondeterministicFiniteAutomatonCompilerTest {
         Deque<RegexToken> postfixTokens = 
                 new RegexInfixToPostfixConverter().convert(infixTokens);
         
-        return new NondeterministicFiniteAutomatonCompiler().construct(postfixTokens);
+        return new NondeterministicFiniteAutomatonCompiler()
+                .construct(postfixTokens);
     }
 }

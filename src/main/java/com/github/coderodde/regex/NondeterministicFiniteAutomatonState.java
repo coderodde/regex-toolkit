@@ -15,8 +15,7 @@ import java.util.Set;
 public final class NondeterministicFiniteAutomatonState 
         extends DeterministicFiniteAutomatonState {
     
-    private final Map<Character, 
-                      Set<NondeterministicFiniteAutomatonState>> map = 
+    final Map<Character, Set<NondeterministicFiniteAutomatonState>> map = 
             new HashMap<>();
     
     private final Set<NondeterministicFiniteAutomatonState> epsilonSet = 

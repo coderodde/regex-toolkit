@@ -136,36 +136,45 @@ public final class NondeterministicFiniteAutomatonCompiler {
             throw new InvalidRegexException();
         }
         
-        NondeterministicFiniteAutomaton nfa1 = nfaStack.removeLast();
+        NondeterministicFiniteAutomaton nfa2 = nfaStack.removeLast();
         
         if (nfaStack.isEmpty()) {
             throw new InvalidRegexException();
         }
         
-        NondeterministicFiniteAutomaton nfa2 = nfaStack.removeLast();
+        NondeterministicFiniteAutomaton nfa1 = nfaStack.removeLast();
         NondeterministicFiniteAutomaton resultNFA =
                 new NondeterministicFiniteAutomaton();
         
-        NondeterministicFiniteAutomatonState resultNFAInitialState = 
-                nfa1.getInitialState();
+        resultNFA.setInitialState(nfa1.getInitialState());
+        resultNFA.setAcceptingState(nfa2.getAcceptingState());
         
-        NondeterministicFiniteAutomatonState resultNFAAcceptingState = 
-                nfa2.getAcceptingState();
-        
-        resultNFA.setInitialState(resultNFAInitialState);
-        resultNFA.setAcceptingState(resultNFAAcceptingState);
-        
-        NondeterministicFiniteAutomatonState nfa1AcceptingState = 
-                nfa1.getAcceptingState();
-        
-        NondeterministicFiniteAutomatonState nfa2InitialState = 
-                nfa2.getInitialState();
-        
-//        resultNFA.getTransitionFunction()
-//                 .addEpsilonConnection(nfa1AcceptingState, 
-//                                       nfa2InitialState);
+        nfa1.getAcceptingState().addEpsilonTransition(nfa2.getInitialState());
+        nfa1.setAcceptingState(null);
         
         nfaStack.addLast(resultNFA);
+//        
+//        
+//        NondeterministicFiniteAutomatonState resultNFAInitialState = 
+//                nfa1.getInitialState();
+//        
+//        NondeterministicFiniteAutomatonState resultNFAAcceptingState = 
+//                nfa2.getAcceptingState();
+//        
+//        resultNFA.setInitialState(resultNFAInitialState);
+//        resultNFA.setAcceptingState(resultNFAAcceptingState);
+//        
+//        NondeterministicFiniteAutomatonState nfa1AcceptingState = 
+//                nfa1.getAcceptingState();
+//        
+//        NondeterministicFiniteAutomatonState nfa2InitialState = 
+//                nfa2.getInitialState();
+//        
+//        nfa1.setAcceptingState(null);
+//        
+//        
+//        
+//        nfaStack.addLast(resultNFA);
     }
     
     private void processKleeneStar() {

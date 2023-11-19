@@ -23,13 +23,6 @@ public final class DeterministicFiniteAutomaton {
             acceptingStateSet = 
               new DeterministicFiniteAutomatonAcceptingStateSet();
     
-    /**
-     * The transition function.
-     */
-    private final DeterministicFiniteAutomatonTransitionFunction 
-            transitionFunction =
-            new DeterministicFiniteAutomatonTransitionFunction();
-    
     public void setInitialState(
             DeterministicFiniteAutomatonState initialState) {
         this.initialState =
@@ -46,16 +39,6 @@ public final class DeterministicFiniteAutomaton {
     public DeterministicFiniteAutomatonAcceptingStateSet
          getAcceptingStateSet() {
         return acceptingStateSet;
-    }
-        
-    /**
-     * Exposes the transition function.
-     * 
-     * @return the transition function. 
-     */
-    public DeterministicFiniteAutomatonTransitionFunction 
-        getTransitionFunction() {
-        return transitionFunction;
     }
     
     /**
@@ -92,10 +75,7 @@ public final class DeterministicFiniteAutomaton {
         DeterministicFiniteAutomatonState currentState = null;
         
         while (n > 0) {
-            currentState = 
-                    transitionFunction.runTransition(
-                            previousState, 
-                            text.charAt(textIndex));
+            currentState = previousState.traverse(text.charAt(textIndex));
             
             if (currentState == null) {
                 break;

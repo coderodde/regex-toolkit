@@ -22,12 +22,12 @@ public class DeterministicFiniteAutomatonTest {
         
         dfa.getAcceptingStateSet().addDeterministicFiniteAutomatonState(q2);
         
-        dfa.getTransitionFunction().connect(q0, q0, '1');
-        dfa.getTransitionFunction().connect(q0, q1, '0');
-        dfa.getTransitionFunction().connect(q1, q1, '0');
-        dfa.getTransitionFunction().connect(q1, q2, '1');
-        dfa.getTransitionFunction().connect(q2, q1, '0');
-        dfa.getTransitionFunction().connect(q2, q0, '1');
+        q0.addFollowerState('1', q0);
+        q0.addFollowerState('0', q1);
+        q1.addFollowerState('0', q1);
+        q1.addFollowerState('1', q2);
+        q2.addFollowerState('0', q1);
+        q2.addFollowerState('1', q0);
         
         assertTrue(dfa.matches("1001101"));
         assertTrue(dfa.matches("01"));
@@ -52,10 +52,10 @@ public class DeterministicFiniteAutomatonTest {
         
         dfa.getAcceptingStateSet().addDeterministicFiniteAutomatonState(b);
         
-        dfa.getTransitionFunction().connect(a, a, '1');
-        dfa.getTransitionFunction().connect(a, b, '0');
-        dfa.getTransitionFunction().connect(b, b, '0');
-        dfa.getTransitionFunction().connect(b, a, '1');
+        a.addFollowerState('1', a);
+        a.addFollowerState('0', b);
+        b.addFollowerState('0', b);
+        b.addFollowerState('1', a);
         
         assertTrue(dfa.matches("110"));
         assertTrue(dfa.matches("10"));

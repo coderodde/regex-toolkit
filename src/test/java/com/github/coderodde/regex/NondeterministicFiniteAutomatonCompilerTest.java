@@ -81,6 +81,20 @@ public class NondeterministicFiniteAutomatonCompilerTest {
         assertFalse(nfa.matches("aba"));
     }
     
+    @Test
+    public void onComplexRegex() {
+        NondeterministicFiniteAutomaton nfa = getNFA("a(ba)*|ab");
+        
+        assertTrue(nfa.matches("a"));
+        assertTrue(nfa.matches("ab"));
+        assertTrue(nfa.matches("aba"));
+        assertTrue(nfa.matches("ababa"));
+        assertTrue(nfa.matches("abababa"));
+        
+        assertFalse(nfa.matches("ba"));
+        assertFalse(nfa.matches("abab"));
+    }
+    
     private static NondeterministicFiniteAutomaton getNFA(String regex) {
         List<RegexToken> infixTokens = new RegexTokenizer().tokenize(regex);
         Deque<RegexToken> postfixTokens = 

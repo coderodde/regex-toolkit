@@ -1,7 +1,5 @@
 package com.github.coderodde.regex;
 
-import java.util.Objects;
-
 /**
  * This class models the state in deterministic finite automata (DFA for short).
  * 

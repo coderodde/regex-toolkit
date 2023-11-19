@@ -72,8 +72,7 @@ public class NondeterministicFiniteAutomatonTest {
                 new NondeterministicFiniteAutomatonState(3, transitionFunction);
         
         nfa.setInitialState(q0);
-        
-        nfa.getAcceptingStateSet().addNondeterministicFiniteAutomatonState(q3);
+        nfa.setAcceptingState(q3);
         
         NondeterministicFiniteAutomatonTransitionFunction f = 
                 nfa.getTransitionFunction();

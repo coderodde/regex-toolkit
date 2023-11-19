@@ -14,7 +14,7 @@ import java.util.Deque;
  */
 public final class NondeterministicFiniteAutomatonCompiler {
     
-    private int stateCounter = 0;
+    private int stateIDCounter = 0;
     private final Deque<RegexToken> postfixRegex;
     private final Deque<NondeterministicFiniteAutomaton> nfaStack =
             new ArrayDeque<>();
@@ -89,9 +89,7 @@ public final class NondeterministicFiniteAutomatonCompiler {
                         null);
         
         nfa.setInitialState(initialState);
-        
-        nfa.getAcceptingStateSet()
-           .addNondeterministicFiniteAutomatonState(acceptingState);
+        nfa.setAcceptingState(acceptingState);
         
         nfa.getTransitionFunction()
            .connect(initialState, 
@@ -127,33 +125,27 @@ public final class NondeterministicFiniteAutomatonCompiler {
                         null);
         
         resultNFA.setInitialState(initialState);
-        resultNFA.getAcceptingStateSet()
-                 .addNondeterministicFiniteAutomatonState(acceptingState);
+        resultNFA.setAcceptingState(acceptingState);
         
         resultNFA.getTransitionFunction()
-                 .addEpsilonConnection(initialState, 
-                                       nfa1.getInititalState());
+                 .addEpsilonConnection(
+                         initialState, 
+                         nfa1.getInitialState());
+        
         resultNFA.getTransitionFunction()
-                 .addEpsilonConnection(initialState, 
-                                       nfa2.getInititalState());
+                 .addEpsilonConnection(
+                         initialState, 
+                         nfa2.getInitialState());
         
-        // TODO: remove for?
-        for (NondeterministicFiniteAutomatonState as : 
-                nfa1.getAcceptingStateSet().getStates()) {
-            
-            resultNFA.getTransitionFunction()
-                     .addEpsilonConnection(as, acceptingState);
-        }
+        resultNFA.getTransitionFunction()
+                 .addEpsilonConnection(
+                         nfa1.getAcceptingState(), 
+                         acceptingState);
         
-        for (NondeterministicFiniteAutomatonState as :
-                nfa2.getAcceptingStateSet().getStates()) {
-            
-            resultNFA.getTransitionFunction()
-                     .addEpsilonConnection(as, acceptingState);
-        }
-        
-        nfa1.getAcceptingStateSet().clear();
-        nfa2.getAcceptingStateSet().clear();
+        resultNFA.getTransitionFunction()
+                 .addEpsilonConnection(
+                         nfa2.getAcceptingState(),
+                         acceptingState);
         
         nfaStack.addLast(resultNFA);
     }
@@ -174,27 +166,19 @@ public final class NondeterministicFiniteAutomatonCompiler {
                 new NondeterministicFiniteAutomaton();
         
         NondeterministicFiniteAutomatonState resultNFAInitialState = 
-                nfa1.getInititalState();
+                nfa1.getInitialState();
         
         NondeterministicFiniteAutomatonState resultNFAAcceptingState = 
-                nfa2.getAcceptingStateSet()
-                    .getStates()
-                    .iterator()
-                    .next();
+                nfa2.getAcceptingState();
         
         resultNFA.setInitialState(resultNFAInitialState);
-        resultNFA.getAcceptingStateSet()
-                 .addNondeterministicFiniteAutomatonState(
-                         resultNFAAcceptingState);
+        resultNFA.setAcceptingState(resultNFAAcceptingState);
         
         NondeterministicFiniteAutomatonState nfa1AcceptingState = 
-                nfa1.getAcceptingStateSet()
-                    .getStates()
-                    .iterator()
-                    .next();
+                nfa1.getAcceptingState();
         
         NondeterministicFiniteAutomatonState nfa2InitialState = 
-                nfa2.getInititalState();
+                nfa2.getInitialState();
         
         resultNFA.getTransitionFunction()
                  .addEpsilonConnection(nfa1AcceptingState, 
@@ -217,23 +201,23 @@ public final class NondeterministicFiniteAutomatonCompiler {
         NondeterministicFiniteAutomaton automaton = nfaStack.removeLast();
         
         NondeterministicFiniteAutomatonState automatonInitialState = 
-                automaton.getInititalState();
+                automaton.getInitialState();
         
         NondeterministicFiniteAutomatonState automatonAcceptingState = 
-                automaton.getAcceptingStateSet().getStates().iterator().next();
+                automaton.getAcceptingState();
         
-        automaton.getAcceptingStateSet().clear();
+        automaton.setAcceptingState(null);
         
         NondeterministicFiniteAutomaton resultNFA = 
                 new NondeterministicFiniteAutomaton();
         
         resultNFA.setInitialState(resultNFAInitialState);
-        resultNFA.getAcceptingStateSet()
-                 .addNondeterministicFiniteAutomatonState(resultNFAAcceptingState);
+        resultNFA.setAcceptingState(resultNFAAcceptingState);
         
         resultNFA.getTransitionFunction()
-                 .addEpsilonConnection(resultNFAInitialState,
-                                       automatonInitialState);
+                 .addEpsilonConnection(
+                         resultNFAInitialState,
+                         automatonInitialState);
         
         resultNFA.getTransitionFunction()
                  .addEpsilonConnection(automatonAcceptingState, 
@@ -247,6 +231,6 @@ public final class NondeterministicFiniteAutomatonCompiler {
     }
     
     private int getNextStateName() {
-        return stateCounter++;
+        return stateIDCounter++;
     }
 }

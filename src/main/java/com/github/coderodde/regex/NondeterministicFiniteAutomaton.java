@@ -18,17 +18,18 @@ import java.util.Set;
 public final class NondeterministicFiniteAutomaton {
     
     private NondeterministicFiniteAutomatonState initialState;
-    
-    private final NondeterministicFiniteAutomatonAcceptingStateSet 
-                  acceptingStateSet = 
-              new NondeterministicFiniteAutomatonAcceptingStateSet();
+    private NondeterministicFiniteAutomatonState acceptingState;
     
     private final NondeterministicFiniteAutomatonTransitionFunction
                   transitionFunction = 
               new NondeterministicFiniteAutomatonTransitionFunction();
     
-    public NondeterministicFiniteAutomatonState getInititalState() {
+    public NondeterministicFiniteAutomatonState getInitialState() {
         return initialState;
+    }
+    
+    public NondeterministicFiniteAutomatonState getAcceptingState() {
+        return acceptingState;
     }
     
     public void setInitialState(
@@ -39,9 +40,9 @@ public final class NondeterministicFiniteAutomaton {
                         "The input initial state is null.");
     }
     
-    public NondeterministicFiniteAutomatonAcceptingStateSet 
-        getAcceptingStateSet() {
-        return acceptingStateSet;
+    public void setAcceptingState(
+            NondeterministicFiniteAutomatonState acceptingState) {
+        this.acceptingState = Objects.requireNonNull(acceptingState, "fds");
     }
         
     public NondeterministicFiniteAutomatonTransitionFunction 
@@ -136,24 +137,6 @@ public final class NondeterministicFiniteAutomaton {
     
     private boolean isAcceptingStateSet(
             Set<NondeterministicFiniteAutomatonState> finalStateSet) {
-        Set<NondeterministicFiniteAutomatonState> smallSet;
-        Set<NondeterministicFiniteAutomatonState> largeSet;
-        
-        if (finalStateSet.size() < 
-                acceptingStateSet.getStates().size()) {
-            smallSet = finalStateSet;
-            largeSet = acceptingStateSet.getStates();
-        } else {
-            smallSet = acceptingStateSet.getStates();
-            largeSet = finalStateSet;
-        }
-        
-        for (NondeterministicFiniteAutomatonState state : smallSet) {
-            if (largeSet.contains(state)) {
-                return true;
-            }
-        }
-        
-        return false;
+        return finalStateSet.contains(acceptingState);
     }
 }

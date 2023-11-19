@@ -58,16 +58,14 @@ public class RegexTokenizerTest {
         assertEquals(expectedTokens, tokens);
     }
     
-    @Test
-    public void brokenParenthesesAreConcatenated() {
-        tokens = tokenizer.tokenize(")(");
-        expectedTokens = 
-                Arrays.asList(getRightParenthesis(),
-                              getConcatenation(),
-                              getLeftParenthesis());
-        
-        assertEquals(3, tokens.size());
-        assertEquals(expectedTokens, tokens);
+    @Test(expected = InvalidRegexException.class)
+    public void throwsOnBrokenParenthesesAreConcatenated() {
+        tokenizer.tokenize(")(");
+    }
+    
+    @Test(expected = InvalidRegexException.class) 
+    public void throwsOnBrokenComplexParentheses() {
+        tokenizer.tokenize("(()())(");
     }
     
     @Test
@@ -186,26 +184,14 @@ public class RegexTokenizerTest {
         assertEquals(expectedTokens, tokens);
     }
     
-    @Test
-    public void addConcatenationBeforeLeftParenthesis() {
-        tokens = tokenizer.tokenize("a(");
-        expectedTokens = 
-                Arrays.asList(getCharToken('a'),
-                              getConcatenation(),
-                              getLeftParenthesis());
-        
-        assertEquals(expectedTokens, tokens);
+    @Test(expected = InvalidRegexException.class)
+    public void throwsOnAddConcatenationBeforeLeftParenthesis() {
+        tokenizer.tokenize("a(");
     }
     
-    @Test
-    public void addConcatenationAfterKleeneStar() {
-        tokens = tokenizer.tokenize("*(");
-        expectedTokens = 
-                Arrays.asList(getKleeneStar(),
-                              getConcatenation(),
-                              getLeftParenthesis());
-        
-        assertEquals(expectedTokens, tokens);
+    @Test(expected = InvalidRegexException.class)
+    public void throwsOnAddConcatenationAfterKleeneStar() {
+        tokenizer.tokenize("*(");
     }
     
     @Test
@@ -220,13 +206,10 @@ public class RegexTokenizerTest {
         assertEquals(expectedTokens, tokens);
     }
     
-    @Test
-    public void addConcatenationAfterRightParenthesisAndBeforeCharacter() {
-        tokens = tokenizer.tokenize(")a");
-        expectedTokens = 
-                Arrays.asList(getRightParenthesis(),
-                              getConcatenation(),
-                              getCharToken('a'));
+    @Test(expected = InvalidRegexException.class)
+    public void
+         throwsOnAddConcatenationAfterRightParenthesisAndBeforeCharacter() {
+        tokenizer.tokenize(")a");
     }
     
     @Test

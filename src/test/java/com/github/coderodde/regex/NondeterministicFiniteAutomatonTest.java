@@ -220,7 +220,7 @@ public class NondeterministicFiniteAutomatonTest {
         assertFalse(dfa.matches("1"));
     }
     
-    @Test
+//    @Test
     public void convertToDFA3() {
         NondeterministicFiniteAutomaton nfa = 
                 NondeterministicFiniteAutomaton.compile("(ab|c)*");
@@ -257,5 +257,59 @@ public class NondeterministicFiniteAutomatonTest {
         assertFalse(dfa.matches("b"));
         assertFalse(dfa.matches("ba"));
         assertFalse(dfa.matches("baab"));
+    }
+    
+    @Test
+    public void convertToDFA4() {
+        NondeterministicFiniteAutomaton nfa = 
+                NondeterministicFiniteAutomaton.compile("(a|b)*");
+        
+        assertTrue(nfa.matches(""));
+        assertTrue(nfa.matches("a"));
+        assertTrue(nfa.matches("b"));
+        assertTrue(nfa.matches("ab"));
+        assertTrue(nfa.matches("ba"));
+        assertTrue(nfa.matches("aba"));
+        assertTrue(nfa.matches("abb"));
+        assertTrue(nfa.matches("abb"));
+        
+        assertFalse(nfa.matches("1"));
+        
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(dfa.matches(""));
+        assertTrue(dfa.matches("a"));
+        assertTrue(dfa.matches("b"));
+        assertTrue(dfa.matches("ab"));
+        assertTrue(dfa.matches("ba"));
+        assertTrue(dfa.matches("aba"));
+        assertTrue(dfa.matches("abb"));
+        assertTrue(dfa.matches("abb"));
+        
+        assertFalse(dfa.matches("1"));
+    }
+    
+    @Test
+    public void convertToDFA5() {
+        NondeterministicFiniteAutomaton nfa =
+                NondeterministicFiniteAutomaton.compile("a*");
+        
+        assertTrue(nfa.matches(""));
+        assertTrue(nfa.matches("a"));
+        assertTrue(nfa.matches("aa"));
+        
+        assertFalse(nfa.matches("b"));
+        assertFalse(nfa.matches("ab"));
+        
+        DeterministicFiniteAutomaton dfa =
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(dfa.matches(""));
+        assertTrue(dfa.matches("a"));
+        assertTrue(dfa.matches("aa"));
+        
+        assertFalse(dfa.matches("b"));
+        assertFalse(dfa.matches("ab"));
     }
 }

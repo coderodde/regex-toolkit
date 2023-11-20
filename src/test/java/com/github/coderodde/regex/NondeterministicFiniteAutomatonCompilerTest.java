@@ -96,11 +96,6 @@ public class NondeterministicFiniteAutomatonCompilerTest {
     }
     
     private static NondeterministicFiniteAutomaton getNFA(String regex) {
-        List<RegexToken> infixTokens = new RegexTokenizer().tokenize(regex);
-        Deque<RegexToken> postfixTokens = 
-                new RegexInfixToPostfixConverter().convert(infixTokens);
-        
-        return new NondeterministicFiniteAutomatonCompiler()
-                .compile(postfixTokens);
+        return NondeterministicFiniteAutomaton.compile(regex);
     }
 }

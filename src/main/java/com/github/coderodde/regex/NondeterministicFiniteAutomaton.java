@@ -258,9 +258,14 @@ public final class NondeterministicFiniteAutomaton {
                     
                     for (NondeterministicFiniteAutomatonState state : 
                             currentNFAState) {
-                        nextNFAState.addAll(
-                                state.getFollowingStates(character));
+                        Set<NondeterministicFiniteAutomatonState> 
+                                followingStates = 
+                                state.getFollowingStates(character);
                         
+                        if (followingStates != null) {
+                            nextNFAState.addAll(
+                                    state.getFollowingStates(character));
+                        }
                     }
                     
                     nextNFAState = epsilonExpand(nextNFAState);
@@ -300,6 +305,11 @@ public final class NondeterministicFiniteAutomaton {
             stateMap.put(startState, dfaInitialState);
             stateQueue.addLast(startState);
             dfa.setInitialState(dfaInitialState);
+            
+            if (startState.contains(nfa.getAcceptingState())) {
+                dfa.getAcceptingStateSet()
+                   .addDeterministicFiniteAutomatonState(dfaInitialState);
+            }
         }
         
         private int getStateID() {

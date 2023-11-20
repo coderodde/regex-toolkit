@@ -32,6 +32,11 @@ public final class NondeterministicFiniteAutomatonState {
     }
     
     @Override
+    public String toString() {
+        return "[NFA state " + id + "]";
+    }
+    
+    @Override
     public boolean equals(Object o) {
         NondeterministicFiniteAutomatonState otherState = 
                 (NondeterministicFiniteAutomatonState) o;

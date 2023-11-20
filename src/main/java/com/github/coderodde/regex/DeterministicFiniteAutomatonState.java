@@ -27,7 +27,7 @@ public class DeterministicFiniteAutomatonState {
     
     @Override
     public String toString() {
-        return "[State \"" + id + "\"]";
+        return "[DFA state " + id + "]";
     }
     
     @Override

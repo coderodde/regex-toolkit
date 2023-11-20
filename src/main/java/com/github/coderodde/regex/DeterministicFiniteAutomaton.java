@@ -69,21 +69,16 @@ public final class DeterministicFiniteAutomaton {
      */
     private DeterministicFiniteAutomatonState deltaStar(String text) {
         int n = text.length();
-        int textIndex = 0;
+        int textCharacterIndex = 0;
+        DeterministicFiniteAutomatonState currentState = initialState;
         
-        DeterministicFiniteAutomatonState previousState = initialState;
-        DeterministicFiniteAutomatonState currentState = null;
-        
-        while (n > 0) {
-            currentState = previousState.traverse(text.charAt(textIndex));
+        while (textCharacterIndex != n) {
+            currentState = 
+                    currentState.traverse(text.charAt(textCharacterIndex++));
             
             if (currentState == null) {
                 break;
             }
-            
-            n--;
-            textIndex++;
-            previousState = currentState;
         }
         
         return currentState;

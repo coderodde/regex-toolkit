@@ -12,8 +12,9 @@ import java.util.Set;
  * @version 1.6 (Nov 11, 2023)
  * @since 1.6 (Nov 11, 2023)
  */
-public final class NondeterministicFiniteAutomatonState 
-        extends DeterministicFiniteAutomatonState {
+public final class NondeterministicFiniteAutomatonState {
+    
+    private final int id;
     
     final Map<Character, Set<NondeterministicFiniteAutomatonState>> map = 
             new HashMap<>();
@@ -27,7 +28,20 @@ public final class NondeterministicFiniteAutomatonState
      * @param id the ID of the state.
      */
     NondeterministicFiniteAutomatonState(int id) {
-        super(id);
+        this.id = id;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        NondeterministicFiniteAutomatonState otherState = 
+                (NondeterministicFiniteAutomatonState) o;
+        
+        return id == otherState.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
     }
     
     void addTransition(Character character, 

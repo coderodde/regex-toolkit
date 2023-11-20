@@ -101,6 +101,6 @@ public class NondeterministicFiniteAutomatonCompilerTest {
                 new RegexInfixToPostfixConverter().convert(infixTokens);
         
         return new NondeterministicFiniteAutomatonCompiler()
-                .construct(postfixTokens);
+                .compile(postfixTokens);
     }
 }

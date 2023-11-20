@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -54,63 +55,76 @@ public final class NondeterministicFiniteAutomaton {
     
     public DeterministicFiniteAutomaton 
         convertToDetermenisticFiniteAutomaton() {
-            
-        DeterministicFiniteAutomaton dfa = new DeterministicFiniteAutomaton();
+        return new NFAToDFAConverter(this).convert();
+//            
+//        DeterministicFiniteAutomaton dfa = new DeterministicFiniteAutomaton();
+//        
+//        int stateID = 0;
+//        
+//        Set<NondeterministicFiniteAutomatonState> startState =
+//                new HashSet<>(Arrays.asList(initialState));
+//        
+//        startState = epsilonExpand(startState);
+//        
+//        Deque<Set<NondeterministicFiniteAutomatonState>> stateQueue = 
+//                new ArrayDeque<>(Arrays.asList(startState));
+//        
+//        Map<Set<NondeterministicFiniteAutomatonState>, 
+//            DeterministicFiniteAutomatonState> stateMap = new HashMap<>();
+//        
+//        DeterministicFiniteAutomatonState dfaInitialState = 
+//                new DeterministicFiniteAutomatonState(stateID++);
+//        
+//        dfa.setInitialState(dfaInitialState);
+//        stateMap.put(startState, dfaInitialState);
+//        Set<NondeterministicFiniteAutomatonState> currentNFAState = startState;
+//        DeterministicFiniteAutomatonState currentDFAState = dfaInitialState;
+//        
+//        while (!stateQueue.isEmpty()) {
+//            Set<NondeterministicFiniteAutomatonState> currentState = 
+//                    stateQueue.removeFirst();
+//            
+//            if (currentState.isEmpty()) {
+//                continue;
+//            }
+//            
+//            Set<Character> localAlphabet = getLocalAlphabet(currentState);
+//            
+//            for (Character character : localAlphabet) {
+//                Set<NondeterministicFiniteAutomatonState> followerStateSet = 
+//                        new HashSet<>();
+//                
+//                for (NondeterministicFiniteAutomatonState s : currentState) {
+//                    followerStateSet.addAll(s.getFollowingStates(character));
+//                }
+//                
+//                followerStateSet = epsilonExpand(followerStateSet);
+//                
+//                if (stateMap.containsKey(followerStateSet)) {
+//                    continue;
+//                } else {
+//                    stateQueue.addLast(followerStateSet);
+//                }
+//                
+//                DeterministicFiniteAutomatonState nextDFAState = 
+//                        new DeterministicFiniteAutomatonState(stateID++);
+//                
+//                currentDFAState.addFollowerState(character, nextDFAState);
+//                stateMap.put(currentNFAState, nextDFAState);
+//            }
+//        }
+//        
+//        return dfa;
+    }
         
-        int stateID = 0;
+    public static NondeterministicFiniteAutomaton compile(String regex) {
+        List<RegexToken> infixTokens = new RegexTokenizer().tokenize(regex);
+        Deque<RegexToken> postfixTokens = 
+                new RegexInfixToPostfixConverter()
+                        .convert(infixTokens);
         
-        Set<NondeterministicFiniteAutomatonState> startState =
-                new HashSet<>(Arrays.asList(initialState));
-        
-        startState = epsilonExpand(startState);
-        
-        Deque<Set<NondeterministicFiniteAutomatonState>> stateQueue = 
-                new ArrayDeque<>(Arrays.asList(startState));
-        
-        Map<Set<NondeterministicFiniteAutomatonState>, 
-            DeterministicFiniteAutomatonState> stateMap = new HashMap<>();
-        
-        DeterministicFiniteAutomatonState dfaInitialState = 
-                new DeterministicFiniteAutomatonState(stateID++);
-        
-        dfa.setInitialState(dfaInitialState);
-        stateMap.put(startState, dfaInitialState);
-        Set<NondeterministicFiniteAutomatonState> currentNFAState = startState;
-        DeterministicFiniteAutomatonState currentDFAState = dfaInitialState;
-        
-        while (!stateQueue.isEmpty()) {
-            Set<NondeterministicFiniteAutomatonState> currentState = 
-                    stateQueue.removeFirst();
-            
-            if (currentState.isEmpty()) {
-                continue;
-            }
-            
-            Set<Character> localAlphabet = getLocalAlphabet(currentState);
-            
-            for (Character character : localAlphabet) {
-                Set<NondeterministicFiniteAutomatonState> followerStateSet = 
-                        new HashSet<>();
-                
-                for (NondeterministicFiniteAutomatonState s : currentState) {
-                    followerStateSet.addAll(s.getFollowingStates(character));
-                }
-                
-                if (stateMap.containsKey(followerStateSet)) {
-                    continue;
-                } else {
-                    stateQueue.addLast(followerStateSet);
-                }
-                
-                DeterministicFiniteAutomatonState nextDFAState = 
-                        new DeterministicFiniteAutomatonState(stateID++);
-                
-                currentDFAState.addFollowerState(character, nextDFAState);
-                stateMap.put(currentNFAState, nextDFAState);
-            }
-        }
-        
-        return dfa;
+        return new NondeterministicFiniteAutomatonCompiler()
+                .compile(postfixTokens);
     }
     
     private Set<NondeterministicFiniteAutomatonState> 
@@ -126,7 +140,7 @@ public final class NondeterministicFiniteAutomaton {
         return nextStates;
     }
     
-    private Set<Character> 
+    private static Set<Character> 
         getLocalAlphabet(Set<NondeterministicFiniteAutomatonState> states) {
         Set<Character> localAlphabet = new HashSet<>();
         
@@ -165,7 +179,7 @@ public final class NondeterministicFiniteAutomaton {
         return currentStates;
     }
     
-    Set<NondeterministicFiniteAutomatonState> 
+    static Set<NondeterministicFiniteAutomatonState> 
         epsilonExpand(Set<NondeterministicFiniteAutomatonState> set) {
             
         Set<NondeterministicFiniteAutomatonState> expandedSet = 
@@ -202,5 +216,94 @@ public final class NondeterministicFiniteAutomaton {
     private boolean isAcceptingStateSet(
             Set<NondeterministicFiniteAutomatonState> finalStateSet) {
         return finalStateSet.contains(acceptingState);
+    }
+    
+    private static final class NFAToDFAConverter {
+        private final Deque<Set<NondeterministicFiniteAutomatonState>> 
+                stateQueue = new ArrayDeque<>();
+        
+        private final Map<Set<NondeterministicFiniteAutomatonState>,
+                          DeterministicFiniteAutomatonState> stateMap = 
+                                  new HashMap<>();
+        
+        private final NondeterministicFiniteAutomaton nfa;
+        private int stateID = 0;
+        private final DeterministicFiniteAutomaton dfa = 
+                  new DeterministicFiniteAutomaton();
+
+        public NFAToDFAConverter(NondeterministicFiniteAutomaton nfa) {
+            this.nfa = nfa;
+        }
+        
+        DeterministicFiniteAutomaton convert() {
+            init();
+            
+            while (!stateQueue.isEmpty()) {
+                Set<NondeterministicFiniteAutomatonState> currentNFAState = 
+                        stateQueue.removeFirst();
+                
+                if (currentNFAState.isEmpty()) {
+                    continue;
+                }
+                
+                DeterministicFiniteAutomatonState currentDFAState = 
+                        stateMap.get(currentNFAState);
+                
+                Set<Character> localAlphabet = 
+                        getLocalAlphabet(currentNFAState);
+                
+                for (Character character : localAlphabet) {
+                    Set<NondeterministicFiniteAutomatonState> nextNFAState = 
+                            new HashSet<>();
+                    
+                    for (NondeterministicFiniteAutomatonState state : 
+                            currentNFAState) {
+                        nextNFAState.addAll(
+                                state.getFollowingStates(character));
+                        
+                    }
+                    
+                    nextNFAState = epsilonExpand(nextNFAState);
+
+                    if (!stateMap.containsKey(nextNFAState)) {
+                        DeterministicFiniteAutomatonState nextDFAState = 
+                                new DeterministicFiniteAutomatonState(
+                                        getStateID());
+                        
+                        currentDFAState.addFollowerState(character, 
+                                                         nextDFAState);
+                        
+                        stateMap.put(nextNFAState, nextDFAState);
+                        stateQueue.addLast(nextNFAState);
+                        
+                        if (nextNFAState.contains(nfa.getAcceptingState())) {
+                            dfa.getAcceptingStateSet()
+                               .addDeterministicFiniteAutomatonState(
+                                       nextDFAState);
+                        }
+                    }
+                }
+            }
+            
+            return dfa;
+        }
+        
+        private void init() {
+            Set<NondeterministicFiniteAutomatonState> startState = 
+                    new HashSet<>(Arrays.asList(nfa.getInitialState()));
+            
+            startState = epsilonExpand(startState);
+            
+            DeterministicFiniteAutomatonState dfaInitialState = 
+                    new DeterministicFiniteAutomatonState(getStateID());
+            
+            stateMap.put(startState, dfaInitialState);
+            stateQueue.addLast(startState);
+            dfa.setInitialState(dfaInitialState);
+        }
+        
+        private int getStateID() {
+            return stateID++;
+        }
     }
 }

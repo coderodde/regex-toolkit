@@ -29,7 +29,7 @@ public final class NondeterministicFiniteAutomatonCompiler {
     }
     
     public NondeterministicFiniteAutomaton
-        construct(Deque<RegexToken> postfixRegex) {
+        compile(Deque<RegexToken> postfixRegex) {
         return new NondeterministicFiniteAutomatonCompiler(postfixRegex)
                 .compileImpl();
     }

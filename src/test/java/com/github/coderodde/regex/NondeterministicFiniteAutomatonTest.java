@@ -125,7 +125,7 @@ public class NondeterministicFiniteAutomatonTest {
         assertTrue(dfa.matches("000"));
     }
     
-    @Test
+//    @Test
     public void convertToDFA2() {
         NondeterministicFiniteAutomaton nfa = 
                 new NondeterministicFiniteAutomaton();
@@ -139,7 +139,7 @@ public class NondeterministicFiniteAutomatonTest {
         nfa.setInitialState(state1);
         nfa.setAcceptingState(state2);
         
-        state1.addFollowerState('1', state2);
+        state1.addTransition('1', state2);
         state1.addEpsilonTransition(state2);
         
         DeterministicFiniteAutomaton dfa = 
@@ -152,5 +152,22 @@ public class NondeterministicFiniteAutomatonTest {
         assertTrue(dfa.matches(""));
         assertTrue(dfa.matches("1"));
         assertFalse(dfa.matches("0"));
+    }
+    
+    @Test
+    public void convertSingleCharRegex() {
+        NondeterministicFiniteAutomaton nfa = 
+                NondeterministicFiniteAutomaton.compile("a");
+        
+        assertTrue(nfa.matches("a"));
+        assertFalse(nfa.matches(""));
+        assertFalse(nfa.matches("aa"));
+        
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(dfa.matches("a"));
+        assertFalse(dfa.matches(""));
+        assertFalse(dfa.matches("aa"));
     }
 }

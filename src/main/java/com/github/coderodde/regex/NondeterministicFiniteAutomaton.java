@@ -64,6 +64,9 @@ public final class NondeterministicFiniteAutomaton {
         
         startState = epsilonExpand(startState);
         
+        Deque<Set<NondeterministicFiniteAutomatonState>> stateQueue = 
+                new ArrayDeque<>(Arrays.asList(startState));
+        
         Map<Set<NondeterministicFiniteAutomatonState>, 
             DeterministicFiniteAutomatonState> stateMap = new HashMap<>();
         
@@ -75,19 +78,28 @@ public final class NondeterministicFiniteAutomaton {
         Set<NondeterministicFiniteAutomatonState> currentNFAState = startState;
         DeterministicFiniteAutomatonState currentDFAState = dfaInitialState;
         
-        while (true) {
-            if (currentNFAState.isEmpty()) {
-                return buildDeterministicFiniteAutomaton(stateMap);
+        while (!stateQueue.isEmpty()) {
+            Set<NondeterministicFiniteAutomatonState> currentState = 
+                    stateQueue.removeFirst();
+            
+            if (currentState.isEmpty()) {
+                continue;
             }
             
-            Set<Character> localAlphabet = getLocalAlphabet(currentNFAState);
-
+            Set<Character> localAlphabet = getLocalAlphabet(currentState);
+            
             for (Character character : localAlphabet) {
-                Set<NondeterministicFiniteAutomatonState> followerStates = 
+                Set<NondeterministicFiniteAutomatonState> followerStateSet = 
                         new HashSet<>();
-
-                for (NondeterministicFiniteAutomatonState s : currentNFAState) {
-                    followerStates.addAll(s.getFollowingStates(character));
+                
+                for (NondeterministicFiniteAutomatonState s : currentState) {
+                    followerStateSet.addAll(s.getFollowingStates(character));
+                }
+                
+                if (stateMap.containsKey(followerStateSet)) {
+                    continue;
+                } else {
+                    stateQueue.addLast(followerStateSet);
                 }
                 
                 DeterministicFiniteAutomatonState nextDFAState = 
@@ -97,13 +109,8 @@ public final class NondeterministicFiniteAutomaton {
                 stateMap.put(currentNFAState, nextDFAState);
             }
         }
-    }
         
-    private DeterministicFiniteAutomaton 
-        buildDeterministicFiniteAutomaton(
-                Map<Set<NondeterministicFiniteAutomatonState>, 
-                    DeterministicFiniteAutomatonState> stateMap) {
-        return null;
+        return dfa;
     }
     
     private Set<NondeterministicFiniteAutomatonState> 

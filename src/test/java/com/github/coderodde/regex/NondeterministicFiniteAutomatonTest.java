@@ -80,4 +80,77 @@ public class NondeterministicFiniteAutomatonTest {
         assertFalse(nfa.matches("ba"));
         assertFalse(nfa.matches("ababa"));
     }
+    
+//    @Test
+    public void convertToDFA1() {
+        NondeterministicFiniteAutomaton nfa =
+                new NondeterministicFiniteAutomaton();
+        
+        NondeterministicFiniteAutomatonState a = 
+                new NondeterministicFiniteAutomatonState(0);
+        
+        NondeterministicFiniteAutomatonState b = 
+                new NondeterministicFiniteAutomatonState(1);
+        
+        NondeterministicFiniteAutomatonState c = 
+                new NondeterministicFiniteAutomatonState(2);
+        
+        NondeterministicFiniteAutomatonState d = 
+                new NondeterministicFiniteAutomatonState(3);
+        
+        nfa.setInitialState(a);
+        nfa.setAcceptingState(d);
+        
+        a.addTransition('0', a);
+        a.addTransition('0', b);
+        a.addEpsilonTransition(c);
+        c.addTransition('0', c);
+        b.addTransition('1', c);
+        c.addTransition('1', d);
+        c.addEpsilonTransition(d);
+        
+        assertTrue(nfa.matches(""));
+        assertTrue(nfa.matches("1"));
+        assertTrue(nfa.matches("01"));
+        assertTrue(nfa.matches("011"));
+        assertTrue(nfa.matches("000"));
+        
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(dfa.matches(""));
+        assertTrue(dfa.matches("1"));
+        assertTrue(dfa.matches("01"));
+        assertTrue(dfa.matches("011"));
+        assertTrue(dfa.matches("000"));
+    }
+    
+    @Test
+    public void convertToDFA2() {
+        NondeterministicFiniteAutomaton nfa = 
+                new NondeterministicFiniteAutomaton();
+        
+        NondeterministicFiniteAutomatonState state1 = 
+                new NondeterministicFiniteAutomatonState(0);
+        
+        NondeterministicFiniteAutomatonState state2 = 
+                new NondeterministicFiniteAutomatonState(1);
+        
+        nfa.setInitialState(state1);
+        nfa.setAcceptingState(state2);
+        
+        state1.addFollowerState('1', state2);
+        state1.addEpsilonTransition(state2);
+        
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(nfa.matches(""));
+        assertTrue(nfa.matches("1"));
+        assertFalse(nfa.matches("0"));
+        
+        assertTrue(dfa.matches(""));
+        assertTrue(dfa.matches("1"));
+        assertFalse(dfa.matches("0"));
+    }
 }

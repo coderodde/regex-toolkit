@@ -67,4 +67,37 @@ public class DeterministicFiniteAutomatonTest {
         assertFalse(dfa.matches("01"));
         assertFalse(dfa.matches("11"));
     }
+    
+    @Test
+    public void hopcroft1() {
+        DeterministicFiniteAutomaton dfa = new DeterministicFiniteAutomaton();
+        
+        DeterministicFiniteAutomatonState a = 
+                new DeterministicFiniteAutomatonState(0);
+        
+        DeterministicFiniteAutomatonState b = 
+                new DeterministicFiniteAutomatonState(1);
+        
+        dfa.setInitialState(a);
+        dfa.getAcceptingStateSet().addDeterministicFiniteAutomatonState(a);
+        dfa.getAcceptingStateSet().addDeterministicFiniteAutomatonState(b);
+        a.addFollowerState('a', b);
+        b.addFollowerState('a', b);
+        
+        assertTrue(dfa.matches(""));
+        assertTrue(dfa.matches("a"));
+        assertTrue(dfa.matches("aa"));
+        assertFalse(dfa.matches("b"));
+        
+        assertEquals(2, dfa.getNumberOfStates());
+        
+        DeterministicFiniteAutomaton dfa2 = dfa.minimizeViaHopcroftAlgorithm();
+        
+        assertTrue(dfa2.matches(""));
+        assertTrue(dfa2.matches("a"));
+        assertTrue(dfa2.matches("aa"));
+        assertFalse(dfa2.matches("b"));
+        
+        assertEquals(1, dfa2.getNumberOfStates());
+    }
 }

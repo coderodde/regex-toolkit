@@ -13,7 +13,7 @@ import java.util.Map;
 public class DeterministicFiniteAutomatonState {
     
     private final int id;
-    private final Map<Character, DeterministicFiniteAutomatonState> followerMap = 
+    final Map<Character, DeterministicFiniteAutomatonState> followerMap = 
             new HashMap<>();
     
     /**

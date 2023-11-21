@@ -35,25 +35,37 @@ public final class Utils {
         }
     }
         
-    public static <T> Set<T> intersection(Set<T> set1, Set<T> set2) {
-        Set<T> set = new HashSet<>(Math.max(set1.size(), set2.size()));
-        Set<T> largerSet;
-        Set<T> smallerSet;
+    public static <T> Set<T> difference(Set<T> set1, Set<T> set2) {
+        Set<T> outputSet = new HashSet<>(set1.size());
         
-        if (set1.size() < set2.size()) {
-            smallerSet = set1;
-            largerSet = set2;
-        } else {
-            smallerSet = set2;
-            largerSet = set1;
-        }
-        
-        for (T element : smallerSet) {
-            if (largerSet.contains(element)) {
-                set.add(element);
+        for (T element : set1) {
+            if (!set2.contains(element)) {
+                outputSet.add(element);
             }
         }
         
-        return set;
+        return outputSet;
+    }
+    
+    public static <T> Set<T> intersection(Set<T> a, Set<T> b) {
+        Set<T> r = new HashSet<>(Math.min(a.size(), b.size()));
+        Set<T> small;
+        Set<T> large;
+        
+        if (a.size() < b.size()) {
+            small = a;
+            large = b;
+        } else {
+            small = b;
+            large = a;
+        }
+        
+        for (T e : small) {
+            if (large.contains(e)) {
+                r.add(e);
+            }
+        }
+        
+        return r;
     }
 }

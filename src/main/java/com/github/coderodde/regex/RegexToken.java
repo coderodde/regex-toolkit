@@ -38,7 +38,7 @@ public final class RegexToken {
             case CHARACTER:
                 return "" + character;
                 
-            case CONCATENATION:
+            case CONCAT:
                 return "o";
                 
             case KLEENE_STAR:

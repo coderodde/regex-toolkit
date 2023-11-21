@@ -20,7 +20,7 @@ public class DeterministicFiniteAutomatonTest {
         
         dfa.setInitialState(q0);
         
-        dfa.getAcceptingStateSet().addDeterministicFiniteAutomatonState(q2);
+        dfa.getAcceptingStates().add(q2);
         
         q0.addFollowerState('1', q0);
         q0.addFollowerState('0', q1);
@@ -50,7 +50,7 @@ public class DeterministicFiniteAutomatonTest {
         
         dfa.setInitialState(a);
         
-        dfa.getAcceptingStateSet().addDeterministicFiniteAutomatonState(b);
+        dfa.getAcceptingStates().add(b);
         
         a.addFollowerState('1', a);
         a.addFollowerState('0', b);
@@ -66,5 +66,85 @@ public class DeterministicFiniteAutomatonTest {
         assertFalse(dfa.matches("1"));
         assertFalse(dfa.matches("01"));
         assertFalse(dfa.matches("11"));
+    }
+    
+    @Test
+    public void hopcroft1() {
+        DeterministicFiniteAutomaton dfa = new DeterministicFiniteAutomaton();
+        
+        DeterministicFiniteAutomatonState a = 
+                new DeterministicFiniteAutomatonState(0);
+        
+        DeterministicFiniteAutomatonState b = 
+                new DeterministicFiniteAutomatonState(1);
+        
+        dfa.setInitialState(a);
+        dfa.getAcceptingStates().add(a);
+        dfa.getAcceptingStates().add(b);
+        a.addFollowerState('a', b);
+        b.addFollowerState('a', b);
+        
+        assertTrue(dfa.matches(""));
+        assertTrue(dfa.matches("a"));
+        assertTrue(dfa.matches("aa"));
+        assertFalse(dfa.matches("b"));
+        
+        assertEquals(2, dfa.getNumberOfStates());
+        
+        DeterministicFiniteAutomaton dfa2 = dfa.minimizeViaHopcroftAlgorithm();
+        
+        assertTrue(dfa2.matches(""));
+        assertTrue(dfa2.matches("a"));
+        assertTrue(dfa2.matches("aa"));
+        assertFalse(dfa2.matches("b"));
+        
+        assertEquals(1, dfa2.getNumberOfStates());
+    }
+    
+    @Test
+    public void hopcroft2() {
+        DeterministicFiniteAutomaton dfa = new DeterministicFiniteAutomaton();
+        
+        DeterministicFiniteAutomatonState a =
+                new DeterministicFiniteAutomatonState(0);
+        
+        DeterministicFiniteAutomatonState b =
+                new DeterministicFiniteAutomatonState(1);
+        
+        DeterministicFiniteAutomatonState c =
+                new DeterministicFiniteAutomatonState(2);
+        
+        DeterministicFiniteAutomatonState d =
+                new DeterministicFiniteAutomatonState(3);
+        
+        DeterministicFiniteAutomatonState e =
+                new DeterministicFiniteAutomatonState(4);
+        
+        DeterministicFiniteAutomatonState f =
+                new DeterministicFiniteAutomatonState(5);
+        
+        dfa.setInitialState(a);
+        dfa.getAcceptingStates().add(c);
+        dfa.getAcceptingStates().add(d);
+        dfa.getAcceptingStates().add(e);
+        
+        a.addFollowerState('0', b);
+        a.addFollowerState('1', c);
+        b.addFollowerState('0', a);
+        b.addFollowerState('1', d);
+        c.addFollowerState('0', f);
+        c.addFollowerState('1', e);
+        d.addFollowerState('0', f);
+        d.addFollowerState('1', e);
+        e.addFollowerState('0', e);
+        e.addFollowerState('1', f);
+        f.addFollowerState('0', f);
+        f.addFollowerState('1', f);
+        
+        assertEquals(6, dfa.getNumberOfStates());
+        
+        DeterministicFiniteAutomaton dfa2 = dfa.minimizeViaHopcroftAlgorithm();
+        
+        assertEquals(3, dfa2.getNumberOfStates());
     }
 }

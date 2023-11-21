@@ -51,7 +51,7 @@ public final class NondeterministicFiniteAutomatonCompiler {
                     processCharacter(token);  
                     break;
                     
-                case CONCATENATION: 
+                case CONCAT: 
                     processConcatenation();
                     break;
                     

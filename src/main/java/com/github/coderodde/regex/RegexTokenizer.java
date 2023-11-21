@@ -17,6 +17,30 @@ import java.util.Objects;
  */
 public final class RegexTokenizer {
     
+    private static final RegexToken REGEX_TOKEN_KLEENE_STAR;
+    private static final RegexToken REGEX_TOKEN_PLUS;
+    private static final RegexToken REGEX_TOKEN_QUESTION;
+    private static final RegexToken REGEX_TOKEN_DOT;
+    private static final RegexToken REGEX_TOKEN_UNION;
+    private static final RegexToken REGEX_TOKEN_CONCAT;
+    private static final RegexToken REGEX_TOKEN_LEFT_PARENTHESIS;
+    private static final RegexToken REGEX_TOKEN_RIGHT_PARENTHESIS;
+    
+    static {
+        REGEX_TOKEN_KLEENE_STAR = new RegexToken(RegexTokenType.KLEENE_STAR);
+        REGEX_TOKEN_PLUS        = new RegexToken(RegexTokenType.PLUS);
+        REGEX_TOKEN_QUESTION    = new RegexToken(RegexTokenType.QUESTION);
+        REGEX_TOKEN_DOT         = new RegexToken(RegexTokenType.DOT);
+        REGEX_TOKEN_UNION       = new RegexToken(RegexTokenType.UNION);
+        REGEX_TOKEN_CONCAT      = new RegexToken(RegexTokenType.CONCAT);
+        
+        REGEX_TOKEN_LEFT_PARENTHESIS = 
+            new RegexToken(RegexTokenType.LEFT_PARENTHESIS);
+        
+        REGEX_TOKEN_RIGHT_PARENTHESIS = 
+            new RegexToken(RegexTokenType.RIGHT_PARENTHESIS);
+    }
+    
     /**
      * Converts the input regular expression into the list of {@link RegexToken}
      * objects encoding the same regular language as the input regular 
@@ -37,36 +61,57 @@ public final class RegexTokenizer {
         for (char ch : regex.toCharArray()) {
             switch (ch) {
                 case '*':
-                    tokens.add(new RegexToken(RegexTokenType.KLEENE_STAR));
+                    tokens.add(REGEX_TOKEN_KLEENE_STAR);
+                    break;
+                    
+                case '+':
+                    tokens.add(REGEX_TOKEN_PLUS);
+                    break;
+                    
+                case '.':
+                    if (isTextCharacter(previousCharacter)
+                            || previousCharacter == '?'
+                            || previousCharacter == '*'
+                            || previousCharacter == '+'
+                            || previousCharacter == ')') {
+                        
+                    }
+                    
+                    tokens.add(REGEX_TOKEN_DOT);
+                    break;
+                    
+                case '?':
+                    tokens.add(REGEX_TOKEN_QUESTION);
                     break;
                     
                 case '|':
-                    tokens.add(new RegexToken(RegexTokenType.UNION));
+                    tokens.add(REGEX_TOKEN_UNION);
                     break;
                     
                 case '(':
                     if (isTextCharacter(previousCharacter)
+                            || previousCharacter == '?'
                             || previousCharacter == '*'
+                            || previousCharacter == '+'
                             || previousCharacter == ')') {
-                        tokens.add(
-                                new RegexToken(RegexTokenType.CONCATENATION));
+                        tokens.add(REGEX_TOKEN_CONCAT);
                     }
                     
-                    tokens.add(new RegexToken(RegexTokenType.LEFT_PARENTHESIS));
+                    tokens.add(REGEX_TOKEN_LEFT_PARENTHESIS);
                     break;
                     
                 case ')':
-                    tokens.add(
-                            new RegexToken(RegexTokenType.RIGHT_PARENTHESIS));
+                    tokens.add(REGEX_TOKEN_RIGHT_PARENTHESIS);
                     break;
                     
                 default:
                     // Once here, the ch is an alphabet character:
                     if (isTextCharacter(previousCharacter)
+                            || previousCharacter == '?'
                             || previousCharacter == '*'
+                            || previousCharacter == '+'
                             || previousCharacter == ')') {
-                        tokens.add(
-                                new RegexToken(RegexTokenType.CONCATENATION));
+                        tokens.add(REGEX_TOKEN_CONCAT);
                     }
                     
                     tokens.add(new RegexToken(RegexTokenType.CHARACTER, ch));
@@ -82,6 +127,9 @@ public final class RegexTokenizer {
     private static boolean isTextCharacter(char ch) {
         switch (ch) {
             case '*':
+            case '+':
+            case '.':
+            case '?':
             case '|':
             case '(':
             case ')':

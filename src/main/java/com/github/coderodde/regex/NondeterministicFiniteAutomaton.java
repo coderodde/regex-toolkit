@@ -287,6 +287,10 @@ public final class NondeterministicFiniteAutomaton {
                                        nextDFAState);
                         }
                     }
+                    
+                    if (nextNFAState.contains(nfa.acceptingState)) {
+                        
+                    }
                 }
             }
             

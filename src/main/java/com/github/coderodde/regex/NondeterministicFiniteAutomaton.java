@@ -269,24 +269,26 @@ public final class NondeterministicFiniteAutomaton {
                     }
                     
                     nextNFAState = epsilonExpand(nextNFAState);
-
-                    if (!stateMap.containsKey(nextNFAState)) {
-                        DeterministicFiniteAutomatonState nextDFAState = 
+                    
+                    DeterministicFiniteAutomatonState nextDFAState = 
+                            stateMap.get(nextNFAState);
+                    
+                    if (nextDFAState == null) {
+                        nextDFAState = 
                                 new DeterministicFiniteAutomatonState(
                                         getStateID());
                         
-                        currentDFAState.addFollowerState(character, 
-                                                         nextDFAState);
-                        
                         stateMap.put(nextNFAState, nextDFAState);
                         stateQueue.addLast(nextNFAState);
-                        
-                        if (nextNFAState.contains(nfa.getAcceptingState())) {
-                            dfa.getAcceptingStateSet()
-                               .addDeterministicFiniteAutomatonState(
-                                       nextDFAState);
-                        }
                     }
+                        
+                    if (nextNFAState.contains(nfa.getAcceptingState())) {
+                        dfa.getAcceptingStateSet()
+                           .addDeterministicFiniteAutomatonState(
+                                   nextDFAState);
+                    }
+                    
+                    currentDFAState.addFollowerState(character, nextDFAState);
                 }
             }
             

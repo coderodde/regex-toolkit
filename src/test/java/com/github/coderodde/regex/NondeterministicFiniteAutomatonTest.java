@@ -82,7 +82,7 @@ public class NondeterministicFiniteAutomatonTest {
         assertFalse(nfa.matches("ababa"));
     }
     
-//    @Test
+    @Test
     public void convertToDFA1() {
         NondeterministicFiniteAutomaton nfa =
                 new NondeterministicFiniteAutomaton();
@@ -220,7 +220,7 @@ public class NondeterministicFiniteAutomatonTest {
         assertFalse(dfa.matches("1"));
     }
     
-//    @Test
+    @Test
     public void convertToDFA3() {
         NondeterministicFiniteAutomaton nfa = 
                 NondeterministicFiniteAutomaton.compile("(ab|c)*");

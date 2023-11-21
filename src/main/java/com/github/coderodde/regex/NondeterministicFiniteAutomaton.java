@@ -283,9 +283,7 @@ public final class NondeterministicFiniteAutomaton {
                     }
                         
                     if (nextNFAState.contains(nfa.getAcceptingState())) {
-                        dfa.getAcceptingStateSet()
-                           .addDeterministicFiniteAutomatonState(
-                                   nextDFAState);
+                        dfa.getAcceptingStates().add(nextDFAState);
                     }
                     
                     currentDFAState.addFollowerState(character, nextDFAState);
@@ -309,8 +307,7 @@ public final class NondeterministicFiniteAutomaton {
             dfa.setInitialState(dfaInitialState);
             
             if (startState.contains(nfa.getAcceptingState())) {
-                dfa.getAcceptingStateSet()
-                   .addDeterministicFiniteAutomatonState(dfaInitialState);
+                dfa.getAcceptingStates().add(dfaInitialState);
             }
         }
         

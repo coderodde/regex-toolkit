@@ -21,13 +21,15 @@ public final class DeterministicFiniteAutomaton {
      * The initial state of the DFA.
      */
     private DeterministicFiniteAutomatonState initialState;
+    private Set<DeterministicFiniteAutomatonState> acceptingStateSet = 
+            new HashSet<>();
     
-    /**
-     * The set of accepting states.
-     */
-    private final DeterministicFiniteAutomatonAcceptingStateSet 
-            acceptingStateSet = 
-              new DeterministicFiniteAutomatonAcceptingStateSet();
+//    /**
+//     * The set of accepting states.
+//     */
+//    private final DeterministicFiniteAutomatonAcceptingStateSet 
+//            acceptingStateSet = 
+//              new DeterministicFiniteAutomatonAcceptingStateSet();
     
     public void setInitialState(
             DeterministicFiniteAutomatonState initialState) {
@@ -42,8 +44,7 @@ public final class DeterministicFiniteAutomaton {
      * 
      * @return the accepting state set.
      */
-    public DeterministicFiniteAutomatonAcceptingStateSet
-         getAcceptingStateSet() {
+    public Set<DeterministicFiniteAutomatonState> getAcceptingStates() {
         return acceptingStateSet;
     }
     
@@ -61,7 +62,7 @@ public final class DeterministicFiniteAutomaton {
             return false;
         }
         
-        return acceptingStateSet.getAcceptingStateSet().contains(state);
+        return acceptingStateSet.contains(state);
     }
     
     public int getNumberOfStates() {
@@ -82,6 +83,10 @@ public final class DeterministicFiniteAutomaton {
         
         for (Set<DeterministicFiniteAutomatonState> encodedState : 
                 encodedStates) {
+            
+            if (encodedState.isEmpty()) {
+                continue;
+            }
             
             DeterministicFiniteAutomatonState dfaState = 
                     new DeterministicFiniteAutomatonState(stateId++);
@@ -117,14 +122,9 @@ public final class DeterministicFiniteAutomaton {
             
             currentDFAState.addFollowerState(character, nextDFAState);
             
-            if (this.getAcceptingStateSet()
-                    .getAcceptingStateSet()
-                    .contains(currentDFAState)) {
-                
-                dfa.getAcceptingStateSet()
-                   .addDeterministicFiniteAutomatonState(currentDFAState);
+            if (this.getAcceptingStates().contains(currentDFAState)) {
+                dfa.getAcceptingStates().add(currentDFAState);
             }
-            
         }
         
         return dfa;
@@ -138,17 +138,17 @@ public final class DeterministicFiniteAutomaton {
         Set<DeterministicFiniteAutomatonState> reachableStates = 
                 getAllReachableStates();
         
-        p.add(acceptingStateSet.getAcceptingStateSet());
+        p.add(getAcceptingStates());
         
         p.add(Utils.difference(
                 reachableStates, 
-                acceptingStateSet.getAcceptingStateSet()));
+                getAcceptingStates()));
         
-        w.add(acceptingStateSet.getAcceptingStateSet());
+        w.add(getAcceptingStates());
         
         w.add(Utils.difference(
                 reachableStates, 
-                acceptingStateSet.getAcceptingStateSet()));
+                getAcceptingStates()));
         
         while (!w.isEmpty()) {
             Set<DeterministicFiniteAutomatonState> a = w.iterator().next();

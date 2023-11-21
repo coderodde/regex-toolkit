@@ -7,7 +7,7 @@ class TestUtils {
     }
     
     static RegexToken getConcatenation() {
-        return new RegexToken(RegexTokenType.CONCATENATION);
+        return new RegexToken(RegexTokenType.CONCAT);
     }
     
     static RegexToken getUnion() {

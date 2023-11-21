@@ -9,8 +9,11 @@ package com.github.coderodde.regex;
  */
 public enum RegexTokenType {
     KLEENE_STAR,
+    PLUS,
+    QUESTION,
+    DOT,
     UNION,
-    CONCATENATION,
+    CONCAT,
     CHARACTER,
     LEFT_PARENTHESIS,
     RIGHT_PARENTHESIS;

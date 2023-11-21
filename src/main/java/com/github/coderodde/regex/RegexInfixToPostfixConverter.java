@@ -39,7 +39,7 @@ public final class RegexInfixToPostfixConverter {
                     output.addLast(regexToken);
                     break;
                     
-                case CONCATENATION:
+                case CONCAT:
                     processConcatenation(output, operatorStack);
                     break;
                     
@@ -75,7 +75,7 @@ public final class RegexInfixToPostfixConverter {
             Deque<RegexToken> operatorStack) {
         
         int tokenPrecedence = 
-                getOperatorPrecedence(RegexTokenType.CONCATENATION);
+                getOperatorPrecedence(RegexTokenType.CONCAT);
         
         while (!operatorStack.isEmpty()) {
             RegexToken topToken = operatorStack.getLast();
@@ -94,7 +94,7 @@ public final class RegexInfixToPostfixConverter {
             output.addLast(operatorStack.removeLast());
         }
         
-        operatorStack.addLast(new RegexToken(RegexTokenType.CONCATENATION));
+        operatorStack.addLast(new RegexToken(RegexTokenType.CONCAT));
     }
     
     private static void processUnion(
@@ -154,7 +154,7 @@ public final class RegexInfixToPostfixConverter {
             case KLEENE_STAR:
                 return 2;
                 
-            case CONCATENATION:
+            case CONCAT:
                 return 1;
                 
             case UNION:

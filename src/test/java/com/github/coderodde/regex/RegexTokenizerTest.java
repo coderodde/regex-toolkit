@@ -2,8 +2,10 @@ package com.github.coderodde.regex;
 
 import static com.github.coderodde.regex.TestUtils.getCharToken;
 import static com.github.coderodde.regex.TestUtils.getConcatenation;
+import static com.github.coderodde.regex.TestUtils.getDot;
 import static com.github.coderodde.regex.TestUtils.getKleeneStar;
 import static com.github.coderodde.regex.TestUtils.getLeftParenthesis;
+import static com.github.coderodde.regex.TestUtils.getQuestion;
 import static com.github.coderodde.regex.TestUtils.getRightParenthesis;
 import static com.github.coderodde.regex.TestUtils.getUnion;
 import java.util.Arrays;
@@ -220,6 +222,51 @@ public class RegexTokenizerTest {
                               getKleeneStar(),
                               getConcatenation(),
                               getCharToken('b'));
+        
+        assertEquals(expectedTokens, tokens);
+    }
+    
+    @Test
+    public void questionMark1() {
+        tokens = tokenizer.tokenize("ab?");
+        expectedTokens = 
+                Arrays.asList(getCharToken('a'),
+                              getConcatenation(),
+                              getCharToken('b'),
+                              getQuestion());
+        
+        assertEquals(expectedTokens, tokens);
+    }
+    
+    @Test
+    public void questionMark2() {
+        tokens = tokenizer.tokenize("(ab)?c");
+        expectedTokens = 
+                Arrays.asList(getLeftParenthesis(),
+                              getCharToken('a'),
+                              getConcatenation(),
+                              getCharToken('b'),
+                              getRightParenthesis(),
+                              getQuestion(),
+                              getConcatenation(),
+                              getCharToken('c'));
+        
+        assertEquals(expectedTokens, tokens);
+    }
+    
+    @Test
+    public void dot1() {
+        tokens = tokenizer.tokenize("b..a.");
+        expectedTokens = 
+                Arrays.asList(getCharToken('b'),
+                              getConcatenation(),
+                              getDot(),
+                              getConcatenation(),
+                              getDot(),
+                              getConcatenation(),
+                              getCharToken('a'),
+                              getConcatenation(),
+                              getDot());
         
         assertEquals(expectedTokens, tokens);
     }

@@ -92,6 +92,17 @@ public final class DeterministicFiniteAutomaton {
                     new DeterministicFiniteAutomatonState(stateId++);
             
             stateMap.put(encodedState, dfaState);
+            
+            if (encodedState.contains(this.initialState)) {
+                dfa.setInitialState(dfaState);
+                System.out.println("yeaahah");
+            }
+            
+            if (!Utils.intersection(encodedState,
+                                    this.getAcceptingStates()).isEmpty()) {
+                dfa.getAcceptingStates().add(dfaState);
+                System.out.println("kewl");
+            }
         }
         
         for (Set<DeterministicFiniteAutomatonState> encodedState :
@@ -111,16 +122,25 @@ public final class DeterministicFiniteAutomaton {
                             .keySet()
                             .iterator()
                             .next();
+            
+            loadNextDFAStateSet(nextDFAStateSet, 
+                                encodedState, 
+                                character);
+            
+            DeterministicFiniteAutomatonState nextDFAState =
+                    stateMap.get(nextDFAStateSet);
+            
+            currentDFAState.addFollowerState(character, nextDFAState);
                 
             DeterministicFiniteAutomatonState state = 
                     currentDFAState.traverse(character);
 
-            nextDFAStateSet.add(state);
-            
-            DeterministicFiniteAutomatonState nextDFAState = 
-                    stateMap.get(nextDFAStateSet);
-            
-            currentDFAState.addFollowerState(character, nextDFAState);
+//            nextDFAStateSet.add(state);
+//            
+//            DeterministicFiniteAutomatonState nextDFAState = 
+//                    stateMap.get(nextDFAStateSet);
+//            
+//            currentDFAState.addFollowerState(character, nextDFAState);
             
             if (this.getAcceptingStates().contains(currentDFAState)) {
                 dfa.getAcceptingStates().add(currentDFAState);
@@ -128,6 +148,17 @@ public final class DeterministicFiniteAutomaton {
         }
         
         return dfa;
+    }
+    
+    private static void 
+        loadNextDFAStateSet(
+                Set<DeterministicFiniteAutomatonState> nextDFAStateSet,
+                Set<DeterministicFiniteAutomatonState> currentDFAStateSet,
+                Character character) {
+            
+        for (DeterministicFiniteAutomatonState state : currentDFAStateSet) {
+            nextDFAStateSet.add(state.traverse(character));
+        }
     }
     
     private Set<Set<DeterministicFiniteAutomatonState>>

@@ -25,4 +25,12 @@ class TestUtils {
     static RegexToken getRightParenthesis() {
         return new RegexToken(RegexTokenType.RIGHT_PARENTHESIS);
     }   
+    
+    static RegexToken getQuestion() {
+        return new RegexToken(RegexTokenType.QUESTION);
+    }
+    
+    static RegexToken getDot() {
+        return new RegexToken(RegexTokenType.DOT);
+    }
 }

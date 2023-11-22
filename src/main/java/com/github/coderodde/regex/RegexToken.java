@@ -44,6 +44,9 @@ public final class RegexToken {
             case KLEENE_STAR:
                 return "*";
                 
+            case PLUS:
+                return "+";
+                
             case LEFT_PARENTHESIS:
                 return "(";
                 

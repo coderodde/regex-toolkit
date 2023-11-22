@@ -68,20 +68,20 @@ public final class RegexTokenizer {
                     tokens.add(REGEX_TOKEN_PLUS);
                     break;
                     
+                case '?':
+                    tokens.add(REGEX_TOKEN_QUESTION);
+                    break;
+                    
                 case '.':
                     if (isTextCharacter(previousCharacter)
-                            || previousCharacter == '?'
                             || previousCharacter == '*'
                             || previousCharacter == '+'
+                            || previousCharacter == '?'
                             || previousCharacter == ')') {
-                        
+                        tokens.add(REGEX_TOKEN_CONCAT);
                     }
                     
                     tokens.add(REGEX_TOKEN_DOT);
-                    break;
-                    
-                case '?':
-                    tokens.add(REGEX_TOKEN_QUESTION);
                     break;
                     
                 case '|':
@@ -90,9 +90,9 @@ public final class RegexTokenizer {
                     
                 case '(':
                     if (isTextCharacter(previousCharacter)
-                            || previousCharacter == '?'
                             || previousCharacter == '*'
                             || previousCharacter == '+'
+                            || previousCharacter == '?'
                             || previousCharacter == ')') {
                         tokens.add(REGEX_TOKEN_CONCAT);
                     }
@@ -107,9 +107,9 @@ public final class RegexTokenizer {
                 default:
                     // Once here, the ch is an alphabet character:
                     if (isTextCharacter(previousCharacter)
-                            || previousCharacter == '?'
                             || previousCharacter == '*'
                             || previousCharacter == '+'
+                            || previousCharacter == '?'
                             || previousCharacter == ')') {
                         tokens.add(REGEX_TOKEN_CONCAT);
                     }

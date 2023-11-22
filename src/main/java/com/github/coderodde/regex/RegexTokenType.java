@@ -15,6 +15,7 @@ public enum RegexTokenType {
     UNION,
     CONCAT,
     CHARACTER,
+    EPSILON,
     LEFT_PARENTHESIS,
     RIGHT_PARENTHESIS;
 }

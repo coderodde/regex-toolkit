@@ -63,6 +63,10 @@ public final class NondeterministicFiniteAutomatonCompiler {
                     processKleeneStar();
                     break;
                     
+                case EPSILON:
+                    processEpsilonTransition();
+                    break;
+                    
                 default:
                     throw new IllegalArgumentException(
                             "Unknown regex token type: " + token);
@@ -144,6 +148,30 @@ public final class NondeterministicFiniteAutomatonCompiler {
         
         NondeterministicFiniteAutomaton nfa1 = nfaStack.removeLast();
         NondeterministicFiniteAutomaton resultNFA =
+                new NondeterministicFiniteAutomaton();
+        
+        resultNFA.setInitialState(nfa1.getInitialState());
+        resultNFA.setAcceptingState(nfa2.getAcceptingState());
+        
+        nfa1.getAcceptingState().addEpsilonTransition(nfa2.getInitialState());
+        nfa1.setAcceptingState(null);
+        
+        nfaStack.addLast(resultNFA);
+    }
+    
+    private void processEpsilonTransition() {
+        if (nfaStack.isEmpty()) {
+            throw new InvalidRegexException();
+        }
+        
+        NondeterministicFiniteAutomaton nfa2 = nfaStack.removeLast();
+        
+        if (nfaStack.isEmpty()) {
+            throw new InvalidRegexException();
+        }
+        
+        NondeterministicFiniteAutomaton nfa1 = nfaStack.removeLast();
+        NondeterministicFiniteAutomaton resultNFA = 
                 new NondeterministicFiniteAutomaton();
         
         resultNFA.setInitialState(nfa1.getInitialState());

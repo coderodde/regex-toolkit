@@ -140,15 +140,29 @@ public final class DeterministicFiniteAutomaton {
         
         p.add(getAcceptingStates());
         
-        p.add(Utils.difference(
-                reachableStates, 
-                getAcceptingStates()));
+        Set<DeterministicFiniteAutomatonState> pDifference =
+                Utils.difference(reachableStates, getAcceptingStates());
+        
+        if (!pDifference.isEmpty()) {
+            p.add(pDifference);
+        }
+        
+//        p.add(Utils.difference(
+//                reachableStates, 
+//                getAcceptingStates()));
         
         w.add(getAcceptingStates());
         
-        w.add(Utils.difference(
-                reachableStates, 
-                getAcceptingStates()));
+        Set<DeterministicFiniteAutomatonState> wDifference = 
+                Utils.difference(reachableStates, getAcceptingStates());
+        
+        if (!wDifference.isEmpty()) {
+            w.add(wDifference);
+        }
+        
+//        w.add(Utils.difference(
+//                reachableStates, 
+//                getAcceptingStates()));
         
         while (!w.isEmpty()) {
             Set<DeterministicFiniteAutomatonState> a = w.iterator().next();

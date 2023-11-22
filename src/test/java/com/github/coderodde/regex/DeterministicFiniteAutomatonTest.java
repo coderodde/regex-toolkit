@@ -132,16 +132,26 @@ public class DeterministicFiniteAutomatonTest {
         a.addFollowerState('1', c);
         b.addFollowerState('0', a);
         b.addFollowerState('1', d);
-        c.addFollowerState('0', f);
-        c.addFollowerState('1', e);
-        d.addFollowerState('0', f);
-        d.addFollowerState('1', e);
+        c.addFollowerState('0', e);
+        c.addFollowerState('1', f);
+        d.addFollowerState('0', e);
+        d.addFollowerState('1', f);
         e.addFollowerState('0', e);
         e.addFollowerState('1', f);
         f.addFollowerState('0', f);
         f.addFollowerState('1', f);
         
         assertEquals(6, dfa.getNumberOfStates());
+        
+        assertTrue(dfa.matches("1"));
+        assertTrue(dfa.matches("01"));
+        assertTrue(dfa.matches("10"));
+        assertTrue(dfa.matches("100"));
+        
+        assertFalse(dfa.matches("0"));
+        assertFalse(dfa.matches("011"));
+        assertFalse(dfa.matches("0110"));
+        assertFalse(dfa.matches("0111"));
         
         DeterministicFiniteAutomaton dfa2 = dfa.minimizeViaHopcroftAlgorithm();
         

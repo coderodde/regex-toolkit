@@ -218,12 +218,29 @@ public class RegexInfixToPostfixConverterTest {
     }
     
     @Test
-    public void onQuestion() {
+    public void onQuestion1() {
         // (ab)?c
         inputTokens = 
                 Arrays.asList(left, a, concat, b, right, question, concat, c);
         
-        //
+        // a b o ? o c
+        expectedTokens = deque(a, b, concat, question, c, concat);
+        
+        tokens = converter.convert(inputTokens);
+        assertEq(expectedTokens, tokens);
+    }
+    
+    @Test
+    public void onQuestion2() {
+        // ab?c
+        inputTokens = 
+                Arrays.asList(a, concat, b, question, concat, c);
+        
+        // a b ? c o o
+        expectedTokens = deque(a, b, question, c, concat, concat);
+        
+        tokens = converter.convert(inputTokens);
+        assertEq(expectedTokens, tokens);
     }
     
     @Test

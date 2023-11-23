@@ -41,6 +41,9 @@ public final class RegexToken {
             case CONCAT:
                 return "o";
                 
+            case QUESTION:
+                return "?";
+                
             case KLEENE_STAR:
                 return "*";
                 

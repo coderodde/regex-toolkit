@@ -51,6 +51,10 @@ public final class NondeterministicFiniteAutomatonState {
         return id;
     }
     
+    NondeterministicFiniteAutomatonState getDotTransitionState() {
+        return dotTransition;
+    }
+    
     void addDotTransition(NondeterministicFiniteAutomatonState nextState) {
         this.dotTransition = nextState;
     }

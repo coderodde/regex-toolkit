@@ -56,65 +56,6 @@ public final class NondeterministicFiniteAutomaton {
     public DeterministicFiniteAutomaton 
         convertToDetermenisticFiniteAutomaton() {
         return new NFAToDFAConverter(this).convert();
-//            
-//        DeterministicFiniteAutomaton dfa = new DeterministicFiniteAutomaton();
-//        
-//        int stateID = 0;
-//        
-//        Set<NondeterministicFiniteAutomatonState> startState =
-//                new HashSet<>(Arrays.asList(initialState));
-//        
-//        startState = epsilonExpand(startState);
-//        
-//        Deque<Set<NondeterministicFiniteAutomatonState>> stateQueue = 
-//                new ArrayDeque<>(Arrays.asList(startState));
-//        
-//        Map<Set<NondeterministicFiniteAutomatonState>, 
-//            DeterministicFiniteAutomatonState> stateMap = new HashMap<>();
-//        
-//        DeterministicFiniteAutomatonState dfaInitialState = 
-//                new DeterministicFiniteAutomatonState(stateID++);
-//        
-//        dfa.setInitialState(dfaInitialState);
-//        stateMap.put(startState, dfaInitialState);
-//        Set<NondeterministicFiniteAutomatonState> currentNFAState = startState;
-//        DeterministicFiniteAutomatonState currentDFAState = dfaInitialState;
-//        
-//        while (!stateQueue.isEmpty()) {
-//            Set<NondeterministicFiniteAutomatonState> currentState = 
-//                    stateQueue.removeFirst();
-//            
-//            if (currentState.isEmpty()) {
-//                continue;
-//            }
-//            
-//            Set<Character> localAlphabet = getLocalAlphabet(currentState);
-//            
-//            for (Character character : localAlphabet) {
-//                Set<NondeterministicFiniteAutomatonState> followerStateSet = 
-//                        new HashSet<>();
-//                
-//                for (NondeterministicFiniteAutomatonState s : currentState) {
-//                    followerStateSet.addAll(s.getFollowingStates(character));
-//                }
-//                
-//                followerStateSet = epsilonExpand(followerStateSet);
-//                
-//                if (stateMap.containsKey(followerStateSet)) {
-//                    continue;
-//                } else {
-//                    stateQueue.addLast(followerStateSet);
-//                }
-//                
-//                DeterministicFiniteAutomatonState nextDFAState = 
-//                        new DeterministicFiniteAutomatonState(stateID++);
-//                
-//                currentDFAState.addFollowerState(character, nextDFAState);
-//                stateMap.put(currentNFAState, nextDFAState);
-//            }
-//        }
-//        
-//        return dfa;
     }
         
     public static NondeterministicFiniteAutomaton compile(String regex) {
@@ -125,19 +66,6 @@ public final class NondeterministicFiniteAutomaton {
         
         return new NondeterministicFiniteAutomatonCompiler()
                 .compile(postfixTokens);
-    }
-    
-    private Set<NondeterministicFiniteAutomatonState> 
-        traverse(Set<NondeterministicFiniteAutomatonState> states, 
-                 Character character) {
-        Set<NondeterministicFiniteAutomatonState> nextStates = 
-                new HashSet<>();
-        
-        for (NondeterministicFiniteAutomatonState state : states) {
-            nextStates.addAll(state.getFollowingStates(character));
-        }
-        
-        return nextStates;
     }
     
     private static Set<Character> 
@@ -167,6 +95,10 @@ public final class NondeterministicFiniteAutomaton {
             for (NondeterministicFiniteAutomatonState q : currentStates) {
                 Set<NondeterministicFiniteAutomatonState> nextState =
                         q.getFollowingStates(ch);
+                
+                if (q.getDotTransitionState() != null) {
+                    nextStates.add(q.getDotTransitionState());
+                }
                 
                 if (nextState != null) {
                     nextStates.addAll(nextState);

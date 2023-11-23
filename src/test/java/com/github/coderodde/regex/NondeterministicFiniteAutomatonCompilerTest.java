@@ -1,7 +1,5 @@
 package com.github.coderodde.regex;
 
-import java.util.Deque;
-import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -93,6 +91,90 @@ public class NondeterministicFiniteAutomatonCompilerTest {
         
         assertFalse(nfa.matches("ba"));
         assertFalse(nfa.matches("abab"));
+    }
+    
+    @Test
+    public void onQuestionMark1() {
+        NondeterministicFiniteAutomaton nfa = getNFA("ab?");
+        
+        assertTrue(nfa.matches("a"));
+        assertTrue(nfa.matches("ab"));
+        
+        assertFalse(nfa.matches(""));
+        assertFalse(nfa.matches("abb"));
+    }
+    
+    @Test
+    public void onQuestionMark2() {
+        NondeterministicFiniteAutomaton nfa = getNFA("(ab)?");
+        
+        assertTrue(nfa.matches(""));
+        assertTrue(nfa.matches("ab"));
+        
+        assertFalse(nfa.matches("a"));
+        assertFalse(nfa.matches("abb"));
+    }
+    
+    @Test
+    public void onQuestionMark3() {
+        NondeterministicFiniteAutomaton nfa = getNFA("(ab*c)?");
+        
+        assertTrue(nfa.matches(""));
+        assertTrue(nfa.matches("ac"));
+        assertTrue(nfa.matches("abc"));
+        assertTrue(nfa.matches("abbc"));
+        assertTrue(nfa.matches("abbbc"));
+        
+        assertFalse(nfa.matches("a"));
+        assertFalse(nfa.matches("bc"));
+    }
+    
+    @Test
+    public void onDot1() {
+        NondeterministicFiniteAutomaton nfa = getNFA(".");
+        
+        assertTrue(nfa.matches("a"));
+        assertTrue(nfa.matches("b"));
+        
+        assertFalse(nfa.matches(""));
+        assertFalse(nfa.matches("ab"));
+    }
+    
+    @Test
+    public void onDot2() {
+        NondeterministicFiniteAutomaton nfa = getNFA("..");
+        
+        assertTrue(nfa.matches("aa"));
+        assertTrue(nfa.matches("bb"));
+        
+        assertFalse(nfa.matches(""));
+        assertFalse(nfa.matches("b"));
+        assertFalse(nfa.matches("baa"));
+    }
+    
+    @Test
+    public void onDot3() {
+        NondeterministicFiniteAutomaton nfa = getNFA("..?");
+        
+        assertTrue(nfa.matches("a"));
+        assertTrue(nfa.matches("b"));
+        assertTrue(nfa.matches("aa"));
+        assertTrue(nfa.matches("bb"));
+        
+        assertFalse(nfa.matches(""));
+        assertFalse(nfa.matches("aaa"));
+    }
+    
+    @Test
+    public void onDot4() {
+        NondeterministicFiniteAutomaton nfa = getNFA("a(b.)?.");
+        
+        assertTrue(nfa.matches("a1"));
+        assertTrue(nfa.matches("ab11"));
+        
+        assertFalse(nfa.matches(""));
+        assertFalse(nfa.matches("a"));
+        assertFalse(nfa.matches("abc"));
     }
     
     private static NondeterministicFiniteAutomaton getNFA(String regex) {

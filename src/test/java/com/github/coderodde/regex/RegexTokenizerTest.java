@@ -5,6 +5,7 @@ import static com.github.coderodde.regex.TestUtils.getConcatenation;
 import static com.github.coderodde.regex.TestUtils.getDot;
 import static com.github.coderodde.regex.TestUtils.getKleeneStar;
 import static com.github.coderodde.regex.TestUtils.getLeftParenthesis;
+import static com.github.coderodde.regex.TestUtils.getPlus;
 import static com.github.coderodde.regex.TestUtils.getQuestion;
 import static com.github.coderodde.regex.TestUtils.getRightParenthesis;
 import static com.github.coderodde.regex.TestUtils.getUnion;
@@ -255,6 +256,34 @@ public class RegexTokenizerTest {
     }
     
     @Test
+    public void dot() {
+        tokens = tokenizer.tokenize(".");
+        expectedTokens = Arrays.asList(getDot());
+        
+        assertEquals(expectedTokens, tokens);
+    }
+    
+    @Test
+    public void concatenationBetweenTwoDots() {
+        tokens = tokenizer.tokenize("..");
+        expectedTokens = Arrays.asList(getDot(),
+                                       getConcatenation(),
+                                       getDot());
+        
+        assertEquals(expectedTokens, tokens);
+    }
+    
+    @Test
+    public void concatenationAfterCharacterBeforeDot() {
+        tokens = tokenizer.tokenize("0.");
+        expectedTokens = Arrays.asList(getCharToken('0'),
+                                       getConcatenation(),
+                                       getDot());
+        
+        assertEquals(expectedTokens, tokens);
+    }
+    
+    @Test
     public void dot1() {
         tokens = tokenizer.tokenize("b..a.");
         expectedTokens = 
@@ -269,5 +298,46 @@ public class RegexTokenizerTest {
                               getDot());
         
         assertEquals(expectedTokens, tokens);
+    }
+    
+    @Test
+    public void dot2() {
+        tokens = tokenizer.tokenize("a.+");
+        expectedTokens = 
+                Arrays.asList(getCharToken('a'),
+                              getConcatenation(),
+                              getDot(),
+                              getPlus());
+        
+        assertEquals(expectedTokens, tokens);
+    }
+    
+    @Test
+    public void plus1() {
+        tokens = tokenizer.tokenize("a+b");
+        expectedTokens = Arrays.asList(getCharToken('a'),
+                                       getPlus(),
+                                       getConcatenation(),
+                                       getCharToken('b'));
+    }
+    
+    @Test
+    public void plus2() {
+        tokens = tokenizer.tokenize("(ab)+b");
+        expectedTokens = Arrays.asList(getLeftParenthesis(),
+                                       getCharToken('a'),
+                                       getConcatenation(),
+                                       getCharToken('b'),
+                                       getRightParenthesis(),
+                                       getPlus(),
+                                       getConcatenation(),
+                                       getCharToken('b'));
+        
+        assertEquals(expectedTokens, tokens);
+    }
+    
+    @Test(expected = InvalidRegexException.class)
+    public void throwsOnNoPrecedingChar() {
+        tokens = tokenizer.tokenize("+a");
     }
 }

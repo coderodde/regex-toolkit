@@ -33,4 +33,8 @@ class TestUtils {
     static RegexToken getDot() {
         return new RegexToken(RegexTokenType.DOT);
     }
+    
+    static RegexToken getPlus() {
+        return new RegexToken(RegexTokenType.PLUS);
+    }
 }

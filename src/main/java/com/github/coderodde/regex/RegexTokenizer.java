@@ -58,25 +58,40 @@ public final class RegexTokenizer {
         List<RegexToken> tokens = new ArrayList<>();
         char previousCharacter = '\0';
         
-        for (char ch : regex.toCharArray()) {
+        for (int i = 0, n = regex.length(); i != n; i++) {
+            char ch = regex.charAt(i);
+            
             switch (ch) {
                 case '*':
+                    if (i == 0) {
+                        throw new InvalidRegexException();
+                    }
+                    
                     tokens.add(REGEX_TOKEN_KLEENE_STAR);
                     break;
                     
                 case '+':
+                    if (i == 0) {
+                        throw new InvalidRegexException();
+                    }
+                    
                     tokens.add(REGEX_TOKEN_PLUS);
                     break;
                     
                 case '?':
+                    if (i == 0) {
+                        throw new InvalidRegexException();
+                    }
+                    
                     tokens.add(REGEX_TOKEN_QUESTION);
                     break;
                     
                 case '.':
-                    if (isTextCharacter(previousCharacter)
+                    if (isTextCharacter(previousCharacter) // i == 0?
                             || previousCharacter == '*'
                             || previousCharacter == '+'
                             || previousCharacter == '?'
+                            || previousCharacter == '.'
                             || previousCharacter == ')') {
                         tokens.add(REGEX_TOKEN_CONCAT);
                     }
@@ -110,6 +125,7 @@ public final class RegexTokenizer {
                             || previousCharacter == '*'
                             || previousCharacter == '+'
                             || previousCharacter == '?'
+                            || previousCharacter == '.'
                             || previousCharacter == ')') {
                         tokens.add(REGEX_TOKEN_CONCAT);
                     }

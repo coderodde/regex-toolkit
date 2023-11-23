@@ -56,6 +56,9 @@ public final class RegexToken {
             case UNION:
                 return "|";
                 
+            case DOT:
+                return ".";
+                
             default:
                 throw new IllegalStateException("Unknown token type.");
         }

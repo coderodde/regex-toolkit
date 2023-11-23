@@ -32,18 +32,38 @@ public final class RegexInfixToPostfixConverter {
         Deque<RegexToken> output = new ArrayDeque<>(infixRegex.size());
         Deque<RegexToken> operatorStack = new ArrayDeque<>(infixRegex.size());
         
-        for (RegexToken regexToken : infixRegex) {
+        for (int i = 0, n = infixRegex.size(); i != n; i++) {
+            RegexToken regexToken = infixRegex.get(i);
+            
             switch (regexToken.getTokenType()) {
                 case CHARACTER:
+                case DOT:
+                    output.addLast(regexToken);
+                    break;
+                    
                 case KLEENE_STAR:
+                case PLUS:
+                case QUESTION:
+                    if (i == 0) {
+                        throw new InvalidRegexException();
+                    }
+                    
                     output.addLast(regexToken);
                     break;
                     
                 case CONCAT:
+                    if (i == 0) {
+                        throw new InvalidRegexException();
+                    }
+                    
                     processConcatenation(output, operatorStack);
                     break;
                     
                 case UNION:
+                    if (i == 0) {
+                        throw new InvalidRegexException();
+                    }
+                    
                     processUnion(output, operatorStack);
                     break;
                     
@@ -149,12 +169,25 @@ public final class RegexInfixToPostfixConverter {
         }
     }
     
+    // Processes the question mark. a? -> e a |
+    //                             ab? -> e a b concat |
+    //                             (a+b)? -> e a plus concat b |
+    private static void processQuestion(int questionMarkIndex,
+                                        Deque<RegexToken> output,
+                                        Deque<RegexToken> operatorStack) {
+        
+    }
+    
     private static int getOperatorPrecedence(RegexTokenType tokenType) {
         switch (tokenType) {
             case KLEENE_STAR:
-                return 2;
+            case PLUS:
+                return 3;
                 
             case CONCAT:
+                return 2;
+                
+            case QUESTION:
                 return 1;
                 
             case UNION:

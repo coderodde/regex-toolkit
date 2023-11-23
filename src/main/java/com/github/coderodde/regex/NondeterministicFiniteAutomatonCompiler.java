@@ -52,15 +52,27 @@ public final class NondeterministicFiniteAutomatonCompiler {
                     break;
                     
                 case CONCAT: 
-                    processConcatenation();
+                    processConcatenationOperator();
+                    break;
+                    
+                case DOT:
+                    processDotOperator();
                     break;
                     
                 case UNION: 
-                    processUnion();
+                    processUnionOperator();
+                    break;
+                    
+                case QUESTION:
+                    processQuestionMarkOperator();
                     break;
                     
                 case KLEENE_STAR: 
                     processKleeneStar();
+                    break;
+                    
+                case PLUS:
+                    processPlusOperator();
                     break;
                     
                 case EPSILON:
@@ -84,11 +96,11 @@ public final class NondeterministicFiniteAutomatonCompiler {
         
         NondeterministicFiniteAutomatonState initialState = 
                 new NondeterministicFiniteAutomatonState(
-                        getNextStateName());
+                        getNextStateId());
         
         NondeterministicFiniteAutomatonState acceptingState = 
                 new NondeterministicFiniteAutomatonState(
-                        getNextStateName());
+                        getNextStateId());
         
         nfa.setInitialState(initialState);
         nfa.setAcceptingState(acceptingState);
@@ -97,7 +109,52 @@ public final class NondeterministicFiniteAutomatonCompiler {
         nfaStack.addLast(nfa);
     }
     
-    private void processUnion() {
+    private void processDotOperator() {
+        NondeterministicFiniteAutomaton nfa =
+                new NondeterministicFiniteAutomaton();
+        
+        NondeterministicFiniteAutomatonState initialState = 
+                new NondeterministicFiniteAutomatonState(
+                        getNextStateId());
+        
+        NondeterministicFiniteAutomatonState acceptingState = 
+                new NondeterministicFiniteAutomatonState(
+                        getNextStateId());
+        
+        nfa.setInitialState(initialState);
+        nfa.setAcceptingState(acceptingState);
+        initialState.addDotTransition(acceptingState);
+        
+        nfaStack.addLast(nfa);
+    }
+    
+    private void processQuestionMarkOperator() {
+        if (nfaStack.isEmpty()) {
+            throw new InvalidRegexException();
+        }
+        
+        NondeterministicFiniteAutomaton nfa = nfaStack.removeLast();
+        NondeterministicFiniteAutomaton resultNFA = 
+                new NondeterministicFiniteAutomaton();
+        
+        NondeterministicFiniteAutomatonState initialState =
+                new NondeterministicFiniteAutomatonState(getNextStateId());
+        
+        NondeterministicFiniteAutomatonState acceptingState = 
+                new NondeterministicFiniteAutomatonState(getNextStateId());
+        
+        resultNFA.setInitialState(initialState);
+        resultNFA.setAcceptingState(acceptingState);
+        
+        initialState.addEpsilonTransition(acceptingState);
+        initialState.addEpsilonTransition(nfa.getInitialState());
+        nfa.getAcceptingState().addEpsilonTransition(acceptingState);
+        nfa.setAcceptingState(null);
+        
+        nfaStack.addLast(resultNFA);
+    }
+    
+    private void processUnionOperator() {
         if (nfaStack.isEmpty()) {
             throw new InvalidRegexException();
         }
@@ -114,11 +171,11 @@ public final class NondeterministicFiniteAutomatonCompiler {
         
         NondeterministicFiniteAutomatonState initialState = 
                 new NondeterministicFiniteAutomatonState(
-                        getNextStateName());
+                        getNextStateId());
         
         NondeterministicFiniteAutomatonState acceptingState =
                 new NondeterministicFiniteAutomatonState(
-                        getNextStateName());
+                        getNextStateId());
         
         resultNFA.setInitialState(initialState);
         resultNFA.setAcceptingState(acceptingState);
@@ -135,7 +192,7 @@ public final class NondeterministicFiniteAutomatonCompiler {
         nfaStack.addLast(resultNFA);
     }
     
-    private void processConcatenation() {
+    private void processConcatenationOperator() {
         if (nfaStack.isEmpty()) {
             throw new InvalidRegexException();
         }
@@ -184,11 +241,15 @@ public final class NondeterministicFiniteAutomatonCompiler {
     }
     
     private void processKleeneStar() {
+        if (nfaStack.isEmpty()) {
+            throw new InvalidRegexException();
+        }
+        
         NondeterministicFiniteAutomatonState initialState = 
-                new NondeterministicFiniteAutomatonState(getNextStateName());
+                new NondeterministicFiniteAutomatonState(getNextStateId());
         
         NondeterministicFiniteAutomatonState acceptingState = 
-                new NondeterministicFiniteAutomatonState(getNextStateName());
+                new NondeterministicFiniteAutomatonState(getNextStateId());
         
         initialState.addEpsilonTransition(acceptingState);
         
@@ -209,7 +270,35 @@ public final class NondeterministicFiniteAutomatonCompiler {
         nfaStack.addLast(resultNFA);
     }
     
-    private int getNextStateName() {
+    private void processPlusOperator() {
+        if (nfaStack.isEmpty()) {
+            throw new InvalidRegexException();
+        }
+        
+        NondeterministicFiniteAutomatonState initialState = 
+                new NondeterministicFiniteAutomatonState(getNextStateId());
+        
+        NondeterministicFiniteAutomatonState acceptingState = 
+                new NondeterministicFiniteAutomatonState(getNextStateId());
+        
+        NondeterministicFiniteAutomaton nfa = nfaStack.removeLast();
+        
+        initialState.addEpsilonTransition(nfa.getInitialState());
+        nfa.getAcceptingState().addEpsilonTransition(acceptingState);
+        
+        nfa.getAcceptingState().addEpsilonTransition(nfa.getInitialState());
+        nfa.setAcceptingState(null);
+        
+        NondeterministicFiniteAutomaton resultNFA =
+                new NondeterministicFiniteAutomaton();
+        
+        resultNFA.setInitialState(initialState);
+        resultNFA.setAcceptingState(acceptingState);
+        
+        nfaStack.addLast(resultNFA); 
+    }
+    
+    private int getNextStateId() {
         return stateIDCounter++;
     }
 }

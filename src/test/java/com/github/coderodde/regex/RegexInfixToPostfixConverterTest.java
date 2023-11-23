@@ -2,8 +2,11 @@ package com.github.coderodde.regex;
 
 import static com.github.coderodde.regex.TestUtils.getCharToken;
 import static com.github.coderodde.regex.TestUtils.getConcatenation;
+import static com.github.coderodde.regex.TestUtils.getDot;
 import static com.github.coderodde.regex.TestUtils.getKleeneStar;
 import static com.github.coderodde.regex.TestUtils.getLeftParenthesis;
+import static com.github.coderodde.regex.TestUtils.getPlus;
+import static com.github.coderodde.regex.TestUtils.getQuestion;
 import static com.github.coderodde.regex.TestUtils.getRightParenthesis;
 import static com.github.coderodde.regex.TestUtils.getUnion;
 import java.util.ArrayDeque;
@@ -26,7 +29,11 @@ public class RegexInfixToPostfixConverterTest {
     
     private final RegexToken a = getCharToken('a');
     private final RegexToken b = getCharToken('b');
+    private final RegexToken c = getCharToken('c');
+    private final RegexToken dot = getDot();
+    private final RegexToken question = getQuestion();
     private final RegexToken star = getKleeneStar();
+    private final RegexToken plus = getPlus();
     private final RegexToken left = getLeftParenthesis();
     private final RegexToken right = getRightParenthesis();
     private final RegexToken union = getUnion();
@@ -168,9 +175,55 @@ public class RegexInfixToPostfixConverterTest {
         
         tokens = converter.convert(inputTokens);
         assertEq(expectedTokens, tokens);
+    }
+    
+    @Test
+    public void onDot1() {
+        // .a+
+        inputTokens = Arrays.asList(dot,
+                                    concat,
+                                    a,
+                                    plus);
         
-//        System.out.println(inputTokens);
-//        System.out.println(tokens);
+        // . a + o
+        expectedTokens = deque(dot, a, plus, concat);
+        
+        tokens = converter.convert(inputTokens);
+        assertEq(expectedTokens, tokens);
+    }
+    
+    @Test
+    public void onDot2() {
+        // a..+b
+        inputTokens = 
+                Arrays.asList(a, concat, dot, concat, dot, plus, concat, b); 
+        
+        // a . . + b o o o
+        expectedTokens = deque(a, dot, dot, plus, b, concat, concat, concat);
+        
+        tokens = converter.convert(inputTokens);
+        assertEq(expectedTokens, tokens);
+    }
+    
+    @Test
+    public void onPlus() {
+        // a+b+
+        inputTokens = Arrays.asList(a, plus, concat, b, plus);
+        
+        // a + b + o
+        expectedTokens = deque(a, plus, b, plus, concat);
+        
+        tokens = converter.convert(inputTokens);
+        assertEq(expectedTokens, tokens);
+    }
+    
+    @Test
+    public void onQuestion() {
+        // (ab)?c
+        inputTokens = 
+                Arrays.asList(left, a, concat, b, right, question, concat, c);
+        
+        //
     }
     
     @Test

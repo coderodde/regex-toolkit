@@ -191,30 +191,10 @@ public final class DeterministicFiniteAutomaton {
                 getAllReachableStates();
         
         p.add(getAcceptingStates());
-        
-        Set<DeterministicFiniteAutomatonState> pDifference =
-                Utils.difference(reachableStates, getAcceptingStates());
-        
-        if (!pDifference.isEmpty()) {
-            p.add(pDifference);
-        }
-        
-//        p.add(Utils.difference(
-//                reachableStates, 
-//                getAcceptingStates()));
+        p.add(Utils.difference(reachableStates, getAcceptingStates()));
         
         w.add(getAcceptingStates());
-        
-        Set<DeterministicFiniteAutomatonState> wDifference = 
-                Utils.difference(reachableStates, getAcceptingStates());
-        
-        if (!wDifference.isEmpty()) {
-            w.add(wDifference);
-        }
-        
-//        w.add(Utils.difference(
-//                reachableStates, 
-//                getAcceptingStates()));
+        w.add(Utils.difference(reachableStates, getAcceptingStates()));
         
         while (!w.isEmpty()) {
             Set<DeterministicFiniteAutomatonState> a = w.iterator().next();
@@ -227,7 +207,20 @@ public final class DeterministicFiniteAutomaton {
                              reachableStates, 
                              a);
                 
-                for (Set<DeterministicFiniteAutomatonState> y : p) {
+                List<Set<DeterministicFiniteAutomatonState>> pList = 
+                        new ArrayList<>(p);
+                
+                ListIterator<Set<DeterministicFiniteAutomatonState>>
+                        pListIterator = pList.listIterator();
+                
+                while (pListIterator.hasNext()) {
+                    System.out.println(pList.size());
+                    
+                    Set<DeterministicFiniteAutomatonState> y =
+                            pListIterator.next();
+                    
+                    
+
                     Set<DeterministicFiniteAutomatonState> intersection = 
                             Utils.intersection(x, y);
                     
@@ -236,22 +229,15 @@ public final class DeterministicFiniteAutomaton {
                     }
                     
                     Set<DeterministicFiniteAutomatonState> difference = 
-                            Utils.difference(x, y);
+                            Utils.difference(y, x);
                     
                     if (difference.isEmpty()) {
                         continue;
                     }
                     
-                    List<DeterministicFiniteAutomatonState> yList = 
-                            new ArrayList<>(y);
-                    
-                    ListIterator<DeterministicFiniteAutomatonState> 
-                            yListIterator = yList.listIterator(yList.size());
-                    
-                    
-                    p.remove(y);
-                    p.add(intersection);
-                    p.add(difference);
+                    pListIterator.remove();
+                    pListIterator.add(intersection);
+                    pListIterator.add(difference);
                     
                     if (w.contains(y)) {
                         w.remove(y);

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -69,7 +70,7 @@ public final class DeterministicFiniteAutomaton {
         
         int stateId = 0;
         
-        Set<Set<DeterministicFiniteAutomatonState>> equivalenceClasses =
+        List<Set<DeterministicFiniteAutomatonState>> equivalenceClasses =
                 minimizeViaHopcroftAlgorithmImpl();
         
         DeterministicFiniteAutomaton dfa = new DeterministicFiniteAutomaton();
@@ -77,32 +78,21 @@ public final class DeterministicFiniteAutomaton {
         Map<Set<DeterministicFiniteAutomatonState>, 
             DeterministicFiniteAutomatonState> stateMap = new HashMap<>();
         
-        Map<DeterministicFiniteAutomatonState,
-            Set<DeterministicFiniteAutomatonState>> inverseStateMap = 
-                new HashMap<>();
-        
         for (Set<DeterministicFiniteAutomatonState> encodedState : 
                 equivalenceClasses) {
-            
-            if (encodedState.isEmpty()) {
-                continue;
-            }
             
             DeterministicFiniteAutomatonState dfaState = 
                     new DeterministicFiniteAutomatonState(stateId++);
             
             stateMap.put(encodedState, dfaState);
-            inverseStateMap.put(dfaState, encodedState);
             
             if (encodedState.contains(this.initialState)) {
                 dfa.setInitialState(dfaState);
-                System.out.println("yeaahah");
             }
             
             if (!Utils.intersection(encodedState,
                                     this.getAcceptingStates()).isEmpty()) {
                 dfa.getAcceptingStates().add(dfaState);
-                System.out.println("kewl");
             }
         }
         
@@ -112,50 +102,28 @@ public final class DeterministicFiniteAutomaton {
             DeterministicFiniteAutomatonState currentDFAState =
                     stateMap.get(equivalenceClass);
             
-            Character character =
-                    equivalenceClass
-                            .iterator()
-                            .next()
-                            .followerMap
-                            .keySet()
-                            .iterator()
-                            .next();
-            
-            Set<DeterministicFiniteAutomatonState> followerEquivalenceClass = 
+            for (Character character : getLocalAlphabet(equivalenceClass)) {
+                Set<DeterministicFiniteAutomatonState> followerEquivalenceClass = 
                     getNextEquivalenceClass( 
                                 equivalenceClass, 
                                 character);
             
-            Set<DeterministicFiniteAutomatonState> nextEquivalenceClass = 
+                Set<DeterministicFiniteAutomatonState> nextEquivalenceClass = 
                     getNext(equivalenceClasses, 
                             followerEquivalenceClass);
             
-            DeterministicFiniteAutomatonState nextDFAState =
+                DeterministicFiniteAutomatonState nextDFAState =
                     stateMap.get(nextEquivalenceClass);
             
-            currentDFAState.addFollowerState(character, nextDFAState);
-                
-//            DeterministicFiniteAutomatonState state = 
-//                    currentDFAState.traverse(character);
-//
-////            nextDFAStateSet.add(state);
-////            
-////            DeterministicFiniteAutomatonState nextDFAState = 
-////                    stateMap.get(nextDFAStateSet);
-////            
-////            currentDFAState.addFollowerState(character, nextDFAState);
-//            
-//            if (this.getAcceptingStates().contains(currentDFAState)) {
-//                System.out.println("yeahhhh");
-//                dfa.getAcceptingStates().add(currentDFAState);
-//            }
+                currentDFAState.addFollowerState(character, nextDFAState);
+            }
         }
         
         return dfa;
     }
     
     private static Set<DeterministicFiniteAutomatonState> 
-        getNext(Set<Set<DeterministicFiniteAutomatonState>> equivalenceClasses,
+        getNext(List<Set<DeterministicFiniteAutomatonState>> equivalenceClasses,
                 Set<DeterministicFiniteAutomatonState> followerState) {
         for (Set<DeterministicFiniteAutomatonState> equivalenceClass
                 : equivalenceClasses) {
@@ -182,11 +150,12 @@ public final class DeterministicFiniteAutomaton {
         return nextDFAStateSet;
     }
     
-    private Set<Set<DeterministicFiniteAutomatonState>>
+    private List<Set<DeterministicFiniteAutomatonState>>
          minimizeViaHopcroftAlgorithmImpl() {
              
-        Set<Set<DeterministicFiniteAutomatonState>> p = new HashSet<>();
+        List<Set<DeterministicFiniteAutomatonState>> p = new LinkedList<>();
         Set<Set<DeterministicFiniteAutomatonState>> w = new HashSet<>();
+        
         Set<DeterministicFiniteAutomatonState> reachableStates = 
                 getAllReachableStates();
         
@@ -207,20 +176,13 @@ public final class DeterministicFiniteAutomaton {
                              reachableStates, 
                              a);
                 
-                List<Set<DeterministicFiniteAutomatonState>> pList = 
-                        new ArrayList<>(p);
-                
                 ListIterator<Set<DeterministicFiniteAutomatonState>>
-                        pListIterator = pList.listIterator();
+                        pListIterator = p.listIterator();
                 
                 while (pListIterator.hasNext()) {
-                    System.out.println(pList.size());
-                    
                     Set<DeterministicFiniteAutomatonState> y =
                             pListIterator.next();
                     
-                    
-
                     Set<DeterministicFiniteAutomatonState> intersection = 
                             Utils.intersection(x, y);
                     

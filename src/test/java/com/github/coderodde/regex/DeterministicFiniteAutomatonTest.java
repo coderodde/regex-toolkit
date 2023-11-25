@@ -157,4 +157,31 @@ public class DeterministicFiniteAutomatonTest {
         
         assertEquals(3, dfa2.getNumberOfStates());
     }
+    
+    @Test
+    public void toNFAConversion() {
+        DeterministicFiniteAutomaton dfa = new DeterministicFiniteAutomaton();
+        
+        DeterministicFiniteAutomatonState q0 = 
+                new DeterministicFiniteAutomatonState(0);
+        
+        DeterministicFiniteAutomatonState q1 = 
+                new DeterministicFiniteAutomatonState(1);
+        
+        dfa.setInitialState(q0);
+        dfa.getAcceptingStates().add(q1);
+        
+        dfa.setInitialState(q0);
+        
+        q0.addFollowerState('0', q0);
+        q0.addFollowerState('1', q1);
+        q1.addFollowerState('0', q0);
+        q1.addFollowerState('1', q1);
+        
+        NondeterministicFiniteAutomaton nfa = 
+                dfa.convertoToNondeterministicFiniteAutomaton();
+        
+        assertEquals(2, nfa.getNumberOfStates());
+        // TODO: compare by equals() (regex)
+    }
 }

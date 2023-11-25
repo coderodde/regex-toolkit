@@ -41,6 +41,51 @@ public final class NondeterministicFiniteAutomaton {
             NondeterministicFiniteAutomatonState acceptingState) {
         this.acceptingState = acceptingState;
     }
+    
+    public int getNumberOfStates() {
+        return getAllReachableStates().size();
+    }
+    
+    
+    private Set<NondeterministicFiniteAutomatonState> getAllReachableStates() {
+        Deque<NondeterministicFiniteAutomatonState> queue = new ArrayDeque<>();
+        Set<NondeterministicFiniteAutomatonState> visited = new HashSet<>();
+        
+        queue.addLast(initialState);
+        visited.add(initialState);
+        
+        while (!queue.isEmpty()) {
+            NondeterministicFiniteAutomatonState state = queue.removeFirst();
+            
+            for (Set<NondeterministicFiniteAutomatonState> followerSet 
+                    : state.map.values()) {
+                for (NondeterministicFiniteAutomatonState follower 
+                        : followerSet) {
+                    if (!visited.contains(follower)) {
+                        visited.add(follower);
+                        queue.addLast(follower);
+                    }
+                }
+            }
+            
+            for (NondeterministicFiniteAutomatonState epsilonFollower
+                    : state.epsilonSet) {
+                if (!visited.contains(epsilonFollower)) {
+                    visited.add(epsilonFollower);
+                    queue.addLast(epsilonFollower);
+                }
+            }
+            
+            if (!visited.contains(state.dotTransition) 
+                    && state.dotTransition != null) {
+                
+                visited.add(state.dotTransition);
+                queue.addLast(state.dotTransition);
+            }
+        }
+        
+        return visited;
+    }
         
     public boolean matches(String text) {
         Set<NondeterministicFiniteAutomatonState> finalStateSet = 

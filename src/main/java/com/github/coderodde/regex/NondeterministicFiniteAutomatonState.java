@@ -19,10 +19,10 @@ public final class NondeterministicFiniteAutomatonState {
     final Map<Character, Set<NondeterministicFiniteAutomatonState>> map = 
             new HashMap<>();
     
-    private final Set<NondeterministicFiniteAutomatonState> epsilonSet = 
+    final Set<NondeterministicFiniteAutomatonState> epsilonSet = 
             new HashSet<>();
     
-    private NondeterministicFiniteAutomatonState dotTransition;
+    NondeterministicFiniteAutomatonState dotTransition;
     
     /**
      * Constructs a state for a nondeterministic finite automaton.

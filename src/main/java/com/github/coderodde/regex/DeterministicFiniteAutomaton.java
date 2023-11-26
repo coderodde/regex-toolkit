@@ -1,7 +1,6 @@
 package com.github.coderodde.regex;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -189,6 +188,81 @@ public final class DeterministicFiniteAutomaton {
         }
         
         return nextDFAStateSet;
+    }
+        
+    public String computeRegularExression() {
+        GeneralizedNondeterministicFiniteAutomaton gnfa = 
+                new GeneralizedNondeterministicFiniteAutomaton();
+        
+        populateStatesIn(gnfa);
+        
+        while (gnfa.getNumberOfStates() > 2) {
+            gnfa.rip();
+        }
+        
+        return gnfa.getInitialState()
+                .getRegularExpression(
+                        gnfa.getAcceptingState());
+    }
+    
+    private void populateStatesIn(
+            GeneralizedNondeterministicFiniteAutomaton gnfa) {
+        
+        int stateId = 0;
+        
+        GeneralizedNondeterministicFiniteAutomatonState gnfaInitialState = 
+                new GeneralizedNondeterministicFiniteAutomatonState(stateId++);
+        
+        GeneralizedNondeterministicFiniteAutomatonState gnfaAcceptingState = 
+                new GeneralizedNondeterministicFiniteAutomatonState(stateId++);
+        
+        Map<DeterministicFiniteAutomatonState, 
+            GeneralizedNondeterministicFiniteAutomatonState> stateMap = 
+                new HashMap<>();
+        
+        Set<DeterministicFiniteAutomatonState> allDFAStates = 
+                this.getAllReachableStates();
+        
+        for (DeterministicFiniteAutomatonState dfaState : allDFAStates) {
+            GeneralizedNondeterministicFiniteAutomatonState gnfaState = 
+                new GeneralizedNondeterministicFiniteAutomatonState(stateId++);
+            
+            stateMap.put(dfaState, gnfaState);
+        }
+        
+        gnfa.setNumberOfStates(2 + allDFAStates.size());
+        
+        for (DeterministicFiniteAutomatonState dfaState : allDFAStates) {
+            GeneralizedNondeterministicFiniteAutomatonState gnfaState = 
+                    stateMap.get(dfaState);
+            
+            for (Map.Entry<Character, DeterministicFiniteAutomatonState> entry 
+                    : dfaState.followerMap.entrySet()) {
+                
+                GeneralizedNondeterministicFiniteAutomatonState 
+                        gnfaFollowerState = stateMap.get(entry.getKey());
+                
+                gnfaState.addRegularExpression(
+                        gnfaFollowerState, 
+                        Character.toString(entry.getKey()));
+            }
+        }
+        
+        gnfa.setInitialState(gnfaInitialState);
+        gnfa.setAcceptingState(gnfaAcceptingState);
+        
+        DeterministicFiniteAutomatonState dfaInitialState = this.initialState;
+        GeneralizedNondeterministicFiniteAutomatonState nfaInitialState = 
+                stateMap.get(dfaInitialState);
+        
+//        gnfaInitialState.
+        
+        for (DeterministicFiniteAutomatonState state : allDFAStates) {
+            GeneralizedNondeterministicFiniteAutomatonState gnfaState = 
+                    stateMap.get(state);
+            
+            
+        }
     }
     
     private List<Set<DeterministicFiniteAutomatonState>>

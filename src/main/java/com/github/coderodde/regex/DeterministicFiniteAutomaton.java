@@ -252,17 +252,35 @@ public final class DeterministicFiniteAutomaton {
         gnfa.setAcceptingState(gnfaAcceptingState);
         
         DeterministicFiniteAutomatonState dfaInitialState = this.initialState;
-        GeneralizedNondeterministicFiniteAutomatonState nfaInitialState = 
+        GeneralizedNondeterministicFiniteAutomatonState fnfaInitialState = 
                 stateMap.get(dfaInitialState);
         
-//        gnfaInitialState.
+        gnfa.setInitialState(gnfaInitialState);
+        gnfa.setAcceptingState(gnfaAcceptingState);
         
-        for (DeterministicFiniteAutomatonState state : allDFAStates) {
+        for (DeterministicFiniteAutomatonState state : getAcceptingStates()) {
             GeneralizedNondeterministicFiniteAutomatonState gnfaState = 
                     stateMap.get(state);
             
-            
+            gnfaState.addEpsilonTransition(gnfaAcceptingState);
         }
+        
+        for (GeneralizedNondeterministicFiniteAutomatonState gnfaState 
+                : stateMap.values()) {
+            for (GeneralizedNondeterministicFiniteAutomatonState 
+                    followerGnfaState : gnfaState.getOutgoingStates()) {
+                Set<Character> localAlphabet = 
+                        getLocalAlphabet(
+                                gnfaState, 
+                                followerGnfaState);
+            }
+        }
+    }
+    
+    private Set<Character> getLocalAlphabet(
+            GeneralizedNondeterministicFiniteAutomatonState a,
+            GeneralizedNondeterministicFiniteAutomatonState b) {
+        return null;
     }
     
     private List<Set<DeterministicFiniteAutomatonState>>

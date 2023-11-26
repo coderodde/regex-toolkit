@@ -1,7 +1,9 @@
 package com.github.coderodde.regex;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -13,11 +15,30 @@ final class GeneralizedNondeterministicFiniteAutomatonState {
     
     private final int id;
     
-    final Map<GeneralizedNondeterministicFiniteAutomatonState, String> map = 
-            new HashMap<>();
+    private final Map<GeneralizedNondeterministicFiniteAutomatonState, 
+                      String> map = new HashMap<>();
+    
+    private final Set<GeneralizedNondeterministicFiniteAutomatonState>
+            incomingStates = new HashSet<>();
+    
+    private final Set<GeneralizedNondeterministicFiniteAutomatonState>
+            epsilonSet = new HashSet<>();
 
     GeneralizedNondeterministicFiniteAutomatonState(int id) {
         this.id = id;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        GeneralizedNondeterministicFiniteAutomatonState other = 
+                (GeneralizedNondeterministicFiniteAutomatonState) o;
+        
+        return id == other.id;
+    }
+    
+    @Override
+    public int hashCode() {
+        return id;
     }
     
     void addRegularExpression(
@@ -25,8 +46,23 @@ final class GeneralizedNondeterministicFiniteAutomatonState {
             String regularExpression) {
         
         map.put(followerState, regularExpression);
+        followerState.incomingStates.add(this);
     }
    
+    void addEpsilonTransition(
+            GeneralizedNondeterministicFiniteAutomatonState state) {
+        
+        epsilonSet.add(state);
+    }
+    
+    Set<GeneralizedNondeterministicFiniteAutomatonState> getIncomingStates() {
+        return incomingStates;
+    }
+    
+    Set<GeneralizedNondeterministicFiniteAutomatonState> getOutgoingStates() {
+        return map.keySet();
+    }
+    
     String getRegularExpression(
             GeneralizedNondeterministicFiniteAutomatonState state) {
         return map.get(state);

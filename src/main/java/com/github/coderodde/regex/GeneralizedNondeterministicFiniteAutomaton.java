@@ -1,5 +1,8 @@
 package com.github.coderodde.regex;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * 
  * @author Rodion "rodde" Efremov
@@ -10,6 +13,9 @@ public final class GeneralizedNondeterministicFiniteAutomaton { // TODO: remove 
     
     private GeneralizedNondeterministicFiniteAutomatonState initialState;
     private GeneralizedNondeterministicFiniteAutomatonState acceptingState;
+    private Set<GeneralizedNondeterministicFiniteAutomatonState> stateSet = 
+            new HashSet<>();
+    
     private int numberOfStates;
     
     GeneralizedNondeterministicFiniteAutomatonState getInitialState() {
@@ -18,6 +24,10 @@ public final class GeneralizedNondeterministicFiniteAutomaton { // TODO: remove 
     
     GeneralizedNondeterministicFiniteAutomatonState getAcceptingState() {
         return acceptingState;
+    }
+    
+    void addState(GeneralizedNondeterministicFiniteAutomatonState state) {
+        stateSet.add(state);
     }
     
     void setNumberOfStates(int numberOfStates) {
@@ -47,7 +57,9 @@ public final class GeneralizedNondeterministicFiniteAutomaton { // TODO: remove 
     }
     
     private GeneralizedNondeterministicFiniteAutomatonState getStateToRip() {
-        return null;
+        for (GeneralizedNondeterministicFiniteAutomatonState state : stateSet) {
+            
+        }
     }
     
     private void ripImpl(

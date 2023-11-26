@@ -65,47 +65,47 @@ public final class DeterministicFiniteAutomaton {
     public int getNumberOfStates() {
         return getAllReachableStates().size();
     }
-    
-    NondeterministicFiniteAutomaton 
-        convertoToNondeterministicFiniteAutomaton() {
-            
-        NondeterministicFiniteAutomaton nfa = 
-                new NondeterministicFiniteAutomaton();
-        
-        Map<DeterministicFiniteAutomatonState,
-            NondeterministicFiniteAutomatonState> stateMap = new HashMap<>();
-        
-        Set<DeterministicFiniteAutomatonState> allDFAStates = 
-                getAllReachableStates();
-        
-        int stateId = 0;
-        
-        for (DeterministicFiniteAutomatonState state : allDFAStates) {
-            NondeterministicFiniteAutomatonState nfaState = 
-                    new NondeterministicFiniteAutomatonState(stateId++);
-            
-            stateMap.put(state, nfaState);
-        }
-        
-        for (DeterministicFiniteAutomatonState state : allDFAStates) {
-            NondeterministicFiniteAutomatonState nfaState = stateMap.get(state);
-            
-            for (Map.Entry<Character, DeterministicFiniteAutomatonState> e 
-                    : state.followerMap.entrySet()) {
-                
-                nfaState.addTransition(e.getKey(), stateMap.get(e.getValue()));
-            }
-        }
-        
-        nfa.setInitialState(stateMap.get(this.initialState));
-        nfa.setAcceptingState(
-                stateMap.get(
-                        this.acceptingStateSet
-                                .iterator()
-                                .next()));
-        
-        return nfa;
-    }
+//    
+//    NondeterministicFiniteAutomaton 
+//        convertoToNondeterministicFiniteAutomaton() {
+//            
+//        NondeterministicFiniteAutomaton nfa = 
+//                new NondeterministicFiniteAutomaton();
+//        
+//        Map<DeterministicFiniteAutomatonState,
+//            NondeterministicFiniteAutomatonState> stateMap = new HashMap<>();
+//        
+//        Set<DeterministicFiniteAutomatonState> allDFAStates = 
+//                getAllReachableStates();
+//        
+//        int stateId = 0;
+//        
+//        for (DeterministicFiniteAutomatonState state : allDFAStates) {
+//            NondeterministicFiniteAutomatonState nfaState = 
+//                    new NondeterministicFiniteAutomatonState(stateId++);
+//            
+//            stateMap.put(state, nfaState);
+//        }
+//        
+//        for (DeterministicFiniteAutomatonState state : allDFAStates) {
+//            NondeterministicFiniteAutomatonState nfaState = stateMap.get(state);
+//            
+//            for (Map.Entry<Character, DeterministicFiniteAutomatonState> e 
+//                    : state.followerMap.entrySet()) {
+//                
+//                nfaState.addTransition(e.getKey(), stateMap.get(e.getValue()));
+//            }
+//        }
+//        
+//        nfa.setInitialState(stateMap.get(this.initialState));
+//        nfa.setAcceptingState(
+//                stateMap.get(
+//                        this.acceptingStateSet
+//                                .iterator()
+//                                .next()));
+//        
+//        return nfa;
+//    }
     
     public DeterministicFiniteAutomaton minimizeViaHopcroftAlgorithm() {
         

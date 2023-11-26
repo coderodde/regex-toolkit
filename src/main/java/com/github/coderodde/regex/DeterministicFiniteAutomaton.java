@@ -18,7 +18,8 @@ import java.util.Set;
  * @version 1.6 (Nov 11, 2023)
  * @since 1.6 (Nov 11, 2023)
  */
-public final class DeterministicFiniteAutomaton {
+public final class DeterministicFiniteAutomaton 
+        implements RegularExpressionMatcher {
     
     /**
      * The initial state of the DFA.
@@ -64,54 +65,13 @@ public final class DeterministicFiniteAutomaton {
     public int getNumberOfStates() {
         return getAllReachableStates().size();
     }
-//    
-//    NondeterministicFiniteAutomaton 
-//        convertoToNondeterministicFiniteAutomaton() {
-//            
-//        NondeterministicFiniteAutomaton nfa = 
-//                new NondeterministicFiniteAutomaton();
-//        
-//        Map<DeterministicFiniteAutomatonState,
-//            NondeterministicFiniteAutomatonState> stateMap = new HashMap<>();
-//        
-//        Set<DeterministicFiniteAutomatonState> allDFAStates = 
-//                getAllReachableStates();
-//        
-//        int stateId = 0;
-//        
-//        for (DeterministicFiniteAutomatonState state : allDFAStates) {
-//            NondeterministicFiniteAutomatonState nfaState = 
-//                    new NondeterministicFiniteAutomatonState(stateId++);
-//            
-//            stateMap.put(state, nfaState);
-//        }
-//        
-//        for (DeterministicFiniteAutomatonState state : allDFAStates) {
-//            NondeterministicFiniteAutomatonState nfaState = stateMap.get(state);
-//            
-//            for (Map.Entry<Character, DeterministicFiniteAutomatonState> e 
-//                    : state.followerMap.entrySet()) {
-//                
-//                nfaState.addTransition(e.getKey(), stateMap.get(e.getValue()));
-//            }
-//        }
-//        
-//        nfa.setInitialState(stateMap.get(this.initialState));
-//        nfa.setAcceptingState(
-//                stateMap.get(
-//                        this.acceptingStateSet
-//                                .iterator()
-//                                .next()));
-//        
-//        return nfa;
-//    }
     
-    public DeterministicFiniteAutomaton minimizeViaHopcroftAlgorithm() {
+    public DeterministicFiniteAutomaton minimizeViaHopcroftsAlgorithm() {
         
         int stateId = 0;
         
         List<Set<DeterministicFiniteAutomatonState>> equivalenceClasses =
-                minimizeViaHopcroftAlgorithmImpl();
+                minimizeViaHopcroftsAlgorithmImpl();
         
         DeterministicFiniteAutomaton dfa = new DeterministicFiniteAutomaton();
         
@@ -220,6 +180,7 @@ public final class DeterministicFiniteAutomaton {
             GeneralizedNondeterministicFiniteAutomatonState> stateMap = 
                 new HashMap<>();
         
+        // Create all the GNFA states corresponding to this DFA's states:
         Set<DeterministicFiniteAutomatonState> allDFAStates = 
                 this.getAllReachableStates();
         
@@ -232,6 +193,7 @@ public final class DeterministicFiniteAutomaton {
         
         gnfa.setNumberOfStates(2 + allDFAStates.size());
         
+        // Initialize all the GNFA state transitions:
         for (DeterministicFiniteAutomatonState dfaState : allDFAStates) {
             GeneralizedNondeterministicFiniteAutomatonState gnfaState = 
                     stateMap.get(dfaState);
@@ -240,34 +202,39 @@ public final class DeterministicFiniteAutomaton {
                     : dfaState.followerMap.entrySet()) {
                 
                 GeneralizedNondeterministicFiniteAutomatonState 
-                        gnfaFollowerState = stateMap.get(entry.getKey());
+                        gnfaFollowerState = stateMap.get(entry.getValue());
                 
-                gnfaState.addRegularExpression(
-                        gnfaFollowerState, 
-                        Character.toString(entry.getKey()));
+                String currentRegex = 
+                        gnfaState.getRegularExpression(gnfaFollowerState);
+                
+                if (currentRegex == null) {
+                    gnfaState.addRegularExpression(
+                            gnfaFollowerState, 
+                            Character.toString(entry.getKey()));
+                } else {
+                    String tentativeRegex = 
+                            gnfaState.getRegularExpression(gnfaFollowerState);
+                    
+                    gnfaState.addRegularExpression(
+                            gnfaFollowerState, 
+                            tentativeRegex 
+                                    + "|" 
+                                    + Character.toString(entry.getKey()));
+                }
             }
         }
         
+        // Handle terminal states:
         gnfa.setInitialState(gnfaInitialState);
         gnfa.setAcceptingState(gnfaAcceptingState);
+        gnfaInitialState.addEpsilonTransition(stateMap.get(this.initialState));
         
-        for (DeterministicFiniteAutomatonState state : getAcceptingStates()) {
+        for (DeterministicFiniteAutomatonState acceptingDFAState 
+                : acceptingStateSet) {
             GeneralizedNondeterministicFiniteAutomatonState gnfaState = 
-                    stateMap.get(state);
+                    stateMap.get(acceptingDFAState);
             
             gnfaState.addEpsilonTransition(gnfaAcceptingState);
-            gnfaInitialState.addEpsilonTransition(gnfaState);
-        }
-        
-        for (DeterministicFiniteAutomatonState dfaStateSource : allDFAStates) {
-            GeneralizedNondeterministicFiniteAutomatonState nfaStateSource = 
-                    stateMap.get(dfaStateSource);
-            
-            for (DeterministicFiniteAutomatonState dfaStateTarget
-                    : allDFAStates) {
-                GeneralizedNondeterministicFiniteAutomatonState nfaStateTarget =
-                        stateMap.get(dfaStateTarget);
-            }
         }
     }
     
@@ -278,7 +245,7 @@ public final class DeterministicFiniteAutomaton {
     }
     
     private List<Set<DeterministicFiniteAutomatonState>>
-         minimizeViaHopcroftAlgorithmImpl() {
+         minimizeViaHopcroftsAlgorithmImpl() {
              
         List<Set<DeterministicFiniteAutomatonState>> p = new LinkedList<>();
         Set<Set<DeterministicFiniteAutomatonState>> w = new HashSet<>();

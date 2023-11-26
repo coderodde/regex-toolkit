@@ -16,7 +16,8 @@ import java.util.Set;
  * @version 1.6 (Nov 17, 2023)
  * @since 1.6 (Nov 17, 2023)
  */
-public final class NondeterministicFiniteAutomaton {
+public final class NondeterministicFiniteAutomaton
+        implements RegularExpressionMatcher {
     
     private NondeterministicFiniteAutomatonState initialState;
     private NondeterministicFiniteAutomatonState acceptingState;

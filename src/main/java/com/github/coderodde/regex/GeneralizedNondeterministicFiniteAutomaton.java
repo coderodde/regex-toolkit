@@ -52,18 +52,54 @@ public final class GeneralizedNondeterministicFiniteAutomaton { // TODO: remove 
         GeneralizedNondeterministicFiniteAutomatonState rippedState = 
                 getStateToRip();
         
-        ripImpl(rippedState);
+        GeneralizedNondeterministicFiniteAutomatonState inputState = 
+                getIncommingRipState(rippedState);
+        
+        GeneralizedNondeterministicFiniteAutomatonState outputState = 
+                getOutgoingRipState(rippedState);
+        
+        ripImpl(inputState, rippedState, outputState);
         numberOfStates--;
     }
     
     private GeneralizedNondeterministicFiniteAutomatonState getStateToRip() {
-        for (GeneralizedNondeterministicFiniteAutomatonState state : stateSet) {
-            
+        return stateSet.iterator().next();
+    }
+    
+    private GeneralizedNondeterministicFiniteAutomatonState 
+        getIncommingRipState(
+                GeneralizedNondeterministicFiniteAutomatonState stateToRip) {
+        
+        for (GeneralizedNondeterministicFiniteAutomatonState state
+                : stateToRip.getIncomingStates()) {
+            if (!state.equals(stateToRip)) {
+                return state;
+            }
         }
+        
+        throw new IllegalStateException("Should not get here.");
+    }
+        
+    private GeneralizedNondeterministicFiniteAutomatonState
+        getOutgoingRipState(
+                GeneralizedNondeterministicFiniteAutomatonState stateToRip) {
+        
+        for (GeneralizedNondeterministicFiniteAutomatonState state 
+                : stateToRip.getOutgoingStates()) {
+            if (!state.equals(stateToRip)) {
+                return state;
+            }
+        }
+        
+        throw new IllegalStateException("Should not get here.");
     }
     
     private void ripImpl(
-            GeneralizedNondeterministicFiniteAutomatonState stateToRip) {
+            GeneralizedNondeterministicFiniteAutomatonState stateToRip,
+            GeneralizedNondeterministicFiniteAutomatonState incomingState,
+            GeneralizedNondeterministicFiniteAutomatonState outgoingState) {
+        StringBuilder stringBuilder = new StringBuilder();
+        
         
     }
 }

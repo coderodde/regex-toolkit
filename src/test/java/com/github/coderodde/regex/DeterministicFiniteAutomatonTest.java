@@ -91,7 +91,7 @@ public class DeterministicFiniteAutomatonTest {
         
         assertEquals(2, dfa.getNumberOfStates());
         
-        DeterministicFiniteAutomaton dfa2 = dfa.minimizeViaHopcroftAlgorithm();
+        DeterministicFiniteAutomaton dfa2 = dfa.minimizeViaHopcroftsAlgorithm();
         
         assertTrue(dfa2.matches(""));
         assertTrue(dfa2.matches("a"));
@@ -153,7 +153,7 @@ public class DeterministicFiniteAutomatonTest {
         assertFalse(dfa.matches("0110"));
         assertFalse(dfa.matches("0111"));
         
-        DeterministicFiniteAutomaton dfa2 = dfa.minimizeViaHopcroftAlgorithm();
+        DeterministicFiniteAutomaton dfa2 = dfa.minimizeViaHopcroftsAlgorithm();
         
         assertEquals(3, dfa2.getNumberOfStates());
     }

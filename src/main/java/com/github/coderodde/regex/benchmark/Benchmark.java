@@ -12,10 +12,10 @@ import java.util.Random;
  */
 public final class Benchmark {
     
-    private static final int MAXIMUM_REGEX_TREE_DEPTH = 5;
+    private static final int MAXIMUM_REGEX_TREE_DEPTH = 10;
     
     public static void main(String[] args) {
-        long seed = System.nanoTime();
+        long seed = 90120904082900L; // System.nanoTime();
         Random random = new Random(seed);
         
         System.out.println("Seed = " + seed);
@@ -80,8 +80,51 @@ public final class Benchmark {
                         "Compiled the NFA to DFA in %1.3f milliseconds.", 
                         duration / 1_000_000.0).replace(',', '.'));
         
+        System.out.println(
+                "Number of states in the NFA: " + nfa.getNumberOfStates());
+        
+        System.out.println(
+                "Number of states in the source DFA: " +
+                        dfa.getNumberOfStates());
+        
+        startTime = System.nanoTime();
+        dfa = dfa.minimizeViaHopcroftsAlgorithm();
+        duration = System.nanoTime() - startTime;
+        
+        System.out.println(
+                "Number of states in the target DFA: " +
+                        dfa.getNumberOfStates());
+        
+        System.out.println(
+            String.format(
+                "Minimized the DFA via Hopcroft's algorithm in %1.3f " +
+                        "milliseconds.",
+                    duration / 1_000_000.0).replace(',', '.'));
+        
         startTime = System.nanoTime();
         
+        boolean dfaMatches = dfa.matches(text);
+        
         duration = System.nanoTime() - startTime;
+        
+        System.out.println(
+                String.format(
+                        "DFA matches: " 
+                                + dfaMatches 
+                                + ", duration: %1.3f milliseconds.", 
+                        duration / 1_000_000.0).replace(',', '.'));
+        
+        startTime = System.nanoTime();
+        
+        boolean nfaMatches = nfa.matches(text);
+        
+        duration = System.nanoTime() - startTime;
+        
+        System.out.println(
+                String.format(
+                        "NFA matches: " 
+                                + nfaMatches 
+                                + ", duration: %1.3f milliseconds.", 
+                        duration / 1_000_000.0).replace(',', '.'));
     }
 }

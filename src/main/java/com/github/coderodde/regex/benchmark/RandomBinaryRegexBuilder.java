@@ -2,6 +2,13 @@ package com.github.coderodde.regex.benchmark;
 
 import com.github.coderodde.regex.RegexToken;
 import com.github.coderodde.regex.RegexTokenType;
+import static com.github.coderodde.regex.RegexTokenType.CHARACTER;
+import static com.github.coderodde.regex.RegexTokenType.CONCAT;
+import static com.github.coderodde.regex.RegexTokenType.DOT;
+import static com.github.coderodde.regex.RegexTokenType.KLEENE_STAR;
+import static com.github.coderodde.regex.RegexTokenType.PLUS;
+import static com.github.coderodde.regex.RegexTokenType.QUESTION;
+import static com.github.coderodde.regex.RegexTokenType.UNION;
 import java.util.Random;
 
 /**
@@ -10,9 +17,13 @@ import java.util.Random;
  * @version 1.6 (Nov 26, 2023)
  * @since 1.6 (Nov 26, 2023)
  */
-public final class RandomBinaryRegexBuilder {
+final class RandomBinaryRegexBuilder {
     
-    public String buildRandomBinaryRegularExpression(Random random, int depth) {
+    RegexTreeNode buildRandomBinaryRegularExpression(Random random, int depth) {
+        return buildRandomRegexTree(random, depth);
+    }
+    
+    RegexTreeNode buildRandomRegexTree(Random random, int depth) {
         RegexTreeNode root = 
                 new RegexTreeNode(getDoubleParameterRegexToken(random));
         
@@ -21,10 +32,10 @@ public final class RandomBinaryRegexBuilder {
                                    0, 
                                    depth);
         
-        return buildRegexString(root);
+        return root;
     }
     
-    private static String buildRegexString(RegexTreeNode root) {
+    String buildRegexString(RegexTreeNode root) {
         if (root == null) {
             return "";
         }
@@ -96,6 +107,116 @@ public final class RandomBinaryRegexBuilder {
             default:
                 throw new IllegalStateException("Should not get here.");
         }
+    }
+    
+    
+    String buildRandomAcceptingText(Random random, RegexTreeNode root ){
+        return buildRandomAcceptingTextImpl(random, root);
+    }
+    
+    private static String buildRandomAcceptingTextImpl(Random random, 
+                                                       RegexTreeNode root) {
+        if (root == null) {
+            return "";
+        }
+        
+        switch (root.getRegexToken().getTokenType()) {
+            case QUESTION:
+                return buildRandomAcceptingTextImplQuestion(random, root);
+                
+            case UNION:
+                return buildRandomAcceptingTextImplUnion(random, root);
+                
+            case DOT:
+                return getRandomBinaryCharacter(random);
+                
+            case CHARACTER:
+                return Character.toString(root.getRegexToken().getCharacter());
+                
+            case CONCAT:
+                return buildRandomAcceptingTextConcat(random, root);
+                
+            case KLEENE_STAR:
+                return buildRandomAcceptingTextKleeneStar(random, root);
+                
+            case PLUS:
+                return buildRandomAcceptingTextPlusOperator(random, root);
+                
+            default:
+                throw new IllegalStateException("Should not get here.");
+        }
+    }
+    
+    private static String 
+        buildRandomAcceptingTextPlusOperator(Random random, 
+                                             RegexTreeNode root) {
+            
+        int repetitions = random.nextInt(9) + 1; // ... + 1 so that at least
+                                                 // one iteration.
+        StringBuilder sb = new StringBuilder();
+        
+        for (int i = 0; i != repetitions; i++) {
+            String subRegex = 
+                    buildRandomAcceptingTextImpl(random,
+                                                 root.getLeftRegexTreeNode());
+            sb.append(subRegex);
+        }
+        
+        return sb.toString();
+    }
+    
+    
+    private static String 
+        buildRandomAcceptingTextKleeneStar(Random random, 
+                                           RegexTreeNode root) {
+        int repetitions = random.nextInt(10);
+        StringBuilder sb = new StringBuilder();
+        
+        for (int i = 0; i != repetitions; i++) {
+            String subRegex = 
+                    buildRandomAcceptingTextImpl(random,
+                                                 root.getLeftRegexTreeNode());
+            sb.append(subRegex);
+        }
+        
+        return sb.toString();
+    }
+    
+    private static String buildRandomAcceptingTextConcat(Random random, 
+                                                         RegexTreeNode root) {
+        return buildRandomAcceptingTextImpl(random, root.getLeftRegexTreeNode()) 
+             + buildRandomAcceptingTextImpl(random, 
+                                            root.getRightRegexTreeNode());
+    }
+    
+    private static String 
+        buildRandomAcceptingTextImplQuestion(Random random, 
+                                             RegexTreeNode root) {
+        double coin = random.nextDouble();
+        
+        if (coin < 0.8) {
+            return buildRandomAcceptingTextImpl(random, 
+                                                root.getLeftRegexTreeNode());
+        } else {
+            return "";
+        }
+    }
+        
+    private static String
+         buildRandomAcceptingTextImplUnion(Random random,
+                                           RegexTreeNode root) {
+        String leftRegex = 
+                buildRandomAcceptingTextImpl(random, 
+                                             root.getLeftRegexTreeNode());
+        
+        double coin = random.nextInt();
+        
+        if (coin < 0.5) {
+            return leftRegex;
+        }
+        
+        return buildRandomAcceptingTextImpl(random, 
+                                            root.getRightRegexTreeNode());
     }
     
     private static void constructRegexFromTreeImpl(Random random,
@@ -248,24 +369,16 @@ public final class RandomBinaryRegexBuilder {
         }
     }
     
-    private static RegexToken getSingleParameterRegexToken(Random random) {
-        double coin = random.nextDouble();
-        
-        if (coin < 0.2) {
-            return new RegexToken(RegexTokenType.QUESTION);
-        } else if (coin < 0.6) {
-            return new RegexToken(RegexTokenType.PLUS);
-        } else {
-            return new RegexToken(RegexTokenType.KLEENE_STAR);
-        }
-    }
-    
     private static String parenthesizeRegex(String regex) {
         if (regex.length() > 1) {
             return "(" + regex + ")";
         } else {
             return regex;
         }
+    }
+    
+    private static String getRandomBinaryCharacter(Random random) {
+        return random.nextBoolean() ? "1" : "0";
     }
 }
 

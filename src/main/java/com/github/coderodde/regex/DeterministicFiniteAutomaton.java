@@ -52,6 +52,7 @@ public final class DeterministicFiniteAutomaton
      * @return {@code true} only if the input string belongs to the regular 
      *         language recognized by this DFA.
      */
+    @Override
     public boolean matches(String text) {
         DeterministicFiniteAutomatonState state = deltaStar(text);
         
@@ -123,19 +124,6 @@ public final class DeterministicFiniteAutomaton
     }
     
     private static Set<DeterministicFiniteAutomatonState> 
-        getNext(List<Set<DeterministicFiniteAutomatonState>> equivalenceClasses,
-                Set<DeterministicFiniteAutomatonState> followerState) {
-        for (Set<DeterministicFiniteAutomatonState> equivalenceClass
-                : equivalenceClasses) {
-            if (equivalenceClass.containsAll(followerState)) {
-                return equivalenceClass;
-            }
-        }
-        
-        throw new IllegalStateException();
-    }
-    
-    private static Set<DeterministicFiniteAutomatonState> 
         getNextEquivalenceClass(
                 Set<DeterministicFiniteAutomatonState> currentDFAStateSet,
                 Character character) {
@@ -163,6 +151,19 @@ public final class DeterministicFiniteAutomaton
         return gnfa.getInitialState()
                 .getRegularExpression(
                         gnfa.getAcceptingState());
+    }
+    
+    private static Set<DeterministicFiniteAutomatonState> 
+        getNext(List<Set<DeterministicFiniteAutomatonState>> equivalenceClasses,
+                Set<DeterministicFiniteAutomatonState> followerState) {
+        for (Set<DeterministicFiniteAutomatonState> equivalenceClass
+                : equivalenceClasses) {
+            if (equivalenceClass.containsAll(followerState)) {
+                return equivalenceClass;
+            }
+        }
+        
+        throw new IllegalStateException();
     }
     
     private void populateStatesIn(

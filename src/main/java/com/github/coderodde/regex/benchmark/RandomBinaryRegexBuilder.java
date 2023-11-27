@@ -30,19 +30,46 @@ public final class RandomBinaryRegexBuilder {
         }
         
         if (root.isLeaf()) {
-            if (root.getRegexToken()
-                    .getTokenType()
-                    .equals(RegexTokenType.CHARACTER)) {
+            switch (root.getRegexToken().getTokenType()) {
+                case CHARACTER -> {
+                    return Character.toString(
+                            root.getRegexToken()
+                                .getCharacter());
+                }
                 
-                return Character.toString(root.getRegexToken().getCharacter());
-            } else if (root.getRegexToken()
-                           .getTokenType()
-                           .equals(RegexTokenType.DOT)) {
-                
-                return ".";
-            } else {
-                throw new IllegalStateException("Should not get here.");
+                case DOT -> {
+                    return ".";
+                }
+                    
+                default -> 
+                    throw new IllegalStateException("Should not get here.");
             }
+        }
+        
+        if (root.getRightRegexTreeNode() == null) {
+            StringBuilder sb = new StringBuilder();
+            String leftRegex = buildRegexString(root.getLeftRegexTreeNode());
+            leftRegex = parenthesizeRegex(leftRegex);
+            sb.append(leftRegex);
+            
+            switch (root.getRegexToken().getTokenType()) {
+                case KLEENE_STAR:
+                    sb.append("*");
+                    break;
+                    
+                case PLUS:
+                    sb.append("+");
+                    break;
+                    
+                case QUESTION:
+                    sb.append("?");
+                    break;
+                    
+                default:
+                    throw new IllegalStateException("Should not get here.");
+            }
+            
+            return sb.toString();
         }
         
         String leftSubtreeString =
@@ -51,29 +78,20 @@ public final class RandomBinaryRegexBuilder {
         String rightSubtreeString = 
                 buildRegexString(root.getRightRegexTreeNode());
         
+        leftSubtreeString  = parenthesizeRegex(leftSubtreeString);
+        rightSubtreeString = parenthesizeRegex(rightSubtreeString);
+        
         switch (root.getRegexToken().getTokenType()) {
             case UNION:
-                if (leftSubtreeString.length() > 1) {
-                    leftSubtreeString = "(" + leftSubtreeString + ")";
+                if (leftSubtreeString.equals(rightSubtreeString)) {
+                    // The regex is of the form R|R, return only R:
+                    return leftSubtreeString;
+                } else {
+                    return leftSubtreeString + "|" + rightSubtreeString;
                 }
-
-                if (rightSubtreeString.length() > 1) {
-                    rightSubtreeString = "(" + rightSubtreeString + ")";
-                }
-                
-                return leftSubtreeString + "|" + rightSubtreeString;
                 
             case CONCAT:
                 return leftSubtreeString + rightSubtreeString;
-                
-            case KLEENE_STAR:
-                return leftSubtreeString + "*" + rightSubtreeString;
-                
-            case PLUS:
-                return leftSubtreeString + "+" + rightSubtreeString;
-                
-            case QUESTION:
-                return leftSubtreeString + "?" + rightSubtreeString;
                
             default:
                 throw new IllegalStateException("Should not get here.");
@@ -134,10 +152,11 @@ public final class RandomBinaryRegexBuilder {
         
         RegexTokenType regexTokenType = getSingleOperandRegexTreeType(random);
         root.setRegexToken(new RegexToken(regexTokenType));
-        RegexTreeNode leftRegexTreeNode = 
-                new RegexTreeNode(new RegexToken(regexTokenType));
+        
+        RegexTreeNode leftRegexTreeNode = new RegexTreeNode();
         
         root.setLeftRegexTreeNode(leftRegexTreeNode);
+        
         constructRegexFromTreeImpl(random,
                                    leftRegexTreeNode,
                                    currentDepth + 1,
@@ -156,13 +175,23 @@ public final class RandomBinaryRegexBuilder {
         
         RegexTokenType regexTokenType = getDoubleOperandRegexTreeType(random);
         root.setRegexToken(new RegexToken(regexTokenType));
-        RegexTreeNode leftRegexTreeNode = 
-                new RegexTreeNode(new RegexToken(regexTokenType));
+        
+        RegexTreeNode leftRegexTreeNode = new RegexTreeNode();
         
         root.setLeftRegexTreeNode(leftRegexTreeNode);
+        
         constructRegexFromTreeImpl(random,
                                    leftRegexTreeNode,
                                    currentDepth + 1,
+                                   maximumDepth);
+        
+        RegexTreeNode rightRegexTreeNode = new RegexTreeNode();
+        
+        root.setRightRegexTreeNode(rightRegexTreeNode);
+        
+        constructRegexFromTreeImpl(random, 
+                                   rightRegexTreeNode, 
+                                   currentDepth + 1, 
                                    maximumDepth);
     }
     
@@ -230,6 +259,14 @@ public final class RandomBinaryRegexBuilder {
             return new RegexToken(RegexTokenType.KLEENE_STAR);
         }
     }
+    
+    private static String parenthesizeRegex(String regex) {
+        if (regex.length() > 1) {
+            return "(" + regex + ")";
+        } else {
+            return regex;
+        }
+    }
 }
 
 class RegexTreeNode {
@@ -240,6 +277,10 @@ class RegexTreeNode {
     
     RegexTreeNode(RegexToken regexToken) {
         this.regexToken = regexToken;
+    }
+    
+    RegexTreeNode() {
+        this(null);
     }
     
     RegexToken getRegexToken() {

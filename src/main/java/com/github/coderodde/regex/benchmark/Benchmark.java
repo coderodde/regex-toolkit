@@ -11,14 +11,14 @@ import java.util.Random;
 public final class Benchmark {
     
     public static void main(String[] args) {
-        long seed = System.nanoTime();
+        long seed = 76555066686700L;//System.nanoTime();
         Random random = new Random(seed);
         
         System.out.println("Seed = " + seed);
         
         RandomBinaryRegexBuilder builder = new RandomBinaryRegexBuilder();
-        
+        // (((1|0)?)((1.)+))((0(00))+)
         System.out.println(
-                builder.buildRandomBinaryRegularExpression(random, 2));
+                builder.buildRandomBinaryRegularExpression(random, 4));
     }
 }

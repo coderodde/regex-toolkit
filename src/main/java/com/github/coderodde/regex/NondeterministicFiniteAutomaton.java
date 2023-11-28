@@ -77,11 +77,12 @@ public final class NondeterministicFiniteAutomaton
                 }
             }
             
-            if (!visited.contains(state.dotTransition) 
-                    && state.dotTransition != null) {
-                
-                visited.add(state.dotTransition);
-                queue.addLast(state.dotTransition);
+            NondeterministicFiniteAutomatonState dotState = 
+                    state.getDotTransitionState();
+            
+            if (dotState != null && !visited.contains(dotState)) {
+                visited.add(dotState);
+                queue.addLast(dotState);
             }
         }
         
@@ -155,6 +156,19 @@ public final class NondeterministicFiniteAutomaton
         }
         
         return currentStates;
+    }
+    
+    static Set<NondeterministicFiniteAutomatonState> 
+        dotExpand(Set<NondeterministicFiniteAutomatonState> set) {
+        Set<NondeterministicFiniteAutomatonState> expandedSet = new HashSet<>();
+        
+        for (NondeterministicFiniteAutomatonState state : set) {
+            if (state.getDotTransitionState() != null) {
+                expandedSet.add(state.getDotTransitionState());
+            }
+        }
+        
+        return expandedSet;
     }
     
     static Set<NondeterministicFiniteAutomatonState> 
@@ -239,7 +253,7 @@ public final class NondeterministicFiniteAutomaton
                         Set<NondeterministicFiniteAutomatonState> 
                                 followingStates = 
                                 state.getFollowingStates(character);
-                        
+                        // TODO: remove below?
                         if (followingStates != null) {
                             nextNFAState.addAll(
                                     state.getFollowingStates(character));

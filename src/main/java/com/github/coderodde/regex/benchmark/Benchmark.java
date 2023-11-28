@@ -95,7 +95,7 @@ public final class Benchmark {
                         dfa.getNumberOfStates());
         
         startTime = System.nanoTime();
-        dfa = dfa.minimizeViaHopcroftsAlgorithm();
+//        dfa = dfa.minimizeViaHopcroftsAlgorithm();
         duration = System.nanoTime() - startTime;
         
         System.out.println(

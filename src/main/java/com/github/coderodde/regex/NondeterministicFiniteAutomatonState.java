@@ -22,7 +22,7 @@ public final class NondeterministicFiniteAutomatonState {
     final Set<NondeterministicFiniteAutomatonState> epsilonSet = 
             new HashSet<>();
     
-    NondeterministicFiniteAutomatonState dotTransition;
+    private NondeterministicFiniteAutomatonState dotTransition;
     
     /**
      * Constructs a state for a nondeterministic finite automaton.

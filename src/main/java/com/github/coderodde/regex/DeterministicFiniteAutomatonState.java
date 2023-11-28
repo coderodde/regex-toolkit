@@ -16,6 +16,8 @@ public class DeterministicFiniteAutomatonState {
     final Map<Character, DeterministicFiniteAutomatonState> followerMap = 
             new HashMap<>();
     
+    private DeterministicFiniteAutomatonState dotTransition;
+    
     /**
      * Constructs a new deterministic finite automaton state.
      * 
@@ -48,7 +50,15 @@ public class DeterministicFiniteAutomatonState {
         followerMap.put(character, nextState);
     }
     
+    void addDotTransition(DeterministicFiniteAutomatonState state) {
+        dotTransition = state;
+    }
+    
     DeterministicFiniteAutomatonState traverse(Character character) {
         return followerMap.get(character);
+    }
+    
+    DeterministicFiniteAutomatonState getDotTransition() {
+        return dotTransition;
     }
 }

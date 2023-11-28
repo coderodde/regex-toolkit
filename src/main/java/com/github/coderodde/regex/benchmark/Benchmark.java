@@ -12,10 +12,11 @@ import java.util.Random;
  */
 public final class Benchmark {
     
-    private static final int MAXIMUM_REGEX_TREE_DEPTH = 10;
+    private static final int MAXIMUM_REGEX_TREE_DEPTH = 2;
     
     public static void main(String[] args) {
-        long seed = 90120904082900L; // System.nanoTime();
+//        long seed = 90120904082900L; // System.nanoTime();
+        long seed = 1L;
         Random random = new Random(seed);
         
         System.out.println("Seed = " + seed);
@@ -46,9 +47,15 @@ public final class Benchmark {
                         duration / 1_000_000.0)
                         .replace(',', '.'));
         
+        System.out.println("The regex is: " + regex);
+        System.out.println("The regex length is: " + regex.length());
+        
         startTime = System.nanoTime();
         String text  = builder.buildRandomAcceptingText(random, root);
         duration = System.nanoTime() - startTime;
+        
+        System.out.println("Accepting text: " + text);
+        System.out.println("Accepting text length: " + text.length());
         
         System.out.println(
                 String.format(

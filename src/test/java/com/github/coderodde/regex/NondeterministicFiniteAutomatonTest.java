@@ -338,4 +338,106 @@ public class NondeterministicFiniteAutomatonTest {
         assertTrue(dfa.matches("b"));
         assertTrue(dfa.matches("c"));
     }
+    
+    @Test
+    public void dot1() {
+        NondeterministicFiniteAutomaton nfa = 
+                NondeterministicFiniteAutomaton.compile("..|.+");
+        
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(dfa.matches("00"));
+        assertTrue(dfa.matches("01"));
+        assertTrue(dfa.matches("10"));
+        assertTrue(dfa.matches("11"));
+        assertTrue(dfa.matches("abc'"));
+        
+        assertFalse(dfa.matches(""));
+    }
+    
+    @Test
+    public void dot2() {
+        NondeterministicFiniteAutomaton nfa = 
+                NondeterministicFiniteAutomaton.compile(".+");
+        
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertFalse(dfa.matches(""));
+        assertTrue(dfa.matches("1"));
+        assertTrue(dfa.matches("10"));
+        assertTrue(dfa.matches("110"));
+    }
+    
+    @Test
+    public void dot3() {
+        NondeterministicFiniteAutomaton nfa = 
+                NondeterministicFiniteAutomaton.compile("(.|1)+.");
+        
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertFalse(dfa.matches(""));
+        assertTrue(dfa.matches("10"));
+        assertTrue(dfa.matches("a1b"));
+        assertTrue(dfa.matches("ab0"));
+    }
+    
+    @Test
+    public void largeRegex() {
+        String regex =
+                "((((01)*)((10)*))+)|((((..)*)|((00)*))(((11)|(..))|((00)+)))";
+        
+        String acceptingText = "000000000000000010";
+        
+        NondeterministicFiniteAutomaton nfa = 
+                NondeterministicFiniteAutomaton.compile(regex);
+        
+        assertTrue(nfa.matches(acceptingText));
+        
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(dfa.matches(acceptingText));
+    }
+    
+    @Test
+    public void semilargeRegex() {
+        NondeterministicFiniteAutomaton nfa = 
+                NondeterministicFiniteAutomaton.compile("(1|...)*(0|1)+");
+        
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(nfa.matches("0"));
+        assertTrue(nfa.matches("1"));
+        assertTrue(nfa.matches("10"));
+        assertTrue(nfa.matches("11"));
+        assertTrue(nfa.matches("abc0"));
+        assertTrue(nfa.matches("abc1"));
+        assertTrue(nfa.matches("abc101"));
+        assertTrue(nfa.matches("ab10"));
+        assertTrue(nfa.matches("ab11"));
+        
+        assertFalse(nfa.matches("abcd"));
+        assertFalse(nfa.matches("ab"));
+        assertFalse(nfa.matches("ab0"));
+        assertFalse(nfa.matches("ab1"));
+        
+        assertTrue(dfa.matches("0"));
+        assertTrue(dfa.matches("1"));
+        assertTrue(dfa.matches("10"));
+        assertTrue(dfa.matches("11"));
+        assertTrue(dfa.matches("abc0"));
+        assertTrue(dfa.matches("abc1"));
+        assertTrue(dfa.matches("abc101"));
+        assertTrue(dfa.matches("ab10"));
+        assertTrue(dfa.matches("ab11"));
+        
+        assertFalse(dfa.matches("abcd"));
+        assertFalse(dfa.matches("ab"));
+        assertFalse(dfa.matches("ab0"));
+        assertFalse(dfa.matches("ab1"));
+    }
 }

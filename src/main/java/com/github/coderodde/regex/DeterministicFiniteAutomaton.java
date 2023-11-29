@@ -1,6 +1,7 @@
 package com.github.coderodde.regex;
 
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -163,7 +164,9 @@ public final class DeterministicFiniteAutomaton
             }
         }
         
-        throw new IllegalStateException();
+        // TODO: deal with this:
+        return Collections.emptySet();
+//        throw new IllegalStateException();
     }
     
     private void populateStatesIn(

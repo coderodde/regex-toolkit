@@ -12,11 +12,12 @@ import java.util.Random;
  */
 public final class Benchmark {
     
-    private static final int MAXIMUM_REGEX_TREE_DEPTH = 2;
+    private static final int MAXIMUM_REGEX_TREE_DEPTH = 5;
     
     public static void main(String[] args) {
-//        long seed = 90120904082900L; // System.nanoTime();
-        long seed = 1L;
+        // 1701257229722, 5
+        long seed = 2361781411800L;
+//        long seed = System.currentTimeMillis();
         Random random = new Random(seed);
         
         System.out.println("Seed = " + seed);
@@ -99,7 +100,7 @@ public final class Benchmark {
         duration = System.nanoTime() - startTime;
         
         System.out.println(
-                "Number of states in the target DFA: " +
+                "Number of states in the minimized DFA: " +
                         dfa.getNumberOfStates());
         
         System.out.println(

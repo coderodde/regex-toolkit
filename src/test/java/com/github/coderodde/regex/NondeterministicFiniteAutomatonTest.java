@@ -312,4 +312,17 @@ public class NondeterministicFiniteAutomatonTest {
         assertFalse(dfa.matches("b"));
         assertFalse(dfa.matches("ab"));
     }
+    
+    @Test
+    public void unionOfDotsToDFA() {
+        NondeterministicFiniteAutomaton nfa = 
+                NondeterministicFiniteAutomaton.compile(".|.");
+        
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(dfa.matches("a"));
+        assertTrue(dfa.matches("b"));
+        assertTrue(dfa.matches("c"));
+    }
 }

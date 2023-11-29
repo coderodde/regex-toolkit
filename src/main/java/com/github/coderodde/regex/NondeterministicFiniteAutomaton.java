@@ -125,6 +125,22 @@ public final class NondeterministicFiniteAutomaton
         
         return localAlphabet;
     }
+        
+    private static Set<NondeterministicFiniteAutomatonState> 
+        getDotTransitions(Set<NondeterministicFiniteAutomatonState> states) {
+        Set<NondeterministicFiniteAutomatonState> set = new HashSet<>();
+        
+        for (NondeterministicFiniteAutomatonState state : states) {
+            NondeterministicFiniteAutomatonState dotTransitionState = 
+                    state.getDotTransitionState();
+            
+            if (dotTransitionState != null) {
+                set.add(dotTransitionState);
+            }
+        }
+        
+        return set;
+    }
     
     private Set<NondeterministicFiniteAutomatonState> simulateNFA(String text) {
         Set<NondeterministicFiniteAutomatonState> startSet = 
@@ -280,6 +296,36 @@ public final class NondeterministicFiniteAutomaton
                     
                     currentDFAState.addFollowerState(character, nextDFAState);
                 }
+                
+                Set<NondeterministicFiniteAutomatonState> nextNFAState =
+                        new HashSet<>();
+                
+                for (NondeterministicFiniteAutomatonState state : 
+                        currentNFAState) {
+                    NondeterministicFiniteAutomatonState dotTransitionState = 
+                            state.getDotTransitionState();
+                    
+                    if (dotTransitionState != null) {
+                        nextNFAState.add(dotTransitionState);
+                    }
+                }
+                
+                DeterministicFiniteAutomatonState nextDFAState = 
+                        stateMap.get(nextNFAState);
+                
+                if (nextDFAState == null) {
+                    nextDFAState = 
+                            new DeterministicFiniteAutomatonState(getStateID());
+                    
+                    stateMap.put(nextNFAState, nextDFAState);
+                    stateQueue.addLast(nextNFAState);
+                }
+                
+                if (nextNFAState.contains(nfa.getAcceptingState())) {
+                    dfa.getAcceptingStates().add(nextDFAState);
+                }
+                
+                currentDFAState.addDotTransition(nextDFAState);
             }
             
             return dfa;

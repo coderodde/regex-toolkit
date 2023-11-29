@@ -239,12 +239,6 @@ public final class DeterministicFiniteAutomaton
         }
     }
     
-    private Set<Character> getLocalAlphabet(
-            GeneralizedNondeterministicFiniteAutomatonState a,
-            GeneralizedNondeterministicFiniteAutomatonState b) {
-        return null;
-    }
-    
     private List<Set<DeterministicFiniteAutomatonState>>
          minimizeViaHopcroftsAlgorithmImpl() {
              

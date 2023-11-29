@@ -314,6 +314,8 @@ public final class NondeterministicFiniteAutomaton
                     continue;
                 }
                 
+                nextNFAState = epsilonExpand(nextNFAState);
+                
                 DeterministicFiniteAutomatonState nextDFAState = 
                         stateMap.get(nextNFAState);
                 

@@ -310,6 +310,10 @@ public final class NondeterministicFiniteAutomaton
                     }
                 }
                 
+                if (nextNFAState.isEmpty()) {
+                    continue;
+                }
+                
                 DeterministicFiniteAutomatonState nextDFAState = 
                         stateMap.get(nextNFAState);
                 

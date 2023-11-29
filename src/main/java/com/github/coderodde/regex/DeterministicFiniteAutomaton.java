@@ -356,12 +356,18 @@ public final class DeterministicFiniteAutomaton
         DeterministicFiniteAutomatonState currentState = initialState;
         
         while (textCharacterIndex != n) {
-            currentState = 
+            DeterministicFiniteAutomatonState nextState = 
                     currentState.traverse(text.charAt(textCharacterIndex++));
             
-            if (currentState == null) {
-                break;
+            if (nextState == null) {
+                nextState = currentState.getDotTransition();
+                
+                if (nextState == null) {
+                    return null;
+                }
             }
+            
+            currentState = nextState;
         }
         
         return currentState;

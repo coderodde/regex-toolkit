@@ -16,8 +16,9 @@ public final class Benchmark {
     
     public static void main(String[] args) {
         // 1701257229722, 5
-        long seed = 2361781411800L;
-//        long seed = System.currentTimeMillis();
+//        long seed = 2361781411800L; 5
+        long seed = 1701326270518L;//System.currentTimeMillis();
+
         Random random = new Random(seed);
         
         System.out.println("Seed = " + seed);

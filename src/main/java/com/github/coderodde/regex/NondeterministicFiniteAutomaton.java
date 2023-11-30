@@ -246,9 +246,10 @@ public final class NondeterministicFiniteAutomaton
         }
         
         DeterministicFiniteAutomaton convert() {
-            init(getAllReachableStates());
+            init();
             
             while (!stateQueue.isEmpty()) {
+                
                 Set<NondeterministicFiniteAutomatonState> currentNFAState = 
                         stateQueue.removeFirst();
                 
@@ -297,46 +298,43 @@ public final class NondeterministicFiniteAutomaton
                 
                 currentNFAState = epsilonExpand(currentNFAState);
                 
+                Set<NondeterministicFiniteAutomatonState> nextNFAState =
+                        new HashSet<>();
+                
                 for (NondeterministicFiniteAutomatonState state 
                         : currentNFAState) {
-                    
-                    Set<NondeterministicFiniteAutomatonState> nextNFAState =
-                            new HashSet<>();
-                    
                     NondeterministicFiniteAutomatonState dotTransitionState = 
                             state.getDotTransitionState();
                     
                     if (dotTransitionState != null) {
                         nextNFAState.add(dotTransitionState);
                     }
-                    
-                    nextNFAState = epsilonExpand(nextNFAState);
-                    
-                    DeterministicFiniteAutomatonState nextDFAState = 
-                            stateMap.get(nextNFAState);
-                    
-                    if (nextDFAState == null) {
-                        nextDFAState = 
-                                new DeterministicFiniteAutomatonState(
-                                        getStateID());
-                        
-                        stateMap.put(nextNFAState, nextDFAState);
-                        stateQueue.addLast(nextNFAState);
-                    }
-                    
-                    if (nextNFAState.contains(nfa.getAcceptingState())) {
-                        dfa.getAcceptingStates().add(nextDFAState);
-                    }
-                    
-                    currentDFAState.addDotTransition(nextDFAState);
                 }
+                
+                nextNFAState = epsilonExpand(nextNFAState);
+                
+                DeterministicFiniteAutomatonState nextDFAState = 
+                        stateMap.get(nextNFAState);
+                
+                if (nextDFAState == null) {
+                    nextDFAState = 
+                            new DeterministicFiniteAutomatonState(getStateID());
+                    
+                    stateMap.put(nextNFAState, nextDFAState);
+                    stateQueue.addLast(nextNFAState);
+                }
+                
+                if (nextNFAState.contains(nfa.getAcceptingState())) {
+                    dfa.getAcceptingStates().add(nextDFAState);
+                }
+                
+                currentDFAState.addDotTransition(nextDFAState);
             }
             
             return dfa;
         }
         
-        private void init(Set<NondeterministicFiniteAutomatonState> allStates) {
-            
+        private void init() {
             Set<NondeterministicFiniteAutomatonState> startState = 
                     new HashSet<>(Arrays.asList(nfa.getInitialState()));
             
@@ -353,31 +351,14 @@ public final class NondeterministicFiniteAutomaton
                 dfa.getAcceptingStates().add(dfaInitialState);
             }
             
-            Set<NondeterministicFiniteAutomatonState> emptySet = 
-                    Collections.emptySet();
+            Set<NondeterministicFiniteAutomatonState> emptyNFAState = 
+                    new HashSet<>();
             
-            DeterministicFiniteAutomatonState emptySetState = 
-                    new DeterministicFiniteAutomatonState(getStateID());
+            DeterministicFiniteAutomatonState emptyDFAState = 
+                    new DeterministicFiniteAutomatonState(getNumberOfStates());
             
-            stateMap.put(emptySet, emptySetState);
-            
-            for (NondeterministicFiniteAutomatonState nfaState : allStates) {
-                Set<NondeterministicFiniteAutomatonState> stateSet = 
-                        new HashSet<>();
-                
-                stateSet.add(nfaState);
-                stateSet = epsilonExpand(stateSet);
-                
-                DeterministicFiniteAutomatonState dfaState = 
-                        stateMap.get(stateSet);
-                
-                if (dfaState == null) {
-                    dfaState = 
-                            new DeterministicFiniteAutomatonState(getStateID());
-                } 
-                    
-                stateMap.put(stateSet, dfaState);
-            }
+            stateMap.put(emptyNFAState, emptyDFAState);
+            emptyDFAState.addDotTransition(emptyDFAState);
         }
         
         private int getStateID() {

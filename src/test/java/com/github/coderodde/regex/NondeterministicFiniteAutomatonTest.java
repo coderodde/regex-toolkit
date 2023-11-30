@@ -321,9 +321,21 @@ public class NondeterministicFiniteAutomatonTest {
         DeterministicFiniteAutomaton dfa = 
                 nfa.convertToDetermenisticFiniteAutomaton();
         
+        assertTrue(nfa.matches("a"));
+        assertTrue(nfa.matches("b"));
+        assertTrue(nfa.matches("c"));
+        
+        assertFalse(nfa.matches(""));
+        assertFalse(nfa.matches("ac"));
+        assertFalse(nfa.matches("acb"));
+        
         assertTrue(dfa.matches("a"));
         assertTrue(dfa.matches("b"));
         assertTrue(dfa.matches("c"));
+        
+        assertFalse(dfa.matches(""));
+        assertFalse(dfa.matches("ac"));
+        assertFalse(dfa.matches("acb"));
     }
     
     @Test
@@ -386,10 +398,9 @@ public class NondeterministicFiniteAutomatonTest {
     
     @Test
     public void largeRegex() {
-        String regex =
-                "((((01)*)((10)*))+)|((((..)*)|((00)*))(((11)|(..))|((00)+)))";
+        String regex = "((((10)+)?)(((1.)(0|1))((..)|(01))))+";
         
-        String acceptingText = "000000000000000010";
+        String acceptingText = "10101010101010101011001101010101010010";
         
         NondeterministicFiniteAutomaton nfa = 
                 NondeterministicFiniteAutomaton.compile(regex);
@@ -439,5 +450,66 @@ public class NondeterministicFiniteAutomatonTest {
         assertFalse(dfa.matches("ab"));
         assertFalse(dfa.matches("ab0"));
         assertFalse(dfa.matches("ab1"));
+    }
+    
+    @Test
+    public void test1() {
+        NondeterministicFiniteAutomaton nfa = 
+                NondeterministicFiniteAutomaton.compile("(.|...)*");
+        
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(nfa.matches("a"));
+        assertTrue(nfa.matches("aaa"));
+        assertTrue(nfa.matches("aa"));
+        assertTrue(nfa.matches("aaabbb"));
+        
+        assertTrue(dfa.matches("a"));
+        assertTrue(dfa.matches("aaa"));
+        assertTrue(dfa.matches("aa"));
+        assertTrue(dfa.matches("aaabbb"));
+    }
+    
+    @Test
+    public void question1() {
+        NondeterministicFiniteAutomaton nfa = 
+                NondeterministicFiniteAutomaton.compile("..?.");
+        
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(nfa.matches("ac"));
+        assertTrue(nfa.matches("abc"));
+        
+        assertFalse(nfa.matches("a"));
+        assertFalse(nfa.matches("abcd"));
+        
+        assertTrue(dfa.matches("ac"));
+        assertTrue(dfa.matches("abc"));
+        
+        assertFalse(dfa.matches("a"));
+        assertFalse(dfa.matches("abcd"));
+    }
+    
+    @Test
+    public void question2() {
+        NondeterministicFiniteAutomaton nfa =
+                NondeterministicFiniteAutomaton.compile("(a.b)?");
+        
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(nfa.matches(""));
+        assertTrue(nfa.matches("abc"));
+        assertTrue(nfa.matches("adc"));
+        assertFalse(nfa.matches("a"));
+        assertFalse(nfa.matches("abcd"));
+        
+        assertTrue(dfa.matches(""));
+        assertTrue(dfa.matches("abc"));
+        assertTrue(dfa.matches("adc"));
+        assertFalse(dfa.matches("a"));
+        assertFalse(dfa.matches("abcd"));
     }
 }

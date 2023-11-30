@@ -2,7 +2,6 @@ package com.github.coderodde.regex;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -249,7 +248,6 @@ public final class NondeterministicFiniteAutomaton
             init();
             
             while (!stateQueue.isEmpty()) {
-                
                 Set<NondeterministicFiniteAutomatonState> currentNFAState = 
                         stateQueue.removeFirst();
                 

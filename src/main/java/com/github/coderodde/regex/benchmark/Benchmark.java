@@ -12,13 +12,15 @@ import java.util.Random;
  */
 public final class Benchmark {
     
-    private static final int MAXIMUM_REGEX_TREE_DEPTH = 5;
+    private static final int MAXIMUM_REGEX_TREE_DEPTH = 3;
     
     public static void main(String[] args) {
+        bruteForceFindFailing();
+        System.exit(0);
         // 1701257229722, 5
 //        long seed = 2361781411800L; 5
-        long seed = 1701326270518L;//System.currentTimeMillis();
-
+//        long seed = 1701326270518L; 5//System.currentTimeMillis();
+        long seed = System.currentTimeMillis();
         Random random = new Random(seed);
         
         System.out.println("Seed = " + seed);
@@ -135,5 +137,42 @@ public final class Benchmark {
                                 + nfaMatches 
                                 + ", duration: %1.3f milliseconds.", 
                         duration / 1_000_000.0).replace(',', '.'));
+    }
+    
+    private static void bruteForceFindFailing() {
+        RandomBinaryRegexBuilder regexBuilder = new RandomBinaryRegexBuilder();
+        
+        outerLoop:
+        for (int depth = 1; depth <= 5; depth++) {
+            for (int i = 0; i < 1000; i++) {
+                long seed = 13L; System.currentTimeMillis();
+                Random random = new Random(seed);
+                RegexTreeNode root = 
+                        regexBuilder.buildRandomBinaryRegularExpression(random, 
+                                                                        depth);
+                
+                String regex = regexBuilder.buildRegexString(root);
+                String text = regexBuilder.buildRandomAcceptingText(random,
+                                                                    root);
+                
+                NondeterministicFiniteAutomaton nfa = 
+                        NondeterministicFiniteAutomaton.compile(regex);
+                
+                DeterministicFiniteAutomaton dfa = 
+                        nfa.convertToDetermenisticFiniteAutomaton();
+                
+                if (!nfa.matches(text)) {
+                    System.out.println("NFA regex: " + regex);
+                    System.out.println("NFA text:  " + text);
+                    throw new IllegalStateException("NFA did not approve.");
+                }
+                
+                if (!dfa.matches(text)) {
+                    System.out.println("Regex: " + regex);
+                    System.out.println("Text:  " + text);
+                    break outerLoop;
+                }
+            }
+        }
     }
 }

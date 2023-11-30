@@ -501,15 +501,32 @@ public class NondeterministicFiniteAutomatonTest {
                 nfa.convertToDetermenisticFiniteAutomaton();
         
         assertTrue(nfa.matches(""));
-        assertTrue(nfa.matches("abc"));
-        assertTrue(nfa.matches("adc"));
+        assertTrue(nfa.matches("a0b"));
+        assertTrue(nfa.matches("adb"));
+        
         assertFalse(nfa.matches("a"));
+        assertFalse(nfa.matches("ab"));
         assertFalse(nfa.matches("abcd"));
         
         assertTrue(dfa.matches(""));
-        assertTrue(dfa.matches("abc"));
-        assertTrue(dfa.matches("adc"));
+        assertTrue(dfa.matches("a0b"));
+        assertTrue(dfa.matches("adb"));
+        
         assertFalse(dfa.matches("a"));
+        assertFalse(dfa.matches("ab"));
         assertFalse(dfa.matches("abcd"));
+    }
+    
+    @Test
+    public void question3() {
+        NondeterministicFiniteAutomaton nfa = 
+                NondeterministicFiniteAutomaton.compile("((01)|(1|.))?");
+        
+        assertTrue(nfa.matches("0"));
+//        System.out.println(nfa.getNumberOfStates());
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(dfa.matches("0"));
     }
 }

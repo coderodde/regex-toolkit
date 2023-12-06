@@ -175,19 +175,6 @@ public final class NondeterministicFiniteAutomaton
     }
     
     static Set<NondeterministicFiniteAutomatonState> 
-        dotExpand(Set<NondeterministicFiniteAutomatonState> set) {
-        Set<NondeterministicFiniteAutomatonState> expandedSet = new HashSet<>();
-        
-        for (NondeterministicFiniteAutomatonState state : set) {
-            if (state.getDotTransitionState() != null) {
-                expandedSet.add(state.getDotTransitionState());
-            }
-        }
-        
-        return expandedSet;
-    }
-    
-    static Set<NondeterministicFiniteAutomatonState> 
         epsilonExpand(Set<NondeterministicFiniteAutomatonState> set) {
             
         Set<NondeterministicFiniteAutomatonState> expandedSet = 
@@ -254,25 +241,18 @@ public final class NondeterministicFiniteAutomaton
                 DeterministicFiniteAutomatonState currentDFAState = 
                         stateMap.get(currentNFAState);
                 
-                Set<Character> localAlphabet = 
-                        getLocalAlphabet(currentNFAState);
+                currentNFAState = epsilonExpand(currentNFAState);
                 
-                for (Character character : localAlphabet) {
+                Set<NondeterministicFiniteAutomatonState> dotSet = 
+                        computeDotSet(currentNFAState);
+                
+                if (!dotSet.isEmpty()) {
+                    // Once here, we must merge all the outgoing characters with
+                    // a single dot operator:
                     Set<NondeterministicFiniteAutomatonState> nextNFAState = 
-                            new HashSet<>();
+                            computeCharacterTransitions(currentNFAState);
                     
-                    for (NondeterministicFiniteAutomatonState state : 
-                            currentNFAState) {
-                        Set<NondeterministicFiniteAutomatonState> 
-                                followingStates = 
-                                state.getFollowingStates(character);
-                        
-                        if (followingStates != null) {
-                            nextNFAState.addAll(
-                                    state.getFollowingStates(character));
-                        }
-                    }
-                    
+                    nextNFAState.addAll(dotSet);
                     nextNFAState = epsilonExpand(nextNFAState);
                     
                     DeterministicFiniteAutomatonState nextDFAState = 
@@ -291,46 +271,103 @@ public final class NondeterministicFiniteAutomaton
                         dfa.getAcceptingStates().add(nextDFAState);
                     }
                     
-                    currentDFAState.addFollowerState(character, nextDFAState);
+                    currentDFAState.addDotTransition(nextDFAState);
+                } else {
+                    Set<Character> localAlphabet = 
+                            getLocalAlphabet(currentNFAState);
+                    
+                    for (Character character : localAlphabet) {
+                        Set<NondeterministicFiniteAutomatonState> nextNFAState = 
+                                new HashSet<>();
+                        
+                        for (NondeterministicFiniteAutomatonState state 
+                                : currentNFAState) {
+                            Set<NondeterministicFiniteAutomatonState>
+                                    followingStates = 
+                                    state.getFollowingStates(character);
+                            
+                            if (followingStates != null) {
+                                // TODO: can followingStates be null?
+                                nextNFAState.addAll(
+                                        state.getFollowingStates(character));
+                            }
+                        }
+                        
+                        nextNFAState = epsilonExpand(nextNFAState);
+
+                        DeterministicFiniteAutomatonState nextDFAState = 
+                                stateMap.get(nextNFAState);
+
+                        if (nextDFAState == null) {
+                            nextDFAState = 
+                                    new DeterministicFiniteAutomatonState(
+                                            getStateID());
+
+                            stateMap.put(nextNFAState, nextDFAState);
+                            stateQueue.addLast(nextNFAState);
+                        }
+
+                        if (nextNFAState.contains(nfa.getAcceptingState())) {
+                            dfa.getAcceptingStates().add(nextDFAState);
+                        }
+
+                        currentDFAState.addFollowerState(character, 
+                                                         nextDFAState);
+                    }
                 }
-                
-                currentNFAState = epsilonExpand(currentNFAState);
-                
-                Set<NondeterministicFiniteAutomatonState> nextNFAState =
+            }
+            
+            return dfa;
+        }
+        
+        private Set<NondeterministicFiniteAutomatonState> 
+        computeDotSet(
+            Set<NondeterministicFiniteAutomatonState> currentNFAState) {
+            Set<NondeterministicFiniteAutomatonState> nextDotStates = 
+                    new HashSet<>();
+
+            // Try to find dot transitions:
+            for (NondeterministicFiniteAutomatonState state :
+                    currentNFAState) {
+                NondeterministicFiniteAutomatonState dotState = 
+                        state.getDotTransitionState();
+
+                if (dotState != null) {
+                    nextDotStates.add(dotState);
+                }
+            }
+            
+            return nextDotStates;
+        }
+        
+        private Set<NondeterministicFiniteAutomatonState>
+        computeCharacterTransitions(
+                Set<NondeterministicFiniteAutomatonState> currentNFAState) {
+            
+            Set<NondeterministicFiniteAutomatonState> outputStateSet = 
+                    new HashSet<>();
+            
+            Set<Character> localAlphabet = getLocalAlphabet(currentNFAState);
+            
+            for (Character character : localAlphabet) {
+                Set<NondeterministicFiniteAutomatonState> nextNFAState = 
                         new HashSet<>();
                 
-                for (NondeterministicFiniteAutomatonState state 
+                for (NondeterministicFiniteAutomatonState state
                         : currentNFAState) {
-                    NondeterministicFiniteAutomatonState dotTransitionState = 
-                            state.getDotTransitionState();
+                    Set<NondeterministicFiniteAutomatonState> followingStates = 
+                            state.getFollowingStates(character);
                     
-                    if (dotTransitionState != null) {
-                        nextNFAState.add(dotTransitionState);
+                    if (followingStates != null) {
+                        nextNFAState.addAll(
+                                state.getFollowingStates(character));
                     }
                 }
                 
-                nextNFAState = epsilonExpand(nextNFAState);
-                
-                DeterministicFiniteAutomatonState nextDFAState = 
-                        stateMap.get(nextNFAState);
-                
-                if (nextDFAState == null) {
-                    nextDFAState = 
-                            new DeterministicFiniteAutomatonState(getStateID());
-                    
-                    stateMap.put(nextNFAState, nextDFAState);
-                    stateQueue.addLast(nextNFAState);
-                }
-                
-                if (nextNFAState.contains(nfa.getAcceptingState())) {
-                    dfa.getAcceptingStates().add(nextDFAState);
-                }
-                
-                currentDFAState.addDotTransition(nextDFAState);
+                outputStateSet.addAll(nextNFAState);
             }
             
-//            dfa.hasBotehDotAndCharacterTransitions();
-            return dfa;
+            return outputStateSet;
         }
         
         private void init() {

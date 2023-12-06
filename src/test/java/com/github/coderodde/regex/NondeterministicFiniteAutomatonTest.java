@@ -535,6 +535,52 @@ public class NondeterministicFiniteAutomatonTest {
     }
     
     @Test
+    public void question4() {
+        NondeterministicFiniteAutomaton nfa = 
+                NondeterministicFiniteAutomaton.compile("((01)|.)?");
+        
+        DeterministicFiniteAutomaton dfa =
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(nfa.matches("01"));
+        assertTrue(nfa.matches("0"));
+        assertTrue(nfa.matches("1"));
+        assertTrue(nfa.matches(""));
+        
+        assertFalse(nfa.matches("011"));
+        assertFalse(nfa.matches("0110"));
+        
+        assertTrue(dfa.matches("01"));
+        assertTrue(dfa.matches("0"));
+        assertTrue(dfa.matches("1"));
+        assertTrue(dfa.matches(""));
+        
+        assertFalse(dfa.matches("011"));
+        assertFalse(dfa.matches("0110"));
+    }
+    
+    @Test
+    public void question5() {
+        NondeterministicFiniteAutomaton nfa = 
+                NondeterministicFiniteAutomaton.compile("(.|1|0)?");
+        
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(nfa.matches("2"));
+        assertTrue(nfa.matches("1"));
+        assertTrue(nfa.matches("0"));
+        assertTrue(nfa.matches(""));
+        assertFalse(nfa.matches("10"));
+        
+        assertTrue(dfa.matches("2"));
+        assertTrue(dfa.matches("1"));
+        assertTrue(dfa.matches("0"));
+        assertTrue(dfa.matches(""));
+        assertFalse(dfa.matches("10"));
+    }
+    
+    @Test
     public void pleaseWork() {
         NondeterministicFiniteAutomaton nfa = 
                 NondeterministicFiniteAutomaton.compile("(1|.)?");

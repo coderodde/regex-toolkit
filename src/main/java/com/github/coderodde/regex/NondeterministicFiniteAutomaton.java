@@ -329,6 +329,7 @@ public final class NondeterministicFiniteAutomaton
                 currentDFAState.addDotTransition(nextDFAState);
             }
             
+//            dfa.hasBotehDotAndCharacterTransitions();
             return dfa;
         }
         

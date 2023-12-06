@@ -527,6 +527,33 @@ public class NondeterministicFiniteAutomatonTest {
         DeterministicFiniteAutomaton dfa = 
                 nfa.convertToDetermenisticFiniteAutomaton();
         
+        System.out.println(dfa.getNumberOfStates());
+        
+//        dfa.hasBothDotAndCharacterTransitions();
+        
         assertTrue(dfa.matches("0"));
+    }
+    
+    @Test
+    public void pleaseWork() {
+        NondeterministicFiniteAutomaton nfa = 
+                NondeterministicFiniteAutomaton.compile("(1|.)?");
+        
+        assertTrue(nfa.matches("1"));
+        assertTrue(nfa.matches("0"));
+        assertTrue(nfa.matches(""));
+        
+        assertFalse(nfa.matches("11"));
+        assertFalse(nfa.matches("111"));
+        
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(dfa.matches("1"));
+        assertTrue(dfa.matches("0"));
+        assertTrue(dfa.matches(""));
+        
+        assertFalse(dfa.matches("11"));
+        assertFalse(dfa.matches("111"));
     }
 }

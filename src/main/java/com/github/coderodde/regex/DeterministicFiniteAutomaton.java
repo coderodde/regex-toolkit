@@ -359,18 +359,34 @@ public final class DeterministicFiniteAutomaton
         DeterministicFiniteAutomatonState currentState = initialState;
         
         while (textCharacterIndex != n) {
-            DeterministicFiniteAutomatonState nextState = 
-                    currentState.traverse(text.charAt(textCharacterIndex++));
+            DeterministicFiniteAutomatonState nextState =
+                    currentState.traverse(text.charAt(textCharacterIndex));
             
             if (nextState == null) {
-                nextState = currentState.getDotTransition();
-                
-                if (nextState == null) {
+                if (currentState.getDotTransition() == null) {
                     return null;
                 }
+                
+                nextState = currentState.getDotTransition();
             }
             
             currentState = nextState;
+            
+//            if (currentState.getDotTransition() != null) {
+//                currentState = currentState.getDotTransition();
+//            } else {
+//                DeterministicFiniteAutomatonState nextState = 
+//                        currentState.traverse(
+//                                text.charAt(textCharacterIndex++));
+//                
+//                if (nextState == null) {
+//                    return null;
+//                }
+//                
+//                currentState = nextState;
+//            }
+            
+            textCharacterIndex++;
         }
         
         return currentState;
@@ -393,8 +409,28 @@ public final class DeterministicFiniteAutomaton
                     queue.addLast(follower);
                 }
             }
+            
+            DeterministicFiniteAutomatonState dotState =
+                    state.getDotTransition();
+            
+            if (dotState != null && !visited.contains(dotState)) {
+                visited.add(dotState);
+                queue.addLast(dotState);
+            }
         }
         
         return visited;
+    }
+    
+    void hasBothDotAndCharacterTransitions() {
+        Set<DeterministicFiniteAutomatonState> states = getAllReachableStates();
+        
+        for (DeterministicFiniteAutomatonState state : states) {
+            if (state.getDotTransition() != null 
+                    && !state.followerMap.isEmpty()) {
+                System.out.println("Gotcha!");
+                return;
+            }
+        }
     }
 }

@@ -26,7 +26,7 @@ public final class DeterministicFiniteAutomaton
      * The initial state of the DFA.
      */
     private DeterministicFiniteAutomatonState initialState;
-    private Set<DeterministicFiniteAutomatonState> acceptingStateSet = 
+    private final Set<DeterministicFiniteAutomatonState> acceptingStateSet = 
             new HashSet<>();
     
     public void setInitialState(
@@ -358,35 +358,20 @@ public final class DeterministicFiniteAutomaton
         int textCharacterIndex = 0;
         DeterministicFiniteAutomatonState currentState = initialState;
         
-        while (textCharacterIndex != n) {
-            DeterministicFiniteAutomatonState nextState =
-                    currentState.traverse(text.charAt(textCharacterIndex));
+        while (textCharacterIndex++ != n) {
+            DeterministicFiniteAutomatonState nextState = 
+                    currentState.getDotTransition();
             
-            if (nextState == null) {
-                if (currentState.getDotTransition() == null) {
+            if (nextState != null) {
+                currentState = nextState;
+            } else {
+                char currentChar = text.charAt(textCharacterIndex);
+                nextState = currentState.traverse(currentChar);
+                
+                if (nextState == null) {
                     return null;
                 }
-                
-                nextState = currentState.getDotTransition();
             }
-            
-            currentState = nextState;
-            
-//            if (currentState.getDotTransition() != null) {
-//                currentState = currentState.getDotTransition();
-//            } else {
-//                DeterministicFiniteAutomatonState nextState = 
-//                        currentState.traverse(
-//                                text.charAt(textCharacterIndex++));
-//                
-//                if (nextState == null) {
-//                    return null;
-//                }
-//                
-//                currentState = nextState;
-//            }
-            
-            textCharacterIndex++;
         }
         
         return currentState;

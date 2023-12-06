@@ -414,6 +414,48 @@ public class NondeterministicFiniteAutomatonTest {
     }
     
     @Test
+    public void choiceBetweenOneAndThreeDots() {
+        NondeterministicFiniteAutomaton nfa = 
+                NondeterministicFiniteAutomaton.compile("1|...");
+        
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(nfa.matches("1"));
+        assertTrue(nfa.matches("111"));
+        assertFalse(nfa.matches(""));
+        assertFalse(nfa.matches("11"));
+        assertFalse(nfa.matches("1111"));
+        
+        assertTrue(dfa.matches("1"));
+        assertTrue(dfa.matches("111"));
+        assertFalse(dfa.matches(""));
+        assertFalse(dfa.matches("11"));
+        assertFalse(dfa.matches("1111"));
+    }
+    
+    @Test
+    public void qRegex() {
+        NondeterministicFiniteAutomaton nfa = 
+                NondeterministicFiniteAutomaton.compile("(1|...)?");
+        
+        DeterministicFiniteAutomaton dfa = 
+                nfa.convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(nfa.matches(""));
+        assertTrue(nfa.matches("1"));
+        assertTrue(nfa.matches("012"));
+        assertFalse(nfa.matches("10"));
+        assertFalse(nfa.matches("1001"));
+        
+        assertTrue(dfa.matches(""));
+        assertTrue(dfa.matches("1"));
+        assertTrue(dfa.matches("012"));
+        assertFalse(dfa.matches("10"));
+        assertFalse(dfa.matches("1001"));
+    }
+    
+    @Test
     public void semilargeRegex() {
         NondeterministicFiniteAutomaton nfa = 
                 NondeterministicFiniteAutomaton.compile("(1|...)*(0|1)+");
@@ -526,8 +568,6 @@ public class NondeterministicFiniteAutomatonTest {
 //        System.out.println(nfa.getNumberOfStates());
         DeterministicFiniteAutomaton dfa = 
                 nfa.convertToDetermenisticFiniteAutomaton();
-        
-        System.out.println(dfa.getNumberOfStates());
         
 //        dfa.hasBothDotAndCharacterTransitions();
         

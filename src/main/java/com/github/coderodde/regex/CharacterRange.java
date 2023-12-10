@@ -27,7 +27,19 @@ final class CharacterRange implements Comparable<CharacterRange> {
     char getMaximumCharacter() {
         return maximumCharacter;
     }
-
+    
+    boolean characterIsWithinRange(char character) {
+        return minimumCharacter <= character && character <= maximumCharacter;
+    }
+    
+    boolean characterRangeSmallerThan(char character) {
+        return maximumCharacter < character;
+    }
+    
+    boolean characterRangeGreaterThan(char character) {
+        return character < minimumCharacter;
+    }
+    
     @Override
     public int compareTo(CharacterRange other) {
         if (this.maximumCharacter < other.minimumCharacter) {
@@ -39,5 +51,14 @@ final class CharacterRange implements Comparable<CharacterRange> {
         }
         
         return 0;
+    }
+    
+    @Override
+    public String toString() {
+        return "[CharacterRange: " 
+                + minimumCharacter
+                + " to "
+                + maximumCharacter 
+                + "]";
     }
 }

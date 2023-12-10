@@ -32,6 +32,29 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
     }
     
     DeterministicFiniteAutomatonState
+        getFollowerState(char character) {
+        int l = 0;
+        int r = size - 1;
+        
+        while (l <= r) {
+            int m = l + (r - l) / 2;
+            
+            if (entries[m].characterRange.characterIsWithinRange(character)) {
+                return entries[m].followerState;
+            }
+            
+            if (entries[m].characterRange
+                          .characterRangeSmallerThan(character)) {
+                l = m + 1;
+            } else {
+                r = m - 1;
+            }
+        }
+        
+        return null;
+    }
+    
+    DeterministicFiniteAutomatonState
          getFollowerState(CharacterRange characterRange) {
          int l = 0;
          int r = size - 1;
@@ -54,8 +77,7 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
     
     private void growIfNeeded() {
         if (size == entries.length) {
-            Entry[] newEntries = 
-                    new Entry[(DEFAULT_ENTRY_ARRAY_CAPACITY * 3) / 2];
+            Entry[] newEntries = new Entry[(size * 3) / 2];
             
             System.arraycopy(this.entries,
                              0,

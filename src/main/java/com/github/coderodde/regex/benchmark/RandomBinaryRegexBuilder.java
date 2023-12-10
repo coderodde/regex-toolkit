@@ -19,11 +19,17 @@ import java.util.Random;
  */
 final class RandomBinaryRegexBuilder {
     
-    RegexTreeNode buildRandomBinaryRegularExpression(Random random, int depth) {
-        return buildRandomRegexTree(random, depth);
+    private final Random random;
+    
+    RandomBinaryRegexBuilder(Random random) {
+        this.random = random;
     }
     
-    RegexTreeNode buildRandomRegexTree(Random random, int depth) {
+    RegexTreeNode buildRandomBinaryRegularExpression(int depth) {
+        return buildRandomRegexTree(depth);
+    }
+    
+    RegexTreeNode buildRandomRegexTree(int depth) {
         RegexTreeNode root = 
                 new RegexTreeNode(getDoubleParameterRegexToken(random));
         
@@ -110,12 +116,13 @@ final class RandomBinaryRegexBuilder {
     }
     
     
-    String buildRandomAcceptingText(Random random, RegexTreeNode root ){
+    String buildRandomAcceptingText(RegexTreeNode root ){
         return buildRandomAcceptingTextImpl(random, root);
     }
     
-    private static String buildRandomAcceptingTextImpl(Random random, 
-                                                       RegexTreeNode root) {
+    private static String 
+        buildRandomAcceptingTextImpl(Random random,RegexTreeNode root) {
+            
         if (root == null) {
             return "";
         }

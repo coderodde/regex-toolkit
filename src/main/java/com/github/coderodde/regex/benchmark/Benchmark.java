@@ -2,6 +2,8 @@ package com.github.coderodde.regex.benchmark;
 
 import com.github.coderodde.regex.DeterministicFiniteAutomaton;
 import com.github.coderodde.regex.NondeterministicFiniteAutomaton;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,25 +16,23 @@ import java.util.regex.Pattern;
  */
 public final class Benchmark {
     
-    private static final int MAXIMUM_REGEX_TREE_DEPTH = 9;
+    private static final int MAXIMUM_REGEX_TREE_DEPTH = 7;
+    private static final int BENCHMARK_RUNS = 1_000;
     
     public static void main(String[] args) {
-//        bruteForceFindFailing();
-//        System.exit(0);
-        // 1701257229722, 5
-//        long seed = 2361781411800L; 5
-//        long seed = 1701326270518L; 5//System.currentTimeMillis();
+        findFailingNFA();
+        System.exit(0);
+        
         long seed = System.currentTimeMillis();
         Random random = new Random(seed);
         
         System.out.println("Seed = " + seed);
         
-        RandomBinaryRegexBuilder builder = new RandomBinaryRegexBuilder();
+        RandomBinaryRegexBuilder builder = new RandomBinaryRegexBuilder(random);
         
         long startTime = System.nanoTime();
         RegexTreeNode root = 
                 builder.buildRandomBinaryRegularExpression(
-                        random, 
                         MAXIMUM_REGEX_TREE_DEPTH);
         
         long duration = System.nanoTime() - startTime;
@@ -56,16 +56,23 @@ public final class Benchmark {
         System.out.println("The regex is: " + regex);
         System.out.println("The regex length is: " + regex.length());
         
-        startTime = System.nanoTime();
-        String text  = builder.buildRandomAcceptingText(random, root);
-        duration = System.nanoTime() - startTime;
+        List<String> benchmarkData = new ArrayList<>(BENCHMARK_RUNS);
+        List<Boolean> nfaResults   = new ArrayList<>(BENCHMARK_RUNS);
+        List<Boolean> dfaResults   = new ArrayList<>(BENCHMARK_RUNS);
+        List<Boolean> javaResults  = new ArrayList<>(BENCHMARK_RUNS);
         
-        System.out.println("Accepting text: " + text);
-        System.out.println("Accepting text length: " + text.length());
+        startTime = System.nanoTime();
+        
+        for (int i = 0; i < BENCHMARK_RUNS; i++) {
+            String text  = builder.buildRandomAcceptingText(root);
+            benchmarkData.add(text);
+        }
+        
+        duration = System.nanoTime() - startTime;
         
         System.out.println(
                 String.format(
-                        "Built the accepting text in %1.3f milliseconds.", 
+                        "Built the benchmark data in %1.3f milliseconds.", 
                         duration / 1_000_000.0)
                         .replace(',', '.'));
         
@@ -103,7 +110,6 @@ public final class Benchmark {
         startTime = System.nanoTime();
         
         Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(text);
         
         duration = System.nanoTime() - startTime;
         
@@ -127,60 +133,68 @@ public final class Benchmark {
         
         startTime = System.nanoTime();
         
-        boolean dfaMatches = dfa.matches(text);
+        for (String text : benchmarkData) {
+            boolean dfaMatches = dfa.matches(text);
+            dfaResults.add(dfaMatches);
+        }
         
         duration = System.nanoTime() - startTime;
         
         System.out.println(
-                String.format(
-                        "DFA matches: " 
-                                + dfaMatches 
-                                + ", duration: %1.3f milliseconds.", 
-                        duration / 1_000_000.0).replace(',', '.'));
+                String.format("DFA duration: %1.3f milliseconds.", 
+                              duration / 1_000_000.0).replace(',', '.'));
         
         startTime = System.nanoTime();
         
-        boolean nfaMatches = nfa.matches(text);
+        for (String text : benchmarkData) {
+            boolean nfaMatches = nfa.matches(text);
+            nfaResults.add(nfaMatches);
+        }
         
         duration = System.nanoTime() - startTime;
         
         System.out.println(
-                String.format(
-                        "NFA matches: " 
-                                + nfaMatches 
-                                + ", duration: %1.3f milliseconds.", 
-                        duration / 1_000_000.0).replace(',', '.'));
+                String.format("NFA duration: %1.3f milliseconds.", 
+                              duration / 1_000_000.0).replace(',', '.'));
         
         startTime = System.nanoTime();
         
-        boolean javaRegexMatches = matcher.matches();
+        for (String text : benchmarkData) {
+            boolean javaRegexMatches = pattern.matcher(text).matches();
+            javaResults.add(javaRegexMatches);
+        }
         
         duration = System.nanoTime() - startTime;
         
         System.out.println(
                 String.format(
-                        "Java regex matches: " 
-                                + javaRegexMatches 
-                                + ", duration: %1.3f milliseconds.", 
+                        "java.util.regex.Pattern duration: %1.3f milliseconds.", 
                         duration / 1_000_000.0).replace(',', '.'));
         
+//        System.out.println(
+//                "Algorithms agree: " + 
+//                        (dfaResults.equals(nfaResults) && 
+//                         nfaResults.equals(javaResults)));
+        
+        System.out.println(
+                "Algorithms agree: " + 
+                        (nfaResults.equals(javaResults)));
     }
     
     private static void bruteForceFindFailing() {
-        RandomBinaryRegexBuilder regexBuilder = new RandomBinaryRegexBuilder();
+        long seed = 2L;
+        Random random = new Random(seed);
+        RandomBinaryRegexBuilder regexBuilder = 
+                new RandomBinaryRegexBuilder(random);
         
         outerLoop:
         for (int depth = 1; depth <= 5; depth++) {
             for (int i = 0; i < 1000; i++) {
-                long seed = 13L; System.currentTimeMillis();
-                Random random = new Random(seed);
                 RegexTreeNode root = 
-                        regexBuilder.buildRandomBinaryRegularExpression(random, 
-                                                                        depth);
+                        regexBuilder.buildRandomBinaryRegularExpression(depth);
                 
                 String regex = regexBuilder.buildRegexString(root);
-                String text = regexBuilder.buildRandomAcceptingText(random,
-                                                                    root);
+                String text = regexBuilder.buildRandomAcceptingText(root);
                 
                 NondeterministicFiniteAutomaton nfa = 
                         NondeterministicFiniteAutomaton.compile(regex);
@@ -198,6 +212,59 @@ public final class Benchmark {
                     System.out.println("Regex: " + regex);
                     System.out.println("Text:  " + text);
                     break outerLoop;
+                }
+            }
+        }
+    }
+    
+    private static void findFailingNFA() {
+        long seed = 1L;
+        Random random = new Random(seed);
+        
+        RandomBinaryRegexBuilder regexBuilder =
+                new RandomBinaryRegexBuilder(random);
+        
+        for (int depth = 1; depth <= 7; depth++) {
+            for (int regexIteration = 0; 
+                     regexIteration < 1_000; 
+                     regexIteration++) {
+                
+                RegexTreeNode root = regexBuilder.buildRandomRegexTree(depth);
+                String regex = regexBuilder.buildRegexString(root);
+                
+                NondeterministicFiniteAutomaton nfa = 
+                        NondeterministicFiniteAutomaton.compile(regex);
+                
+                Pattern pattern = Pattern.compile(regex);
+                
+                for (int matchIteration = 0; 
+                         matchIteration < 100;
+                         matchIteration++) {
+                    
+                    String acceptedText = 
+                            regexBuilder.buildRandomAcceptingText(root);
+                    
+                    Matcher matcher = pattern.matcher(acceptedText);
+                    
+                    if (!matcher.matches()) {
+                        throw new IllegalStateException(
+                                "Pattern disagreed on regex = \"" 
+                                        + regex 
+                                        + "\" and text = \"" 
+                                        + acceptedText 
+                                        + "\".");
+                    }
+                    
+                    if (!nfa.matches(acceptedText)) {
+                        System.err.println(
+                                "NFA disagreed on regex \"" 
+                                        + regex 
+                                        + "\" and text \"" 
+                                        + acceptedText 
+                                        + "\".");
+                        
+                        System.exit(1);
+                    }
                 }
             }
         }

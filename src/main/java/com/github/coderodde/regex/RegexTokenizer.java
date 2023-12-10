@@ -107,6 +107,7 @@ public final class RegexTokenizer {
                     if (isTextCharacter(previousCharacter)
                             || previousCharacter == '*'
                             || previousCharacter == '+'
+                            || previousCharacter == '.'
                             || previousCharacter == '?'
                             || previousCharacter == ')') {
                         tokens.add(REGEX_TOKEN_CONCAT);

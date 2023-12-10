@@ -220,6 +220,7 @@ public final class Benchmark {
     private static void findFailingNFA() {
         long seed = 1L;
         Random random = new Random(seed);
+        boolean output = false;
         
         RandomBinaryRegexBuilder regexBuilder =
                 new RandomBinaryRegexBuilder(random);
@@ -240,7 +241,22 @@ public final class Benchmark {
                 for (int matchIteration = 0; 
                          matchIteration < 100;
                          matchIteration++) {
+                
+                    if (output) {
+                        System.out.println(
+                                "depth = " 
+                                        + depth 
+                                        + ", regex iteration = " 
+                                        + regexIteration
+                                        + ", match iteration = " 
+                                        + matchIteration);
+                    }
                     
+                    if (depth == 5 && regexIteration == 243 && matchIteration == 1) {
+                        System.out.println("yeah");
+                        output = true;
+                    }
+
                     String acceptedText = 
                             regexBuilder.buildRandomAcceptingText(root);
                     

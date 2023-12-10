@@ -56,7 +56,7 @@ public final class NondeterministicFiniteAutomatonCompiler {
                     break;
                     
                 case DOT:
-                    processDotOperator();
+                    processPeriodWildcard();
                     break;
                     
                 case UNION: 
@@ -109,7 +109,7 @@ public final class NondeterministicFiniteAutomatonCompiler {
         nfaStack.addLast(nfa);
     }
     
-    private void processDotOperator() {
+    private void processPeriodWildcard() {
         NondeterministicFiniteAutomaton nfa =
                 new NondeterministicFiniteAutomaton();
         

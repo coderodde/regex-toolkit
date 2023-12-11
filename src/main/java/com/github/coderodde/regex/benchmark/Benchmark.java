@@ -18,7 +18,7 @@ import org.apache.lucene.util.automaton.RegExp;
  */
 public final class Benchmark {
     
-    private static final int MAXIMUM_REGEX_TREE_DEPTH = 6;
+    private static final int MAXIMUM_REGEX_TREE_DEPTH = 5;
     private static final int BENCHMARK_RUNS = 10_000;
     
     public static void main(String[] args) {

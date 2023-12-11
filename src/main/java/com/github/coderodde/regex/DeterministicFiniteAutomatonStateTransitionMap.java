@@ -22,13 +22,21 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
     /**
      * The actual array of entries.
      */
-    private Entry[] entries = new Entry[DEFAULT_ENTRY_ARRAY_CAPACITY];
+    private TransitionMapEntry[] entries = new TransitionMapEntry[DEFAULT_ENTRY_ARRAY_CAPACITY];
     
     void addTransition(CharacterRange characterRange, 
                        DeterministicFiniteAutomatonState followerState) {
         growIfNeeded();
-        entries[size++] = new Entry(characterRange, followerState);
+        entries[size++] = new TransitionMapEntry(characterRange, followerState);
         Arrays.sort(entries, 0, size);
+    }
+    
+    int size() {
+        return size;
+    }
+    
+    TransitionMapEntry get(int index) {
+        return entries[index];
     }
     
     DeterministicFiniteAutomatonState
@@ -77,7 +85,7 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
     
     private void growIfNeeded() {
         if (size == entries.length) {
-            Entry[] newEntries = new Entry[(size * 3) / 2];
+            TransitionMapEntry[] newEntries = new TransitionMapEntry[(size * 3) / 2];
             
             System.arraycopy(this.entries,
                              0,
@@ -89,18 +97,33 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
         }
     }
     
-    private static final class Entry implements Comparable<Entry> {
-        CharacterRange characterRange;
-        DeterministicFiniteAutomatonState followerState;
+    static final class TransitionMapEntry implements Comparable<TransitionMapEntry> {
+        private final CharacterRange characterRange;
+        private final DeterministicFiniteAutomatonState followerState;
+        private final boolean isPeriodEntry;
         
-        Entry(CharacterRange characterRange, 
-              DeterministicFiniteAutomatonState followerState) {
+        TransitionMapEntry(CharacterRange characterRange, 
+                           DeterministicFiniteAutomatonState followerState,
+                           boolean isPeriodEntry) {
             this.characterRange = characterRange;
             this.followerState = followerState;
+            this.isPeriodEntry = isPeriodEntry;
+        }
+        
+        CharacterRange getCharacterRange() {
+            return characterRange;
+        }
+        
+        DeterministicFiniteAutomatonState getFollowerState() {
+            return followerState;
+        }
+        
+        boolean isPeriodEntry() {
+            return isPeriodEntry;
         }
 
         @Override
-        public int compareTo(Entry o) {
+        public int compareTo(TransitionMapEntry o) {
             return this.characterRange.compareTo(o.characterRange);
         }
     }

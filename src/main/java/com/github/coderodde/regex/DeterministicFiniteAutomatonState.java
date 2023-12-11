@@ -11,8 +11,8 @@ public class DeterministicFiniteAutomatonState {
     
     private final int id;
     
-    final DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
-      new DeterministicFiniteAutomatonStateTransitionMap();
+    private final DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
+              new DeterministicFiniteAutomatonStateTransitionMap();
     
     /**
      * Constructs a new deterministic finite automaton state.
@@ -42,8 +42,18 @@ public class DeterministicFiniteAutomatonState {
     }
     
     void addFollowerState(Character character,
-                          DeterministicFiniteAutomatonState nextState) {
-        followerMap.put(character, nextState);
+                          DeterministicFiniteAutomatonState followerState) {
+        transitionMap.addTransition(new CharacterRange(character), 
+                                    followerState);
+    }
+    
+    void addFollowerState(CharacterRange characterRange, 
+                          DeterministicFiniteAutomatonState followerState) {
+        transitionMap.addTransition(characterRange, followerState);
+    }
+    
+    DeterministicFiniteAutomatonStateTransitionMap getTransitionMap() {
+        return transitionMap;
     }
     
     void addDotTransition(DeterministicFiniteAutomatonState state) {
@@ -51,7 +61,7 @@ public class DeterministicFiniteAutomatonState {
     }
     
     DeterministicFiniteAutomatonState traverse(Character character) {
-        return followerMap.get(character);
+        return transitionMap.getFollowerState(character);
     }
     
     DeterministicFiniteAutomatonState getDotTransition() {

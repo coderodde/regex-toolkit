@@ -1,5 +1,6 @@
 package com.github.coderodde.regex;
 
+import com.github.coderodde.regex.DeterministicFiniteAutomatonStateTransitionMap.TransitionMapEntry;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Deque;
@@ -202,28 +203,32 @@ public final class DeterministicFiniteAutomaton
             GeneralizedNondeterministicFiniteAutomatonState gnfaState = 
                     stateMap.get(dfaState);
             
-            for (Map.Entry<Character, DeterministicFiniteAutomatonState> entry 
-                    : dfaState.followerMap.entrySet()) {
+            DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
+                    dfaState.getTransitionMap();
+            
+            for (int i = 0; i != transitionMap.size(); i++) {
+                TransitionMapEntry entry = transitionMap.get(i);
                 
+                // TODO: Check this:
                 GeneralizedNondeterministicFiniteAutomatonState 
-                        gnfaFollowerState = stateMap.get(entry.getValue());
+                        gnfaFollowerState = stateMap.get(null);
                 
                 String currentRegex = 
                         gnfaState.getRegularExpression(gnfaFollowerState);
                 
                 if (currentRegex == null) {
-                    gnfaState.addRegularExpression(
-                            gnfaFollowerState, 
-                            Character.toString(entry.getKey()));
+//                    gnfaState.addRegularExpression(
+//                            gnfaFollowerState, 
+//                            Character.toString(entry.getKey()));
                 } else {
                     String tentativeRegex = 
                             gnfaState.getRegularExpression(gnfaFollowerState);
                     
-                    gnfaState.addRegularExpression(
-                            gnfaFollowerState, 
-                            tentativeRegex 
-                                    + "|" 
-                                    + Character.toString(entry.getKey()));
+//                    gnfaState.addRegularExpression(
+//                            gnfaFollowerState, 
+//                            tentativeRegex 
+//                                    + "|" 
+//                                    + Character.toString(entry.getKey()));
                 }
             }
         }
@@ -333,7 +338,19 @@ public final class DeterministicFiniteAutomaton
         Set<Character> localAlphabet = new HashSet<>();
         
         for (DeterministicFiniteAutomatonState state : stateSet) {
-            localAlphabet.addAll(state.followerMap.keySet());
+            DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
+                    state.getTransitionMap();
+            
+            for (int i = 0; i < transitionMap.size(); i++) {
+                TransitionMapEntry transitionMapEntry = transitionMap.get(i);
+                
+                if (transitionMapEntry.isPeriodEntry() == false) {
+//                    localAlphabet.add(transitionMapEntry.)
+                }
+            }
+            
+//            if (state.getTransitionMap().get(0))
+//            localAlphabet.addAll(state.followerMap.keySet());
         }
         
         return localAlphabet;
@@ -402,13 +419,13 @@ public final class DeterministicFiniteAutomaton
         while (!queue.isEmpty()) {
             DeterministicFiniteAutomatonState state = queue.removeFirst();
             
-            for (DeterministicFiniteAutomatonState follower : 
-                    state.followerMap.values()) {
-                if (!visited.contains(follower)) {
-                    visited.add(follower);
-                    queue.addLast(follower);
-                }
-            }
+//            for (DeterministicFiniteAutomatonState follower : 
+//                    state.followerMap.values()) {
+//                if (!visited.contains(follower)) {
+//                    visited.add(follower);
+//                    queue.addLast(follower);
+//                }
+//            }
             
             DeterministicFiniteAutomatonState dotState =
                     state.getDotTransition();
@@ -422,15 +439,15 @@ public final class DeterministicFiniteAutomaton
         return visited;
     }
     
-    void hasBothDotAndCharacterTransitions() {
-        Set<DeterministicFiniteAutomatonState> states = getAllReachableStates();
-        
-        for (DeterministicFiniteAutomatonState state : states) {
-            if (state.getDotTransition() != null 
-                    && !state.followerMap.isEmpty()) {
-                System.out.println("Gotcha!");
-                return;
-            }
-        }
-    }
+//    void hasBothDotAndCharacterTransitions() {
+//        Set<DeterministicFiniteAutomatonState> states = getAllReachableStates();
+//        
+//        for (DeterministicFiniteAutomatonState state : states) {
+//            if (state.getDotTransition() != null 
+//                    && !state.followerMap.isEmpty()) {
+//                System.out.println("Gotcha!");
+//                return;
+//            }
+//        }
+//    }
 }

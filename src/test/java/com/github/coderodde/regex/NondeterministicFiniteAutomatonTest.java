@@ -642,4 +642,18 @@ public class NondeterministicFiniteAutomatonTest {
         assertFalse(dfa.matches("11"));
         assertFalse(dfa.matches("111"));
     }
+    
+    @Test
+    public void debugOnSmallRegex() {
+        NondeterministicFiniteAutomaton nfa = 
+                NondeterministicFiniteAutomaton.compile(".(0|.)");
+        
+        assertFalse(nfa.matches("a"));
+        assertFalse(nfa.matches("abc"));
+        
+        assertTrue(nfa.matches("11"));
+        assertTrue(nfa.matches("01"));
+        assertTrue(nfa.matches("10"));
+        assertTrue(nfa.matches("00"));
+    }
 }

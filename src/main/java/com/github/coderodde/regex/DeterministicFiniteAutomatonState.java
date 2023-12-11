@@ -1,8 +1,5 @@
 package com.github.coderodde.regex;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * This class models the state in deterministic finite automata (DFA for short).
  * 
@@ -13,10 +10,9 @@ import java.util.Map;
 public class DeterministicFiniteAutomatonState {
     
     private final int id;
-    final Map<Character, DeterministicFiniteAutomatonState> followerMap = 
-            new HashMap<>();
     
-    private DeterministicFiniteAutomatonState dotTransition;
+    final DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
+      new DeterministicFiniteAutomatonStateTransitionMap();
     
     /**
      * Constructs a new deterministic finite automaton state.

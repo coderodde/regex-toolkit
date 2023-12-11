@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.lucene.util.automaton.Automaton;
+import org.apache.lucene.util.automaton.RegExp;
 
 /**
  *
@@ -36,7 +38,7 @@ public final class Benchmark {
         
         System.out.println(
                 String.format(
-                        "Built the regex tree in %1.3f milliseconds.", 
+                        "Built the regex tree in %.3f milliseconds.", 
                         duration / 1_000_000.0)
                         .replace(',', '.'));
         
@@ -46,17 +48,18 @@ public final class Benchmark {
         
         System.out.println(
                 String.format(
-                        "Built the regex in %1.3f milliseconds.", 
+                        "Built the regex in %.3f milliseconds.", 
                         duration / 1_000_000.0)
                         .replace(',', '.'));
         
         System.out.println("The regex is: " + regex);
         System.out.println("The regex length is: " + regex.length());
         
-        List<String> benchmarkData = new ArrayList<>(BENCHMARK_RUNS);
-        List<Boolean> nfaResults   = new ArrayList<>(BENCHMARK_RUNS);
-        List<Boolean> dfaResults   = new ArrayList<>(BENCHMARK_RUNS);
-        List<Boolean> javaResults  = new ArrayList<>(BENCHMARK_RUNS);
+        List<String> benchmarkData  = new ArrayList<>(BENCHMARK_RUNS);
+        List<Boolean> nfaResults    = new ArrayList<>(BENCHMARK_RUNS);
+        List<Boolean> dfaResults    = new ArrayList<>(BENCHMARK_RUNS);
+        List<Boolean> javaResults   = new ArrayList<>(BENCHMARK_RUNS);
+        List<Boolean> luceneResults = new ArrayList<>(BENCHMARK_RUNS);
         
         startTime = System.nanoTime();
         
@@ -69,7 +72,7 @@ public final class Benchmark {
         
         System.out.println(
                 String.format(
-                        "Built the benchmark data in %1.3f milliseconds.", 
+                        "Built the benchmark data in %.3f milliseconds.", 
                         duration / 1_000_000.0)
                         .replace(',', '.'));
         
@@ -82,7 +85,7 @@ public final class Benchmark {
         
         System.out.println(
                 String.format(
-                        "Compiled the regex to NFA in %1.3f milliseconds.",
+                        "Compiled the regex to NFA in %.3f milliseconds.",
                         duration / 1_000_000.0).replace(',', '.'));
         
         startTime = System.nanoTime();
@@ -94,7 +97,7 @@ public final class Benchmark {
         
         System.out.println(
                 String.format(
-                        "Compiled the NFA to DFA in %1.3f milliseconds.", 
+                        "Compiled the NFA to DFA in %.3f milliseconds.", 
                         duration / 1_000_000.0).replace(',', '.'));
         
         System.out.println(
@@ -111,8 +114,19 @@ public final class Benchmark {
         duration = System.nanoTime() - startTime;
         
         System.out.println(
-                String.format("Pattern.compile(...) in %1.3f milliseconds.", 
+                String.format("Pattern.compile(...) in %.3f milliseconds.", 
                               duration / 1_000_000.0).replace(',', '.'));
+        
+        startTime = System.nanoTime();
+        
+        Automaton luceneAutomaton = new RegExp(regex).toAutomaton();
+        
+        duration = System.nanoTime() - startTime;
+        
+        System.out.println(
+                String.format(
+                        "Lucene automaton in %.3f milliseconds.",
+                        duration / 1_000_000.0).replace(',', '.'));
         
         startTime = System.nanoTime();
 //        dfa = dfa.minimizeViaHopcroftsAlgorithm();
@@ -124,7 +138,7 @@ public final class Benchmark {
         
         System.out.println(
             String.format(
-                "Minimized the DFA via Hopcroft's algorithm in %1.3f " +
+                "Minimized the DFA via Hopcroft's algorithm in %.3f " +
                         "milliseconds.",
                     duration / 1_000_000.0).replace(',', '.'));
         
@@ -138,7 +152,7 @@ public final class Benchmark {
         duration = System.nanoTime() - startTime;
         
         System.out.println(
-                String.format("DFA duration: %1.3f milliseconds.", 
+                String.format("DFA duration: %.3f milliseconds.", 
                               duration / 1_000_000.0).replace(',', '.'));
         
         startTime = System.nanoTime();
@@ -151,7 +165,7 @@ public final class Benchmark {
         duration = System.nanoTime() - startTime;
         
         System.out.println(
-                String.format("NFA duration: %1.3f milliseconds.", 
+                String.format("NFA duration: %.3f milliseconds.", 
                               duration / 1_000_000.0).replace(',', '.'));
         
         startTime = System.nanoTime();
@@ -165,12 +179,42 @@ public final class Benchmark {
         
         System.out.println(
                 String.format(
-                        "java.util.regex.Pattern duration: %1.3f milliseconds.", 
+                        "java.util.regex.Pattern duration: %.3f milliseconds.", 
+                        duration / 1_000_000.0).replace(',', '.'));
+        
+        startTime = System.nanoTime();
+        
+        for (String text : benchmarkData) {
+            boolean luceneRegexMatches = matchViaLucene(luceneAutomaton, text);
+            luceneResults.add(luceneRegexMatches);
+        }
+        
+        duration = System.nanoTime() - startTime;
+        
+        System.out.println(
+                String.format(
+                        "Lucene Automaton duration: %.3f milliseconds.", 
                         duration / 1_000_000.0).replace(',', '.'));
         
         System.out.println(
                 "Algorithms agree: " + 
-                        (nfaResults.equals(javaResults)));
+                        (nfaResults.equals(javaResults) && 
+                         javaResults.equals(luceneResults)));
+    }
+    
+    private static boolean matchViaLucene(Automaton automaton, String text) {
+        int state = 0;
+        
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+            state = automaton.step(state, ch);
+            
+            if (state == -1) {
+                return false;
+            }
+        }
+        
+        return automaton.isAccept(state);
     }
     
     private static void bruteForceFindFailing() {

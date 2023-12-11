@@ -1,14 +1,17 @@
 package com.github.coderodde.regex;
 
+import com.github.coderodde.regex.DeterministicFiniteAutomatonStateTransitionMap.TransitionMapEntry;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  *
@@ -46,7 +49,6 @@ public final class NondeterministicFiniteAutomaton
     public int getNumberOfStates() {
         return getAllReachableStates().size();
     }
-    
     
     private Set<NondeterministicFiniteAutomatonState> getAllReachableStates() {
         Deque<NondeterministicFiniteAutomatonState> queue = new ArrayDeque<>();
@@ -246,6 +248,12 @@ public final class NondeterministicFiniteAutomaton
                 Set<NondeterministicFiniteAutomatonState> dotSet = 
                         computeDotSet(currentNFAState);
                 
+                if (dotSet.isEmpty()) {
+                    // Once here, we must populate the transition map only with
+                    // arcs with actual labels:
+//                    Set<NondeterministicFiniteAutomatonState> nextNFAState = 
+                }
+                
                 if (!dotSet.isEmpty()) {
                     // Once here, we must merge all the outgoing characters with
                     // a single dot operator:
@@ -270,8 +278,8 @@ public final class NondeterministicFiniteAutomaton
                     if (nextNFAState.contains(nfa.getAcceptingState())) {
                         dfa.getAcceptingStates().add(nextDFAState);
                     }
-                    
-                    currentDFAState.addDotTransition(nextDFAState);
+                    // TODO: rework this!
+//                    currentDFAState.addDotTransition(nextDFAState);
                 } else {
                     Set<Character> localAlphabet = 
                             getLocalAlphabet(currentNFAState);
@@ -394,11 +402,74 @@ public final class NondeterministicFiniteAutomaton
                     new DeterministicFiniteAutomatonState(getNumberOfStates());
             
             stateMap.put(emptyNFAState, emptyDFAState);
-            emptyDFAState.addDotTransition(emptyDFAState);
+//            emptyDFAState.addDotTransition(emptyDFAState);
         }
         
         private int getStateID() {
             return stateID++;
         }
+    }
+    
+    private static DeterministicFiniteAutomatonStateTransitionMap
+        computeTransitionMapWithoutPeriodWildcard(Set<Character> alphabet) {
+        
+        DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
+                new DeterministicFiniteAutomatonStateTransitionMap();
+        
+        for (Character character : alphabet) {
+            transitionMap.addTransition(character, null, false);
+        }
+        
+        return transitionMap;
+    }
+        
+    private static DeterministicFiniteAutomatonStateTransitionMap 
+        computeTransitionMapWithPeriodWildcard(TreeSet<Character> alphabet) {
+        
+        DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
+                new DeterministicFiniteAutomatonStateTransitionMap();
+            
+        Iterator<Character> alphabetIterator = alphabet.iterator();
+        
+        Character leftCharacter  = alphabetIterator.next();
+        Character rightCharacter = null;
+        
+        if (leftCharacter > Character.MIN_VALUE) {
+            CharacterRange firstCharacterRange = 
+                    new CharacterRange(Character.MIN_VALUE, leftCharacter);
+            
+            transitionMap.addTransition(firstCharacterRange, null, true);
+        }
+        
+        while (alphabetIterator.hasNext()) {
+            rightCharacter = alphabetIterator.next();
+            
+            CharacterRange characterRange1 =
+                    new CharacterRange(leftCharacter);
+
+            CharacterRange characterRange2 = 
+                    new CharacterRange(rightCharacter);
+            
+            if (leftCharacter + 1 < rightCharacter) {
+                CharacterRange middleCharacterRange = 
+                        new CharacterRange(
+                                (char)(leftCharacter + 1), 
+                                (char)(rightCharacter - 1));
+            } 
+            
+            transitionMap.addTransition(characterRange1, null, true);
+            transitionMap.addTransition(characterRange2, null, true);
+            leftCharacter = rightCharacter;
+        }
+        
+        if (rightCharacter < Character.MAX_VALUE) {
+            CharacterRange concludingCharacterRange = 
+                    new CharacterRange(rightCharacter,
+                                       Character.MAX_VALUE);
+            
+            transitionMap.addTransition(concludingCharacterRange, null, true);
+        }
+        
+        return transitionMap;
     }
 }

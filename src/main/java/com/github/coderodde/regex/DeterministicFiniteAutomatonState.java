@@ -43,28 +43,26 @@ public class DeterministicFiniteAutomatonState {
     
     void addFollowerState(Character character,
                           DeterministicFiniteAutomatonState followerState) {
+        
         transitionMap.addTransition(new CharacterRange(character), 
-                                    followerState);
+                                    followerState,
+                                    false);
     }
     
     void addFollowerState(CharacterRange characterRange, 
-                          DeterministicFiniteAutomatonState followerState) {
-        transitionMap.addTransition(characterRange, followerState);
+                          DeterministicFiniteAutomatonState followerState,
+                          boolean isPeriodWildcardEntry) {
+        
+        transitionMap.addTransition(characterRange, 
+                                    followerState, 
+                                    isPeriodWildcardEntry);
     }
     
     DeterministicFiniteAutomatonStateTransitionMap getTransitionMap() {
         return transitionMap;
     }
     
-    void addDotTransition(DeterministicFiniteAutomatonState state) {
-        dotTransition = state;
-    }
-    
     DeterministicFiniteAutomatonState traverse(Character character) {
         return transitionMap.getFollowerState(character);
-    }
-    
-    DeterministicFiniteAutomatonState getDotTransition() {
-        return dotTransition;
     }
 }

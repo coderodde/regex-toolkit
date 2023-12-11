@@ -18,8 +18,8 @@ public class DeterministicFiniteAutomatonStateTransitionMapTest {
         DeterministicFiniteAutomatonState state1 = 
                 new DeterministicFiniteAutomatonState(1);
         
-        map.addTransition(new CharacterRange('a', 'c'), state0);
-        map.addTransition(new CharacterRange('g', 'h'), state1);
+        map.addTransition(new CharacterRange('a', 'c'), state0, false);
+        map.addTransition(new CharacterRange('g', 'h'), state1, false);
         
         assertEquals(state0, map.getFollowerState('a'));
         assertEquals(state0, map.getFollowerState('b'));
@@ -50,7 +50,7 @@ public class DeterministicFiniteAutomatonStateTransitionMapTest {
             DeterministicFiniteAutomatonState state = 
                     new DeterministicFiniteAutomatonState(i);
             
-            map.addTransition(new CharacterRange(c), state);
+            map.addTransition(new CharacterRange(c), state, false);
         }
         
         for (int i = 0; i < states.size(); i++) {

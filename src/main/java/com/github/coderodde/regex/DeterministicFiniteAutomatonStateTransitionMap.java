@@ -25,10 +25,22 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
     private TransitionMapEntry[] entries = new TransitionMapEntry[DEFAULT_ENTRY_ARRAY_CAPACITY];
     
     void addTransition(CharacterRange characterRange, 
-                       DeterministicFiniteAutomatonState followerState) {
+                       DeterministicFiniteAutomatonState followerState,
+                       boolean isPeriodWildcardEntry) {
         growIfNeeded();
-        entries[size++] = new TransitionMapEntry(characterRange, followerState);
+        
+        entries[size++] = new TransitionMapEntry(characterRange, 
+                                                 followerState,
+                                                 isPeriodWildcardEntry);
         Arrays.sort(entries, 0, size);
+    }
+    
+    void addTransition(Character character,
+                       DeterministicFiniteAutomatonState followerState,
+                       boolean isPeriodWildcardEntry) {
+        
+        CharacterRange characterRange = new CharacterRange(character);
+        addTransition(characterRange, followerState, isPeriodWildcardEntry);
     }
     
     int size() {
@@ -100,14 +112,14 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
     static final class TransitionMapEntry implements Comparable<TransitionMapEntry> {
         private final CharacterRange characterRange;
         private final DeterministicFiniteAutomatonState followerState;
-        private final boolean isPeriodEntry;
+        private final boolean isPeriodWildcardEntry;
         
         TransitionMapEntry(CharacterRange characterRange, 
                            DeterministicFiniteAutomatonState followerState,
                            boolean isPeriodEntry) {
             this.characterRange = characterRange;
             this.followerState = followerState;
-            this.isPeriodEntry = isPeriodEntry;
+            this.isPeriodWildcardEntry = isPeriodEntry;
         }
         
         CharacterRange getCharacterRange() {
@@ -118,8 +130,8 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
             return followerState;
         }
         
-        boolean isPeriodEntry() {
-            return isPeriodEntry;
+        boolean isPeriodWildcardEntry() {
+            return isPeriodWildcardEntry;
         }
 
         @Override

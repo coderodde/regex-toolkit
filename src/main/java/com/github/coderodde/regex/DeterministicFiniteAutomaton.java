@@ -344,7 +344,7 @@ public final class DeterministicFiniteAutomaton
             for (int i = 0; i < transitionMap.size(); i++) {
                 TransitionMapEntry transitionMapEntry = transitionMap.get(i);
                 
-                if (transitionMapEntry.isPeriodEntry() == false) {
+                if (transitionMapEntry.isPeriodWildcardEntry() == false) {
 //                    localAlphabet.add(transitionMapEntry.)
                 }
             }
@@ -380,29 +380,10 @@ public final class DeterministicFiniteAutomaton
                     currentState.traverse(text.charAt(textCharacterIndex));
             
             if (nextState == null) {
-                if (currentState.getDotTransition() == null) {
-                    return null;
-                }
-                
-                nextState = currentState.getDotTransition();
+                return null;
             }
             
             currentState = nextState;
-            
-//            if (currentState.getDotTransition() != null) {
-//                currentState = currentState.getDotTransition();
-//            } else {
-//                DeterministicFiniteAutomatonState nextState = 
-//                        currentState.traverse(
-//                                text.charAt(textCharacterIndex++));
-//                
-//                if (nextState == null) {
-//                    return null;
-//                }
-//                
-//                currentState = nextState;
-//            }
-            
             textCharacterIndex++;
         }
         
@@ -418,21 +399,19 @@ public final class DeterministicFiniteAutomaton
         
         while (!queue.isEmpty()) {
             DeterministicFiniteAutomatonState state = queue.removeFirst();
+            DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
+                    state.getTransitionMap();
             
-//            for (DeterministicFiniteAutomatonState follower : 
-//                    state.followerMap.values()) {
-//                if (!visited.contains(follower)) {
-//                    visited.add(follower);
-//                    queue.addLast(follower);
-//                }
-//            }
-            
-            DeterministicFiniteAutomatonState dotState =
-                    state.getDotTransition();
-            
-            if (dotState != null && !visited.contains(dotState)) {
-                visited.add(dotState);
-                queue.addLast(dotState);
+            for (int i = 0; i != transitionMap.size(); i++) {
+                TransitionMapEntry transitionMapEntry = transitionMap.get(i);
+                DeterministicFiniteAutomatonState followerState = 
+                        transitionMapEntry.getFollowerState();
+                
+                if (!visited.contains(followerState)) {
+                    visited.add(followerState);
+                    queue.addLast(followerState);
+                }
+                
             }
         }
         

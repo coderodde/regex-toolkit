@@ -5,6 +5,10 @@ import com.github.coderodde.regex.NondeterministicFiniteAutomaton;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.RegexpQuery;
+import org.apache.lucene.util.automaton.Automaton;
+import org.apache.lucene.util.automaton.RegExp;
 
 /**
  *
@@ -14,7 +18,7 @@ import java.util.regex.Pattern;
  */
 public final class Benchmark {
     
-    private static final int MAXIMUM_REGEX_TREE_DEPTH = 9;
+    private static final int MAXIMUM_REGEX_TREE_DEPTH = 7;
     
     public static void main(String[] args) {
 //        bruteForceFindFailing();
@@ -164,6 +168,13 @@ public final class Benchmark {
                                 + ", duration: %1.3f milliseconds.", 
                         duration / 1_000_000.0).replace(',', '.'));
         
+        startTime = System.nanoTime();
+        
+        Automaton luceneAutomaton = new RegExp(regex).toAutomaton();
+        
+        duration = System.nanoTime() - startTime;
+        
+        boolean luceneMatches = luceneAutomaton.isAccept(luceneAutomaton.)
     }
     
     private static void bruteForceFindFailing() {

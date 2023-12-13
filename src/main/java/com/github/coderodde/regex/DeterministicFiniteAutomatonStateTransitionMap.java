@@ -14,6 +14,8 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
     
     private static final int DEFAULT_ENTRY_ARRAY_CAPACITY = 8;
     
+    private static final CharacterRange CHARACTER_RANGE = new CharacterRange();
+    
     /**
      * The number of character range mappings in this transition map.
      */
@@ -68,6 +70,27 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
                 l = m + 1;
             } else {
                 r = m - 1;
+            }
+        }
+        
+        return null;
+    }
+        
+    TransitionMapEntry getTransitionMapEntry(Character character) {
+        
+        CHARACTER_RANGE.setMinimumCharacter(character);
+        CHARACTER_RANGE.setMaximumCharacter(character);
+        
+        int l = 0;
+        int r = size - 1;
+        
+        while (l <= r) {
+            int m = l + (r - l) / 2;
+            
+            switch (entries[m].characterRange.compareTo(CHARACTER_RANGE)) {
+                case -1 -> l = m + 1;
+                case  1 -> r = m - 1;
+                default -> { return entries[m]; }
             }
         }
         

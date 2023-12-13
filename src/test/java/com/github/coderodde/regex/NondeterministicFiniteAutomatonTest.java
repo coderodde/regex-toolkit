@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
@@ -677,20 +678,38 @@ public class NondeterministicFiniteAutomatonTest {
         
         TransitionMapEntry transitionMapEntry = transitionMap.get(0);
         CharacterRange expectedCharacterRange = new CharacterRange('A');
+        transitionMap.addTransition(expectedCharacterRange, stateA, true);
         
         assertEquals(expectedCharacterRange, 
                      transitionMapEntry.getCharacterRange());
         
         transitionMapEntry = transitionMap.get(1);
         expectedCharacterRange = new CharacterRange('D');
+        transitionMap.addTransition(expectedCharacterRange, stateB, true);
         
         assertEquals(expectedCharacterRange, 
                      transitionMapEntry.getCharacterRange());
         
         transitionMapEntry = transitionMap.get(2);
         expectedCharacterRange = new CharacterRange('E');
+        transitionMap.addTransition(expectedCharacterRange, stateC, true);
         
         assertEquals(expectedCharacterRange, 
                      transitionMapEntry.getCharacterRange());
+        
+        assertEquals(stateA, 
+                     transitionMap.getFollowerState(new CharacterRange('A')));
+        
+        assertEquals(stateB, 
+                     transitionMap.getFollowerState(new CharacterRange('D')));
+        
+        assertEquals(stateC, 
+                     transitionMap.getFollowerState(new CharacterRange('E')));
+        
+        assertNull(transitionMap.getFollowerState(new CharacterRange('a')));
+        assertNull(transitionMap.getFollowerState(new CharacterRange('B')));
+        assertNull(transitionMap.getFollowerState(new CharacterRange('C')));
+        assertNull(transitionMap.getFollowerState(
+                new CharacterRange('B', 'C')));
     }
 }

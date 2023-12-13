@@ -8,8 +8,8 @@ package com.github.coderodde.regex;
  */
 final class CharacterRange implements Comparable<CharacterRange> {
     
-    private final char minimumCharacter;
-    private final char maximumCharacter;
+    private char minimumCharacter;
+    private char maximumCharacter;
     
     CharacterRange(char minimumCharacter, char maximumCharacter) {
         this.minimumCharacter = minimumCharacter;
@@ -20,12 +20,24 @@ final class CharacterRange implements Comparable<CharacterRange> {
         this(character, character);
     }
     
+    CharacterRange() {
+        this('\u0000');
+    }
+    
     char getMinimumCharacter() {
         return minimumCharacter;
     }
     
     char getMaximumCharacter() {
         return maximumCharacter;
+    }
+    
+    void setMinimumCharacter(Character minimumCharacter) {
+        this.minimumCharacter = minimumCharacter;
+    }
+    
+    void setMaximumCharacter(Character maximumCharacter) {
+        this.maximumCharacter = maximumCharacter;
     }
     
     boolean characterIsWithinRange(char character) {
@@ -38,6 +50,13 @@ final class CharacterRange implements Comparable<CharacterRange> {
     
     boolean characterRangeGreaterThan(char character) {
         return character < minimumCharacter;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        CharacterRange other = (CharacterRange) o;
+        return this.minimumCharacter == other.minimumCharacter &&
+               this.maximumCharacter == other.maximumCharacter;
     }
     
     @Override

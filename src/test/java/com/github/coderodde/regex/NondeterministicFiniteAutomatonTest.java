@@ -1,5 +1,6 @@
 package com.github.coderodde.regex;
 
+import com.github.coderodde.regex.DeterministicFiniteAutomatonStateTransitionMap.TransitionMapEntry;
 import static com.github.coderodde.regex.NondeterministicFiniteAutomaton.epsilonExpand;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -655,5 +656,41 @@ public class NondeterministicFiniteAutomatonTest {
         assertTrue(nfa.matches("01"));
         assertTrue(nfa.matches("10"));
         assertTrue(nfa.matches("00"));
+    }
+    
+    @Test
+    public void computeTransitionMapWithoutPeriodWildcard() {
+        Set<Character> alphabet = new HashSet<>(Arrays.asList('A', 'D', 'E'));
+        
+        DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
+                NondeterministicFiniteAutomaton
+                        .computeTransitionMapWithoutPeriodWildcard(alphabet);
+        
+        DeterministicFiniteAutomatonState stateA = 
+                new DeterministicFiniteAutomatonState(0);
+        
+        DeterministicFiniteAutomatonState stateB = 
+                new DeterministicFiniteAutomatonState(1);
+        
+        DeterministicFiniteAutomatonState stateC = 
+                new DeterministicFiniteAutomatonState(2);
+        
+        TransitionMapEntry transitionMapEntry = transitionMap.get(0);
+        CharacterRange expectedCharacterRange = new CharacterRange('A');
+        
+        assertEquals(expectedCharacterRange, 
+                     transitionMapEntry.getCharacterRange());
+        
+        transitionMapEntry = transitionMap.get(1);
+        expectedCharacterRange = new CharacterRange('D');
+        
+        assertEquals(expectedCharacterRange, 
+                     transitionMapEntry.getCharacterRange());
+        
+        transitionMapEntry = transitionMap.get(2);
+        expectedCharacterRange = new CharacterRange('E');
+        
+        assertEquals(expectedCharacterRange, 
+                     transitionMapEntry.getCharacterRange());
     }
 }

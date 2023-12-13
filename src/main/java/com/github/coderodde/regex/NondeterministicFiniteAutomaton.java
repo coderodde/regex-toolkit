@@ -1,6 +1,5 @@
 package com.github.coderodde.regex;
 
-import com.github.coderodde.regex.DeterministicFiniteAutomatonStateTransitionMap.TransitionMapEntry;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
@@ -127,22 +126,6 @@ public final class NondeterministicFiniteAutomaton
         
         return localAlphabet;
     }
-        
-    private static Set<NondeterministicFiniteAutomatonState> 
-        getDotTransitions(Set<NondeterministicFiniteAutomatonState> states) {
-        Set<NondeterministicFiniteAutomatonState> set = new HashSet<>();
-        
-        for (NondeterministicFiniteAutomatonState state : states) {
-            NondeterministicFiniteAutomatonState dotTransitionState = 
-                    state.getDotTransitionState();
-            
-            if (dotTransitionState != null) {
-                set.add(dotTransitionState);
-            }
-        }
-        
-        return set;
-    }
     
     private Set<NondeterministicFiniteAutomatonState> simulateNFA(String text) {
         Set<NondeterministicFiniteAutomatonState> startSet = 
@@ -246,12 +229,15 @@ public final class NondeterministicFiniteAutomaton
                 currentNFAState = epsilonExpand(currentNFAState);
                 
                 Set<NondeterministicFiniteAutomatonState> dotSet = 
-                        computeDotSet(currentNFAState);
+                        computePeriodWildcardSet(currentNFAState);
                 
                 if (dotSet.isEmpty()) {
                     // Once here, we must populate the transition map only with
                     // arcs with actual labels:
 //                    Set<NondeterministicFiniteAutomatonState> nextNFAState = 
+                } else {
+                    // Once here, we must populate the transition map with all 
+                    // the character ranges covering 65536 characters:
                 }
                 
                 if (!dotSet.isEmpty()) {
@@ -329,23 +315,23 @@ public final class NondeterministicFiniteAutomaton
         }
         
         private Set<NondeterministicFiniteAutomatonState> 
-        computeDotSet(
+        computePeriodWildcardSet(
             Set<NondeterministicFiniteAutomatonState> currentNFAState) {
-            Set<NondeterministicFiniteAutomatonState> nextDotStates = 
+            Set<NondeterministicFiniteAutomatonState> periodWildcardStates = 
                     new HashSet<>();
 
             // Try to find dot transitions:
             for (NondeterministicFiniteAutomatonState state :
                     currentNFAState) {
-                NondeterministicFiniteAutomatonState dotState = 
+                NondeterministicFiniteAutomatonState periodWildcardState = 
                         state.getDotTransitionState();
 
-                if (dotState != null) {
-                    nextDotStates.add(dotState);
+                if (periodWildcardState != null) {
+                    periodWildcardStates.add(periodWildcardState);
                 }
             }
             
-            return nextDotStates;
+            return periodWildcardStates;
         }
         
         private Set<NondeterministicFiniteAutomatonState>
@@ -410,7 +396,7 @@ public final class NondeterministicFiniteAutomaton
         }
     }
     
-    private static DeterministicFiniteAutomatonStateTransitionMap
+    static DeterministicFiniteAutomatonStateTransitionMap
         computeTransitionMapWithoutPeriodWildcard(Set<Character> alphabet) {
         
         DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
@@ -423,7 +409,7 @@ public final class NondeterministicFiniteAutomaton
         return transitionMap;
     }
         
-    private static DeterministicFiniteAutomatonStateTransitionMap 
+    static DeterministicFiniteAutomatonStateTransitionMap 
         computeTransitionMapWithPeriodWildcard(TreeSet<Character> alphabet) {
         
         DeterministicFiniteAutomatonStateTransitionMap transitionMap = 

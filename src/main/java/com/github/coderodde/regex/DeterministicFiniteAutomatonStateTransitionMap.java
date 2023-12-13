@@ -111,7 +111,7 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
     
     static final class TransitionMapEntry implements Comparable<TransitionMapEntry> {
         private final CharacterRange characterRange;
-        private final DeterministicFiniteAutomatonState followerState;
+        private DeterministicFiniteAutomatonState followerState;
         private final boolean isPeriodWildcardEntry;
         
         TransitionMapEntry(CharacterRange characterRange, 
@@ -134,6 +134,23 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
             return isPeriodWildcardEntry;
         }
 
+        void setFollowerState(DeterministicFiniteAutomatonState followerState) {
+            this.followerState = followerState;
+        }
+        
+        @Override
+        public String toString() {
+            return "[TransitionMapEntry: range = '" 
+                    + characterRange.getMinimumCharacter() 
+                    + "' - '" 
+                    + characterRange.getMaximumCharacter() 
+                    + "', period = " 
+                    + isPeriodWildcardEntry 
+                    + ", state ID = " 
+                    + followerState.getId() 
+                    + "}";
+        }
+        
         @Override
         public int compareTo(TransitionMapEntry o) {
             return this.characterRange.compareTo(o.characterRange);

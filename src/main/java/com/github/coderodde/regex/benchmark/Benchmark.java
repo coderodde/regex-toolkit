@@ -22,6 +22,9 @@ public final class Benchmark {
     private static final int BENCHMARK_RUNS = 10_000;
     
     public static void main(String[] args) {
+//        findFailingNFA();
+//        System.exit(0);
+        
         long seed = System.currentTimeMillis();
         Random random = new Random(seed);
         
@@ -199,7 +202,8 @@ public final class Benchmark {
         System.out.println(
                 "Algorithms agree: " + 
                         (nfaResults.equals(javaResults) && 
-                         javaResults.equals(luceneResults)));
+                         javaResults.equals(luceneResults) &&
+                         luceneResults.equals(dfaResults)));
     }
     
     private static boolean matchViaLucene(Automaton automaton, String text) {
@@ -254,14 +258,15 @@ public final class Benchmark {
     }
     
     private static void findFailingNFA() {
-        long seed = 1L;
+        long seed = System.nanoTime();
         Random random = new Random(seed);
-        boolean output = false;
+        
+        System.out.println("findFailingNFA, seed = " + seed);
         
         RandomBinaryRegexBuilder regexBuilder =
                 new RandomBinaryRegexBuilder(random);
         
-        for (int depth = 1; depth <= 7; depth++) {
+        for (int depth = 1; depth <= 5; depth++) {
             for (int regexIteration = 0; 
                      regexIteration < 1_000; 
                      regexIteration++) {
@@ -277,21 +282,6 @@ public final class Benchmark {
                 for (int matchIteration = 0; 
                          matchIteration < 100;
                          matchIteration++) {
-                
-                    if (output) {
-                        System.out.println(
-                                "depth = " 
-                                        + depth 
-                                        + ", regex iteration = " 
-                                        + regexIteration
-                                        + ", match iteration = " 
-                                        + matchIteration);
-                    }
-                    
-                    if (depth == 5 && regexIteration == 243 && matchIteration == 1) {
-                        System.out.println("yeah");
-                        output = true;
-                    }
 
                     String acceptedText = 
                             regexBuilder.buildRandomAcceptingText(root);

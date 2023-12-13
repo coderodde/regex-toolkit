@@ -23,6 +23,10 @@ public class DeterministicFiniteAutomatonState {
         this.id = id;
     }
     
+    int getId() {
+        return id;
+    }
+    
     @Override
     public String toString() {
         return "[DFA state " + id + "]";

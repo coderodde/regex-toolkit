@@ -665,37 +665,17 @@ public class NondeterministicFiniteAutomatonTest {
         
         DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
                 NondeterministicFiniteAutomaton
-                        .computeTransitionMapWithoutPeriodWildcard(alphabet);
+                        .computeTransitionMapWithoutPeriodWildcard(alphabet,
+                                                                   10);
         
         DeterministicFiniteAutomatonState stateA = 
-                new DeterministicFiniteAutomatonState(0);
+                new DeterministicFiniteAutomatonState(10);
         
         DeterministicFiniteAutomatonState stateB = 
-                new DeterministicFiniteAutomatonState(1);
+                new DeterministicFiniteAutomatonState(11);
         
         DeterministicFiniteAutomatonState stateC = 
-                new DeterministicFiniteAutomatonState(2);
-        
-        TransitionMapEntry transitionMapEntry = transitionMap.get(0);
-        CharacterRange expectedCharacterRange = new CharacterRange('A');
-        transitionMap.addTransition(expectedCharacterRange, stateA, true);
-        
-        assertEquals(expectedCharacterRange, 
-                     transitionMapEntry.getCharacterRange());
-        
-        transitionMapEntry = transitionMap.get(1);
-        expectedCharacterRange = new CharacterRange('D');
-        transitionMap.addTransition(expectedCharacterRange, stateB, true);
-        
-        assertEquals(expectedCharacterRange, 
-                     transitionMapEntry.getCharacterRange());
-        
-        transitionMapEntry = transitionMap.get(2);
-        expectedCharacterRange = new CharacterRange('E');
-        transitionMap.addTransition(expectedCharacterRange, stateC, true);
-        
-        assertEquals(expectedCharacterRange, 
-                     transitionMapEntry.getCharacterRange());
+                new DeterministicFiniteAutomatonState(12);
         
         assertEquals(stateA, 
                      transitionMap.getFollowerState(new CharacterRange('A')));
@@ -711,5 +691,45 @@ public class NondeterministicFiniteAutomatonTest {
         assertNull(transitionMap.getFollowerState(new CharacterRange('C')));
         assertNull(transitionMap.getFollowerState(
                 new CharacterRange('B', 'C')));
+    }
+    
+    @Test
+    public void transitionMapSortingWorking() {
+        DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
+                new DeterministicFiniteAutomatonStateTransitionMap();
+        
+        DeterministicFiniteAutomatonState stateA = 
+                new DeterministicFiniteAutomatonState(0);
+        
+        DeterministicFiniteAutomatonState stateB = 
+                new DeterministicFiniteAutomatonState(1);
+        
+        DeterministicFiniteAutomatonState stateC = 
+                new DeterministicFiniteAutomatonState(2);
+        
+        DeterministicFiniteAutomatonState stateD = 
+                new DeterministicFiniteAutomatonState(3);
+        
+        CharacterRange range2 = new CharacterRange('A');
+        CharacterRange range3 = new CharacterRange('B', 'C');
+        CharacterRange range0 = new CharacterRange('G', 'I');
+        CharacterRange range1 = new CharacterRange('J', 'K');
+        
+        transitionMap.addTransition(range0, stateA, true);
+        transitionMap.addTransition(range1, stateB, true);
+        transitionMap.addTransition(range2, stateC, true);
+        transitionMap.addTransition(range3, stateD, true);
+        
+        TransitionMapEntry entry0 = transitionMap.get(0);
+        TransitionMapEntry entry1 = transitionMap.get(1);
+        TransitionMapEntry entry2 = transitionMap.get(2);
+        TransitionMapEntry entry3 = transitionMap.get(3);
+        
+        assertEquals(range2, entry0.getCharacterRange());
+        assertEquals(range3, entry1.getCharacterRange());
+        assertEquals(range0, entry2.getCharacterRange());
+        assertEquals(range1, entry3.getCharacterRange());
+        
+        System.out.println("HWFREW");
     }
 }

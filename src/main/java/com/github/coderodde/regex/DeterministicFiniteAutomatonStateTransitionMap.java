@@ -30,11 +30,24 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
                        DeterministicFiniteAutomatonState followerState,
                        boolean isPeriodWildcardEntry) {
         growIfNeeded();
+        TransitionMapEntry targetTransitionMapEntry =  
+                new TransitionMapEntry(characterRange, 
+                                       followerState,
+                                       isPeriodWildcardEntry);
         
-        entries[size++] = new TransitionMapEntry(characterRange, 
-                                                 followerState,
-                                                 isPeriodWildcardEntry);
-        Arrays.sort(entries, 0, size);
+        entries[size] = targetTransitionMapEntry;
+        
+        int index = size;
+        
+        while (index != 0 
+                && entries[index - 1].getCharacterRange()
+                                     .compareTo(characterRange) == 1) {
+            entries[index] = entries[index - 1];
+            index--;
+        }
+        
+        entries[index] = targetTransitionMapEntry;
+        size++;
     }
     
     void addTransition(Character character,
@@ -115,7 +128,7 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
              }
          }
          
-         throw new IllegalStateException("Should not get here.");
+         return null;
     }
     
     private void growIfNeeded() {

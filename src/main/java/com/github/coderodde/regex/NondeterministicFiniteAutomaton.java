@@ -397,13 +397,17 @@ public final class NondeterministicFiniteAutomaton
     }
     
     static DeterministicFiniteAutomatonStateTransitionMap
-        computeTransitionMapWithoutPeriodWildcard(Set<Character> alphabet) {
+        computeTransitionMapWithoutPeriodWildcard(Set<Character> alphabet,
+                                                  int startId) {
         
         DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
                 new DeterministicFiniteAutomatonStateTransitionMap();
         
         for (Character character : alphabet) {
-            transitionMap.addTransition(character, null, false);
+            transitionMap.addTransition(
+                    character, 
+                    new DeterministicFiniteAutomatonState(startId++),
+                    false);
         }
         
         return transitionMap;

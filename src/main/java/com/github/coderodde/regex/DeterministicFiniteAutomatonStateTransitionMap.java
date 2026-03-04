@@ -14,6 +14,8 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
     
     private static final int DEFAULT_ENTRY_ARRAY_CAPACITY = 8;
     
+    private static final CodePointRange CODE_POINT_RANGE = new CodePointRange();
+    
     /**
      * The number of character range mappings in this transition map.
      */
@@ -38,11 +40,24 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
                        DeterministicFiniteAutomatonState sourceState,
                        DeterministicFiniteAutomatonState targetState) {
         growIfNeeded();
+        TransitionMapEntry targetTransitionMapEntry =  
+                new TransitionMapEntry(characterRange, 
+                                       sourceState,
+                                       targetState);
+    
+        entries[size] = targetTransitionMapEntry;
         
-        entries[size++] = new TransitionMapEntry(characterRange, 
-                                                 sourceState,
-                                                 targetState);
-        Arrays.sort(entries, 0, size);
+        int index = size;
+        
+        while (index != 0 
+                && entries[index - 1].getCharacterRange()
+                                     .compareTo(characterRange) == 1) {
+            entries[index] = entries[index - 1];
+            index--;
+        }
+        
+        entries[index] = targetTransitionMapEntry;
+        size++;
     }
     
     void addTransition(int codePoint,
@@ -86,6 +101,27 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
         
         return null;
     }
+        
+    TransitionMapEntry getTransitionMapEntry(Character character) {
+        
+        CODE_POINT_RANGE.setMinimumCodePoint(character);
+        CODE_POINT_RANGE.setMaximumCodePoint(character);
+        
+        int l = 0;
+        int r = size - 1;
+        
+        while (l <= r) {
+            int m = l + (r - l) / 2;
+            
+            switch (entries[m].codePointRange.compareTo(CODE_POINT_RANGE)) {
+                case -1 -> l = m + 1;
+                case  1 -> r = m - 1;
+                default -> { return entries[m]; }
+            }
+        }
+        
+        return null;
+    }
     
     /**
      * Gets the target state for the input character range.
@@ -111,8 +147,8 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
                 }
             }
         }
-         
-        throw new IllegalStateException("Should not get here.");
+       
+        return null;
     }
     
     private void growIfNeeded() {

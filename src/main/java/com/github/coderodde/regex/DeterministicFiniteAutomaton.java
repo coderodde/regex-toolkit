@@ -101,7 +101,9 @@ public final class DeterministicFiniteAutomaton
                 equivalenceClasses) {
             
             DeterministicFiniteAutomatonState dfaState = 
-                    new DeterministicFiniteAutomatonState(stateId++);
+                    new DeterministicFiniteAutomatonState(
+                            stateId++,
+                            -1, -2);
             
             stateMap.put(encodedState, dfaState);
             
@@ -392,13 +394,13 @@ public final class DeterministicFiniteAutomaton
             for (int i = 0; i < transitionMap.size(); i++) {
                 TransitionMapEntry transitionMapEntry = transitionMap.get(i);
                 
-                if (transitionMapEntry.isPeriodWildcardEntry() == false) {
+                if (transitionMapEntry == null) {
 //                    localAlphabet.add(transitionMapEntry.)
                 }
             }
             
 //            if (state.getTransitionMap().get(0))
-//            localAlphabet.addAll(state.followerMap.keySet());
+//            localAlphabet.addAll(state.followerMap.keySet())
         }
         
         return localAlphabet;

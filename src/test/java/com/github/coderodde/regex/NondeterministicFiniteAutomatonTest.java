@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
@@ -664,7 +665,38 @@ public class NondeterministicFiniteAutomatonTest {
         
         DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
                 NondeterministicFiniteAutomaton
-                        .computeTransitionMapWithoutPeriodWildcard(alphabet);
+                        .computeTransitionMapWithoutPeriodWildcard(alphabet,
+                                                                   10);
+        
+        DeterministicFiniteAutomatonState stateA = 
+                new DeterministicFiniteAutomatonState(10);
+        
+        DeterministicFiniteAutomatonState stateB = 
+                new DeterministicFiniteAutomatonState(11);
+        
+        DeterministicFiniteAutomatonState stateC = 
+                new DeterministicFiniteAutomatonState(12);
+        
+        assertEquals(stateA, 
+                     transitionMap.getFollowerState(new CharacterRange('A')));
+        
+        assertEquals(stateB, 
+                     transitionMap.getFollowerState(new CharacterRange('D')));
+        
+        assertEquals(stateC, 
+                     transitionMap.getFollowerState(new CharacterRange('E')));
+        
+        assertNull(transitionMap.getFollowerState(new CharacterRange('a')));
+        assertNull(transitionMap.getFollowerState(new CharacterRange('B')));
+        assertNull(transitionMap.getFollowerState(new CharacterRange('C')));
+        assertNull(transitionMap.getFollowerState(
+                new CharacterRange('B', 'C')));
+    }
+    
+    @Test
+    public void transitionMapSortingWorking() {
+        DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
+                new DeterministicFiniteAutomatonStateTransitionMap();
         
         DeterministicFiniteAutomatonState stateA = 
                 new DeterministicFiniteAutomatonState(0);
@@ -675,22 +707,44 @@ public class NondeterministicFiniteAutomatonTest {
         DeterministicFiniteAutomatonState stateC = 
                 new DeterministicFiniteAutomatonState(2);
         
+<<<<<<< HEAD
         TransitionMapEntry transitionMapEntry = transitionMap.get(0);
         CodePointRange expectedCharacterRange = new CodePointRange('A');
+=======
+        DeterministicFiniteAutomatonState stateD = 
+                new DeterministicFiniteAutomatonState(3);
+>>>>>>> 823fd1eac876427cb6ab9af56eaf605dd1643660
         
-        assertEquals(expectedCharacterRange, 
-                     transitionMapEntry.getCharacterRange());
+        CharacterRange range2 = new CharacterRange('A');
+        CharacterRange range3 = new CharacterRange('B', 'C');
+        CharacterRange range0 = new CharacterRange('G', 'I');
+        CharacterRange range1 = new CharacterRange('J', 'K');
         
+<<<<<<< HEAD
         transitionMapEntry = transitionMap.get(1);
         expectedCharacterRange = new CodePointRange('D');
+=======
+        transitionMap.addTransition(range0, stateA, true);
+        transitionMap.addTransition(range1, stateB, true);
+        transitionMap.addTransition(range2, stateC, true);
+        transitionMap.addTransition(range3, stateD, true);
+>>>>>>> 823fd1eac876427cb6ab9af56eaf605dd1643660
         
-        assertEquals(expectedCharacterRange, 
-                     transitionMapEntry.getCharacterRange());
+        TransitionMapEntry entry0 = transitionMap.get(0);
+        TransitionMapEntry entry1 = transitionMap.get(1);
+        TransitionMapEntry entry2 = transitionMap.get(2);
+        TransitionMapEntry entry3 = transitionMap.get(3);
         
+<<<<<<< HEAD
         transitionMapEntry = transitionMap.get(2);
         expectedCharacterRange = new CodePointRange('E');
+=======
+        assertEquals(range2, entry0.getCharacterRange());
+        assertEquals(range3, entry1.getCharacterRange());
+        assertEquals(range0, entry2.getCharacterRange());
+        assertEquals(range1, entry3.getCharacterRange());
+>>>>>>> 823fd1eac876427cb6ab9af56eaf605dd1643660
         
-        assertEquals(expectedCharacterRange, 
-                     transitionMapEntry.getCharacterRange());
+        System.out.println("HWFREW");
     }
 }

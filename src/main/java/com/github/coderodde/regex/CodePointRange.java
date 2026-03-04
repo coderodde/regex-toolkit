@@ -5,8 +5,8 @@ package com.github.coderodde.regex;
  */
 final class CodePointRange implements Comparable<CodePointRange> {
     
-    private final int minimumCodePoint;
-    private final int maximumCodePoint;
+    private int minimumCodePoint;
+    private int maximumCodePoint;
     
     CodePointRange(int minimumCharacter, int maximumCharacter) {
         this.minimumCodePoint = minimumCharacter;
@@ -17,12 +17,24 @@ final class CodePointRange implements Comparable<CodePointRange> {
         this(character, character);
     }
     
+    CodePointRange() {
+        this(0);
+    }
+    
     int getMinimumCodePoint() {
         return minimumCodePoint;
     }
     
     int getMaximumCodePoint() {
         return maximumCodePoint;
+    }
+    
+    void setMinimumCodePoint(int minimumCodePoint) {
+        this.minimumCodePoint = minimumCodePoint;
+    }
+    
+    void setMaximumCodePoint(int maximumCodePoint) {
+        this.minimumCodePoint = maximumCodePoint;
     }
     
     boolean codePointIsWithinRange(int codePoint) {

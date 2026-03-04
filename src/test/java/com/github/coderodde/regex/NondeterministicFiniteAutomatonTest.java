@@ -676,19 +676,19 @@ public class NondeterministicFiniteAutomatonTest {
                 new DeterministicFiniteAutomatonState(2);
         
         TransitionMapEntry transitionMapEntry = transitionMap.get(0);
-        CharacterRange expectedCharacterRange = new CharacterRange('A');
+        CodePointRange expectedCharacterRange = new CodePointRange('A');
         
         assertEquals(expectedCharacterRange, 
                      transitionMapEntry.getCharacterRange());
         
         transitionMapEntry = transitionMap.get(1);
-        expectedCharacterRange = new CharacterRange('D');
+        expectedCharacterRange = new CodePointRange('D');
         
         assertEquals(expectedCharacterRange, 
                      transitionMapEntry.getCharacterRange());
         
         transitionMapEntry = transitionMap.get(2);
-        expectedCharacterRange = new CharacterRange('E');
+        expectedCharacterRange = new CodePointRange('E');
         
         assertEquals(expectedCharacterRange, 
                      transitionMapEntry.getCharacterRange());

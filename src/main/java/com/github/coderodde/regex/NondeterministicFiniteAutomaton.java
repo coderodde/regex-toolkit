@@ -421,8 +421,8 @@ public final class NondeterministicFiniteAutomaton
         Character rightCharacter = null;
         
         if (leftCharacter > Character.MIN_VALUE) {
-            CharacterRange firstCharacterRange = 
-                    new CharacterRange(Character.MIN_VALUE, leftCharacter);
+            CodePointRange firstCharacterRange = 
+                    new CodePointRange(Character.MIN_VALUE, leftCharacter);
             
             transitionMap.addTransition(firstCharacterRange, null, true);
         }
@@ -430,15 +430,15 @@ public final class NondeterministicFiniteAutomaton
         while (alphabetIterator.hasNext()) {
             rightCharacter = alphabetIterator.next();
             
-            CharacterRange characterRange1 =
-                    new CharacterRange(leftCharacter);
+            CodePointRange characterRange1 =
+                    new CodePointRange(leftCharacter);
 
-            CharacterRange characterRange2 = 
-                    new CharacterRange(rightCharacter);
+            CodePointRange characterRange2 = 
+                    new CodePointRange(rightCharacter);
             
             if (leftCharacter + 1 < rightCharacter) {
-                CharacterRange middleCharacterRange = 
-                        new CharacterRange(
+                CodePointRange middleCharacterRange = 
+                        new CodePointRange(
                                 (char)(leftCharacter + 1), 
                                 (char)(rightCharacter - 1));
             } 
@@ -449,8 +449,8 @@ public final class NondeterministicFiniteAutomaton
         }
         
         if (rightCharacter < Character.MAX_VALUE) {
-            CharacterRange concludingCharacterRange = 
-                    new CharacterRange(rightCharacter,
+            CodePointRange concludingCharacterRange = 
+                    new CodePointRange(rightCharacter,
                                        Character.MAX_VALUE);
             
             transitionMap.addTransition(concludingCharacterRange, null, true);

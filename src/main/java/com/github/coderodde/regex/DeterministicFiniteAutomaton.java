@@ -15,10 +15,6 @@ import java.util.Set;
 
 /**
  * This class implements a deterministic finite automaton.
- * 
- * @author Rodion "rodde" Efremov
- * @version 1.6 (Nov 11, 2023)
- * @since 1.6 (Nov 11, 2023)
  */
 public final class DeterministicFiniteAutomaton 
         implements RegularExpressionMatcher {
@@ -27,9 +23,25 @@ public final class DeterministicFiniteAutomaton
      * The initial state of the DFA.
      */
     private DeterministicFiniteAutomatonState initialState;
+    
+    /**
+     * The set of accepting states.
+     */
     private final Set<DeterministicFiniteAutomatonState> acceptingStateSet = 
             new HashSet<>();
     
+    /**
+     * If this Boolean flag is set to {@code true}, upon matching a string, the
+     * algorithm will actually simulate that of NFA in order to plausibly deal
+     * with dot operators.
+     */
+    private boolean containsDotOperator;
+    
+    /**
+     * Sets the initial state.
+     * 
+     * @param initialState the new initial state.
+     */
     public void setInitialState(
             DeterministicFiniteAutomatonState initialState) {
         this.initialState =
@@ -44,7 +56,7 @@ public final class DeterministicFiniteAutomaton
      * @return the accepting state set.
      */
     Set<DeterministicFiniteAutomatonState> getAcceptingStates() {
-        return acceptingStateSet;
+        return Collections.unmodifiableSet(acceptingStateSet);
     }
     
     /**
@@ -56,15 +68,19 @@ public final class DeterministicFiniteAutomaton
      */
     @Override
     public boolean matches(String text) {
-        DeterministicFiniteAutomatonState state = deltaStar(text);
-        
-        if (state == null) {
-            return false;
+        if (containsDotOperator) {
+            return matchesWithDotOperators(text);
+        } else {
+            return matchesRawImpl(text);
         }
-        
-        return acceptingStateSet.contains(state);
     }
     
+    /**
+     * Computes the number of (reachable from the initial state) states in this 
+     * DFA.
+     * 
+     * @return the number of reachable states in this DFA. 
+     */
     public int getNumberOfStates() {
         return getAllReachableStates().size();
     }
@@ -125,6 +141,34 @@ public final class DeterministicFiniteAutomaton
         return dfa;
     }
     
+    /**
+     * Matches the input {@code text} in case this DFA does not contain dot 
+     * operator transitions.
+     * 
+     * @param text the text to match.
+     * @return {@code true} if and only if {@code text} belongs to the regular
+     *         language recognized by this DFA.
+     */
+    private boolean matchesRawImpl(String text) {
+        DeterministicFiniteAutomatonState state = deltaStar(text);
+        
+        if (state == null) {
+            return false;
+        }
+        
+        return acceptingStateSet.contains(state);
+    }
+    
+    private boolean matchesWithDotOperators(String text) {
+        Set<DeterministicFiniteAutomatonState> state = deltaStarDot(text);
+        
+        if (state == null || state.isEmpty()) {
+            return false;
+        }
+        
+        return !Utils.intersection(state, acceptingStateSet).isEmpty();
+    }
+    
     private static Set<DeterministicFiniteAutomatonState> 
         getNextEquivalenceClass(
                 Set<DeterministicFiniteAutomatonState> currentDFAStateSet,
@@ -153,6 +197,10 @@ public final class DeterministicFiniteAutomaton
         return gnfa.getInitialState()
                 .getRegularExpression(
                         gnfa.getAcceptingState());
+    }
+    
+    private void setContansDotOperator() {
+        this.containsDotOperator = true;
     }
     
     private static Set<DeterministicFiniteAutomatonState> 
@@ -372,19 +420,49 @@ public final class DeterministicFiniteAutomaton
      */
     private DeterministicFiniteAutomatonState deltaStar(String text) {
         int n = text.length();
-        int textCharacterIndex = 0;
+        int textCodePointIndex = 0;
         DeterministicFiniteAutomatonState currentState = initialState;
         
-        while (textCharacterIndex != n) {
+        while (textCodePointIndex != n) {
+            int codePoint = text.codePointAt(textCodePointIndex);
+            
             DeterministicFiniteAutomatonState nextState =
-                    currentState.traverse(text.charAt(textCharacterIndex));
+                    currentState.traverse(codePoint);
             
             if (nextState == null) {
                 return null;
             }
             
             currentState = nextState;
-            textCharacterIndex++;
+            textCodePointIndex++;
+        }
+        
+        return currentState;
+    }
+    
+    private Set<DeterministicFiniteAutomatonState> deltaStarDot(String text) {
+        int n = text.length();
+        int textCodePointIndex = 0;
+        Set<DeterministicFiniteAutomatonState> currentState = new HashSet<>();
+        currentState.add(initialState);
+        
+        while (textCodePointIndex != n) {
+            int codePoint = text.codePointAt(textCodePointIndex);
+            Set<DeterministicFiniteAutomatonState> nextStates = new HashSet<>();
+            
+            for (DeterministicFiniteAutomatonState q : currentState) {
+                if (containsDotOperator) {
+                    nextStates.add(
+                            q.getTransitionMap().getDotTransitionState());
+                }
+                
+                DeterministicFiniteAutomatonState next = 
+                        q.getTransitionMap().getTargetState(codePoint);
+                
+                nextStates.add(next);
+            }
+            
+            currentState = nextStates;
         }
         
         return currentState;

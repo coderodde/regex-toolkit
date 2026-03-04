@@ -18,23 +18,23 @@ public class DeterministicFiniteAutomatonStateTransitionMapTest {
         DeterministicFiniteAutomatonState state1 = 
                 new DeterministicFiniteAutomatonState(1);
         
-        map.addTransition(new CharacterRange('a', 'c'), state0, false);
-        map.addTransition(new CharacterRange('g', 'h'), state1, false);
+        map.addTransition(new CodePointRange('a', 'c'), state0, false);
+        map.addTransition(new CodePointRange('g', 'h'), state1, false);
         
-        assertEquals(state0, map.getFollowerState('a'));
-        assertEquals(state0, map.getFollowerState('b'));
-        assertEquals(state0, map.getFollowerState('c'));
+        assertEquals(state0, map.getTargetState('a'));
+        assertEquals(state0, map.getTargetState('b'));
+        assertEquals(state0, map.getTargetState('c'));
         
-        assertNull(map.getFollowerState('d'));
-        assertNull(map.getFollowerState('e'));
-        assertNull(map.getFollowerState('f'));
+        assertNull(map.getTargetState('d'));
+        assertNull(map.getTargetState('e'));
+        assertNull(map.getTargetState('f'));
         
-        assertEquals(state1, map.getFollowerState('g'));
-        assertEquals(state1, map.getFollowerState('h'));
+        assertEquals(state1, map.getTargetState('g'));
+        assertEquals(state1, map.getTargetState('h'));
         
-        assertNull(map.getFollowerState('i'));
-        assertNull(map.getFollowerState('j'));
-        assertNull(map.getFollowerState('k'));
+        assertNull(map.getTargetState('i'));
+        assertNull(map.getTargetState('j'));
+        assertNull(map.getTargetState('k'));
     }
     
     @Test
@@ -50,13 +50,13 @@ public class DeterministicFiniteAutomatonStateTransitionMapTest {
             DeterministicFiniteAutomatonState state = 
                     new DeterministicFiniteAutomatonState(i);
             
-            map.addTransition(new CharacterRange(c), state, false);
+            map.addTransition(new CodePointRange(c), state, false);
         }
         
         for (int i = 0; i < states.size(); i++) {
             char c = (char)('a' + 2 * i);
             
-            DeterministicFiniteAutomatonState state = map.getFollowerState(c);
+            DeterministicFiniteAutomatonState state = map.getTargetState(c);
             
             assertEquals(states.get(i), state);
         }

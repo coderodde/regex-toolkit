@@ -10,21 +10,40 @@ package com.github.coderodde.regex;
 public class DeterministicFiniteAutomatonState {
     
     private final int id;
+    private final int sourceStateId;
+    private final int targetStateId;
     
     private final DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
               new DeterministicFiniteAutomatonStateTransitionMap();
+    
     
     /**
      * Constructs a new deterministic finite automaton state.
      * 
      * @param id the ID of the new state.
      */
-    public DeterministicFiniteAutomatonState(int id) {
+    public DeterministicFiniteAutomatonState(int id,
+                                             int sourceStateId,
+                                             int targetStateId) {
         this.id = id;
+        this.sourceStateId = sourceStateId;
+        this.targetStateId = targetStateId;
     }
     
-    int getId() {
+    int getStateId() {
         return id;
+    }
+    
+    int getSourceStateId() {
+        return sourceStateId;
+    }
+    
+    int getTargetStateId() {
+        return targetStateId;
+    }
+    
+    DeterministicFiniteAutomatonStateTransitionMap getTransitionMap() {
+        return transitionMap;
     }
     
     @Override
@@ -45,28 +64,23 @@ public class DeterministicFiniteAutomatonState {
         return id == otherState.id;
     }
     
-    void addFollowerState(Character character,
+    void addFollowerState(int codePoint,
                           DeterministicFiniteAutomatonState followerState) {
         
-        transitionMap.addTransition(new CharacterRange(character), 
-                                    followerState,
-                                    false);
+        transitionMap.addTransition(new CodePointRange(codePoint), 
+                                    this,
+                                    followerState);
     }
     
-    void addFollowerState(CharacterRange characterRange, 
-                          DeterministicFiniteAutomatonState followerState,
-                          boolean isPeriodWildcardEntry) {
+    void addFollowerState(CodePointRange characterRange, 
+                          DeterministicFiniteAutomatonState followerState) {
         
         transitionMap.addTransition(characterRange, 
-                                    followerState, 
-                                    isPeriodWildcardEntry);
+                                    this,
+                                    followerState);
     }
     
-    DeterministicFiniteAutomatonStateTransitionMap getTransitionMap() {
-        return transitionMap;
-    }
-    
-    DeterministicFiniteAutomatonState traverse(Character character) {
-        return transitionMap.getFollowerState(character);
+    DeterministicFiniteAutomatonState traverse(int codePoint) {
+        return transitionMap.getTargetState(codePoint);
     }
 }

@@ -24,23 +24,37 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
      */
     private TransitionMapEntry[] entries = new TransitionMapEntry[DEFAULT_ENTRY_ARRAY_CAPACITY];
     
-    void addTransition(CharacterRange characterRange, 
-                       DeterministicFiniteAutomatonState followerState,
-                       boolean isPeriodWildcardEntry) {
+    private DeterministicFiniteAutomatonState dotTransitionState;
+    
+    void addDotTransitionState(DeterministicFiniteAutomatonState state) {
+        this.dotTransitionState = state;
+    }
+    
+    DeterministicFiniteAutomatonState getDotTransitionState() {
+        return this.dotTransitionState;
+    }
+    
+    void addTransition(CodePointRange characterRange, 
+                       DeterministicFiniteAutomatonState sourceState,
+                       DeterministicFiniteAutomatonState targetState) {
         growIfNeeded();
         
         entries[size++] = new TransitionMapEntry(characterRange, 
-                                                 followerState,
-                                                 isPeriodWildcardEntry);
+                                                 sourceState,
+                                                 targetState);
         Arrays.sort(entries, 0, size);
     }
     
-    void addTransition(Character character,
-                       DeterministicFiniteAutomatonState followerState,
+    void addTransition(int codePoint,
+                       DeterministicFiniteAutomatonState sourceState,
+                       DeterministicFiniteAutomatonState targetState,
                        boolean isPeriodWildcardEntry) {
         
-        CharacterRange characterRange = new CharacterRange(character);
-        addTransition(characterRange, followerState, isPeriodWildcardEntry);
+        CodePointRange characterRange = new CodePointRange(codePoint);
+        
+        addTransition(characterRange,
+                      sourceState,
+                      targetState);
     }
     
     int size() {
@@ -51,20 +65,19 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
         return entries[index];
     }
     
-    DeterministicFiniteAutomatonState
-        getFollowerState(char character) {
+    DeterministicFiniteAutomatonState getTargetState(int codePoint) {
         int l = 0;
         int r = size - 1;
         
         while (l <= r) {
             int m = l + (r - l) / 2;
             
-            if (entries[m].characterRange.characterIsWithinRange(character)) {
-                return entries[m].followerState;
+            if (entries[m].codePointRange.codePointIsWithinRange(codePoint)) {
+                return entries[m].sourceState;
             }
             
-            if (entries[m].characterRange
-                          .characterRangeSmallerThan(character)) {
+            if (entries[m].codePointRange
+                          .codePointRangeSmallerThan(codePoint)) {
                 l = m + 1;
             } else {
                 r = m - 1;
@@ -74,25 +87,32 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
         return null;
     }
     
-    DeterministicFiniteAutomatonState
-         getFollowerState(CharacterRange characterRange) {
-         int l = 0;
-         int r = size - 1;
+    /**
+     * Gets the target state for the input character range.
+     * 
+     * @param characterRange the character range on which to traverse the map.
+     * 
+     * @return the target state.
+     */
+    DeterministicFiniteAutomatonState 
+        getTargetState(CodePointRange characterRange) {
+        int l = 0;
+        int r = size - 1;
          
-         while (l <= r) {
-             int m = l + (r - l) / 2;
+        while (l <= r) {
+            int m = l + (r - l) / 2;
              
-             switch (entries[m].characterRange.compareTo(characterRange)) {
-                 case -1 -> l = m + 1;
-                 case  1 -> r = m - 1;
+            switch (entries[m].codePointRange.compareTo(characterRange)) {
+                case -1 -> l = m + 1;
+                case  1 -> r = m - 1;
                  
-                 default -> {
-                     return entries[m].followerState;
-                 }
-             }
-         }
+                default -> {
+                    return entries[m].sourceState;
+                }
+            }
+        }
          
-         throw new IllegalStateException("Should not get here.");
+        throw new IllegalStateException("Should not get here.");
     }
     
     private void growIfNeeded() {
@@ -109,51 +129,47 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
         }
     }
     
-    static final class TransitionMapEntry implements Comparable<TransitionMapEntry> {
-        private final CharacterRange characterRange;
-        private DeterministicFiniteAutomatonState followerState;
-        private final boolean isPeriodWildcardEntry;
+    static final class TransitionMapEntry 
+            implements Comparable<TransitionMapEntry> {
         
-        TransitionMapEntry(CharacterRange characterRange, 
-                           DeterministicFiniteAutomatonState followerState,
-                           boolean isPeriodEntry) {
-            this.characterRange = characterRange;
-            this.followerState = followerState;
-            this.isPeriodWildcardEntry = isPeriodEntry;
+        private final CodePointRange codePointRange;
+        private DeterministicFiniteAutomatonState sourceState;
+        private DeterministicFiniteAutomatonState targetState;
+        
+        TransitionMapEntry(CodePointRange characterRange, 
+                           DeterministicFiniteAutomatonState sourceState,
+                           DeterministicFiniteAutomatonState targetState) {
+            this.codePointRange = characterRange;
+            this.sourceState = sourceState;
+            this.targetState = targetState;
         }
         
-        CharacterRange getCharacterRange() {
-            return characterRange;
+        CodePointRange getCharacterRange() {
+            return codePointRange;
         }
         
         DeterministicFiniteAutomatonState getFollowerState() {
-            return followerState;
-        }
-        
-        boolean isPeriodWildcardEntry() {
-            return isPeriodWildcardEntry;
+            return sourceState;
         }
 
         void setFollowerState(DeterministicFiniteAutomatonState followerState) {
-            this.followerState = followerState;
+            this.sourceState = followerState;
         }
         
         @Override
         public String toString() {
             return "[TransitionMapEntry: range = '" 
-                    + characterRange.getMinimumCharacter() 
+                    + codePointRange.getMinimumCodePoint() 
                     + "' - '" 
-                    + characterRange.getMaximumCharacter() 
-                    + "', period = " 
-                    + isPeriodWildcardEntry 
+                    + codePointRange.getMaximumCodePoint() 
                     + ", state ID = " 
-                    + followerState.getId() 
+                    + sourceState.getStateId() 
                     + "}";
         }
         
         @Override
         public int compareTo(TransitionMapEntry o) {
-            return this.characterRange.compareTo(o.characterRange);
+            return this.codePointRange.compareTo(o.codePointRange);
         }
     }
 }

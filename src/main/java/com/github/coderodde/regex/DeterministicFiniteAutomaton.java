@@ -101,9 +101,7 @@ public final class DeterministicFiniteAutomaton
                 equivalenceClasses) {
             
             DeterministicFiniteAutomatonState dfaState = 
-                    new DeterministicFiniteAutomatonState(
-                            stateId++,
-                            -1, -2);
+                    new DeterministicFiniteAutomatonState(stateId++);
             
             stateMap.put(encodedState, dfaState);
             
@@ -123,11 +121,11 @@ public final class DeterministicFiniteAutomaton
             DeterministicFiniteAutomatonState currentDFAState =
                     stateMap.get(equivalenceClass);
             
-            for (Character character : getLocalAlphabet(equivalenceClass)) {
+            for (int codePoint : getLocalAlphabet(equivalenceClass)) {
                 Set<DeterministicFiniteAutomatonState> followerEquivalenceClass = 
                     getNextEquivalenceClass( 
                                 equivalenceClass, 
-                                character);
+                                codePoint);
             
                 Set<DeterministicFiniteAutomatonState> nextEquivalenceClass = 
                     getNext(equivalenceClasses, 
@@ -136,7 +134,7 @@ public final class DeterministicFiniteAutomaton
                 DeterministicFiniteAutomatonState nextDFAState =
                     stateMap.get(nextEquivalenceClass);
             
-                currentDFAState.addFollowerState(character, nextDFAState);
+                currentDFAState.addFollowerState(codePoint, nextDFAState);
             }
         }
         
@@ -174,13 +172,13 @@ public final class DeterministicFiniteAutomaton
     private static Set<DeterministicFiniteAutomatonState> 
         getNextEquivalenceClass(
                 Set<DeterministicFiniteAutomatonState> currentDFAStateSet,
-                Character character) {
+                int codePoint) {
             
         Set<DeterministicFiniteAutomatonState> nextDFAStateSet =
                 new HashSet<>();
             
         for (DeterministicFiniteAutomatonState state : currentDFAStateSet) {
-            nextDFAStateSet.add(state.traverse(character));
+            nextDFAStateSet.add(state.traverse(codePoint));
         }
         
         return nextDFAStateSet;
@@ -317,9 +315,9 @@ public final class DeterministicFiniteAutomaton
             
             w.remove(a);
             
-            for (Character character : getLocalAlphabet(a)) {
+            for (int codePoint : getLocalAlphabet(a)) {
                 Set<DeterministicFiniteAutomatonState> x = 
-                        getX(character, 
+                        getX(codePoint, 
                              reachableStates, 
                              a);
                 
@@ -367,7 +365,7 @@ public final class DeterministicFiniteAutomaton
     }
     
     private Set<DeterministicFiniteAutomatonState> 
-        getX(Character c, 
+        getX(int c, 
              Set<DeterministicFiniteAutomatonState> allStates,
              Set<DeterministicFiniteAutomatonState> a) {
             
@@ -382,20 +380,23 @@ public final class DeterministicFiniteAutomaton
         return x;
     }
     
-    private Set<Character> 
+    private Set<Integer> 
         getLocalAlphabet(Set<DeterministicFiniteAutomatonState> stateSet) {
             
-        Set<Character> localAlphabet = new HashSet<>();
+        Set<Integer> localAlphabet = new HashSet<>();
         
         for (DeterministicFiniteAutomatonState state : stateSet) {
             DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
                     state.getTransitionMap();
             
-            for (int i = 0; i < transitionMap.size(); i++) {
-                TransitionMapEntry transitionMapEntry = transitionMap.get(i);
-                
-                if (transitionMapEntry == null) {
-//                    localAlphabet.add(transitionMapEntry.)
+            for (TransitionMapEntry transitionMapEntry : transitionMap) {
+                if (transitionMapEntry != null) {
+                    CodePointRange codePointRange = 
+                            transitionMapEntry.getCharacterRange();
+                    
+                    for (int codePoint : codePointRange) {
+                        localAlphabet.add(codePoint);
+                    }
                 }
             }
             

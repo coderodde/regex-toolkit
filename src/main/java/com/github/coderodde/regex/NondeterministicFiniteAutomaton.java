@@ -397,17 +397,17 @@ public final class NondeterministicFiniteAutomaton
     }
     
     static DeterministicFiniteAutomatonStateTransitionMap
-        computeTransitionMapWithoutPeriodWildcard(Set<Character> alphabet,
+        computeTransitionMapWithoutPeriodWildcard(Set<Integer> alphabet,
                                                   int startId) {
         
         DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
                 new DeterministicFiniteAutomatonStateTransitionMap();
         
-        for (Character character : alphabet) {
+        for (int codePoint : alphabet) {
             transitionMap.addTransition(
-                    character, 
+                    codePoint, 
                     new DeterministicFiniteAutomatonState(startId++),
-                    false);
+                    null);
         }
         
         return transitionMap;
@@ -428,7 +428,7 @@ public final class NondeterministicFiniteAutomaton
             CodePointRange firstCharacterRange = 
                     new CodePointRange(Character.MIN_VALUE, leftCharacter);
             
-            transitionMap.addTransition(firstCharacterRange, null, true);
+            transitionMap.addTransition(firstCharacterRange, null, null);
         }
         
         while (alphabetIterator.hasNext()) {
@@ -447,8 +447,8 @@ public final class NondeterministicFiniteAutomaton
                                 (char)(rightCharacter - 1));
             } 
             
-            transitionMap.addTransition(characterRange1, null, true);
-            transitionMap.addTransition(characterRange2, null, true);
+            transitionMap.addTransition(characterRange1, null, null);
+            transitionMap.addTransition(characterRange2, null, null);
             leftCharacter = rightCharacter;
         }
         
@@ -457,7 +457,7 @@ public final class NondeterministicFiniteAutomaton
                     new CodePointRange(rightCharacter,
                                        Character.MAX_VALUE);
             
-            transitionMap.addTransition(concludingCharacterRange, null, true);
+            transitionMap.addTransition(concludingCharacterRange, null, null);
         }
         
         return transitionMap;

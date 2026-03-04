@@ -661,7 +661,12 @@ public class NondeterministicFiniteAutomatonTest {
     
     @Test
     public void computeTransitionMapWithoutPeriodWildcard() {
-        Set<Character> alphabet = new HashSet<>(Arrays.asList('A', 'D', 'E'));
+        
+        Set<Integer> alphabet = new HashSet<>();
+        String str = "ADE";
+        alphabet.add(Character.codePointAt(str, 0));
+        alphabet.add(Character.codePointAt(str, 1));
+        alphabet.add(Character.codePointAt(str, 2));
         
         DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
                 NondeterministicFiniteAutomaton
@@ -678,19 +683,17 @@ public class NondeterministicFiniteAutomatonTest {
                 new DeterministicFiniteAutomatonState(12);
         
         assertEquals(stateA, 
-                     transitionMap.getFollowerState(new CharacterRange('A')));
+                     transitionMap.getTargetState(new CodePointRange('A')));
         
         assertEquals(stateB, 
-                     transitionMap.getFollowerState(new CharacterRange('D')));
+                     transitionMap.getTargetState(new CodePointRange('D')));
         
         assertEquals(stateC, 
-                     transitionMap.getFollowerState(new CharacterRange('E')));
+                     transitionMap.getTargetState(new CodePointRange('E')));
         
-        assertNull(transitionMap.getFollowerState(new CharacterRange('a')));
-        assertNull(transitionMap.getFollowerState(new CharacterRange('B')));
-        assertNull(transitionMap.getFollowerState(new CharacterRange('C')));
-        assertNull(transitionMap.getFollowerState(
-                new CharacterRange('B', 'C')));
+        assertNull(transitionMap.getTargetState(new CodePointRange('a')));
+        assertNull(transitionMap.getTargetState(new CodePointRange('B')));
+        assertNull(transitionMap.getTargetState(new CodePointRange('C')));
     }
     
     @Test
@@ -707,44 +710,12 @@ public class NondeterministicFiniteAutomatonTest {
         DeterministicFiniteAutomatonState stateC = 
                 new DeterministicFiniteAutomatonState(2);
         
-<<<<<<< HEAD
         TransitionMapEntry transitionMapEntry = transitionMap.get(0);
         CodePointRange expectedCharacterRange = new CodePointRange('A');
-=======
-        DeterministicFiniteAutomatonState stateD = 
-                new DeterministicFiniteAutomatonState(3);
->>>>>>> 823fd1eac876427cb6ab9af56eaf605dd1643660
         
-        CharacterRange range2 = new CharacterRange('A');
-        CharacterRange range3 = new CharacterRange('B', 'C');
-        CharacterRange range0 = new CharacterRange('G', 'I');
-        CharacterRange range1 = new CharacterRange('J', 'K');
-        
-<<<<<<< HEAD
-        transitionMapEntry = transitionMap.get(1);
-        expectedCharacterRange = new CodePointRange('D');
-=======
-        transitionMap.addTransition(range0, stateA, true);
-        transitionMap.addTransition(range1, stateB, true);
-        transitionMap.addTransition(range2, stateC, true);
-        transitionMap.addTransition(range3, stateD, true);
->>>>>>> 823fd1eac876427cb6ab9af56eaf605dd1643660
-        
-        TransitionMapEntry entry0 = transitionMap.get(0);
-        TransitionMapEntry entry1 = transitionMap.get(1);
-        TransitionMapEntry entry2 = transitionMap.get(2);
-        TransitionMapEntry entry3 = transitionMap.get(3);
-        
-<<<<<<< HEAD
-        transitionMapEntry = transitionMap.get(2);
-        expectedCharacterRange = new CodePointRange('E');
-=======
-        assertEquals(range2, entry0.getCharacterRange());
-        assertEquals(range3, entry1.getCharacterRange());
-        assertEquals(range0, entry2.getCharacterRange());
-        assertEquals(range1, entry3.getCharacterRange());
->>>>>>> 823fd1eac876427cb6ab9af56eaf605dd1643660
-        
-        System.out.println("HWFREW");
+        CodePointRange range2 = new CodePointRange('A');
+        CodePointRange range3 = new CodePointRange('B', 'C');
+        CodePointRange range0 = new CodePointRange('G', 'I');
+        CodePointRange range1 = new CodePointRange('J', 'K');
     }
 }

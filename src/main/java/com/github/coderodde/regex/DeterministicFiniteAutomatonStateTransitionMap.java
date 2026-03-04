@@ -1,6 +1,7 @@
 package com.github.coderodde.regex;
 
-import java.util.Arrays;
+import com.github.coderodde.regex.DeterministicFiniteAutomatonStateTransitionMap.TransitionMapEntry;
+import java.util.Iterator;
 
 /**
  * This class implements a transition map mapping character ranges to the 
@@ -10,7 +11,8 @@ import java.util.Arrays;
  * @version 1.6 (Dec 10, 2023)
  * @since 1.6 (Dec 10, 2023)
  */
-final class DeterministicFiniteAutomatonStateTransitionMap {
+final class DeterministicFiniteAutomatonStateTransitionMap 
+implements Iterable<TransitionMapEntry> {
     
     private static final int DEFAULT_ENTRY_ARRAY_CAPACITY = 8;
     
@@ -62,8 +64,7 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
     
     void addTransition(int codePoint,
                        DeterministicFiniteAutomatonState sourceState,
-                       DeterministicFiniteAutomatonState targetState,
-                       boolean isPeriodWildcardEntry) {
+                       DeterministicFiniteAutomatonState targetState) {
         
         CodePointRange characterRange = new CodePointRange(codePoint);
         
@@ -102,10 +103,10 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
         return null;
     }
         
-    TransitionMapEntry getTransitionMapEntry(Character character) {
+    TransitionMapEntry getTransitionMapEntry(int codePoint) {
         
-        CODE_POINT_RANGE.setMinimumCodePoint(character);
-        CODE_POINT_RANGE.setMaximumCodePoint(character);
+        CODE_POINT_RANGE.setMinimumCodePoint(codePoint);
+        CODE_POINT_RANGE.setMaximumCodePoint(codePoint);
         
         int l = 0;
         int r = size - 1;
@@ -126,19 +127,19 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
     /**
      * Gets the target state for the input character range.
      * 
-     * @param characterRange the character range on which to traverse the map.
+     * @param codePointRange the character range on which to traverse the map.
      * 
      * @return the target state.
      */
     DeterministicFiniteAutomatonState 
-        getTargetState(CodePointRange characterRange) {
+        getTargetState(CodePointRange codePointRange) {
         int l = 0;
         int r = size - 1;
          
         while (l <= r) {
             int m = l + (r - l) / 2;
              
-            switch (entries[m].codePointRange.compareTo(characterRange)) {
+            switch (entries[m].codePointRange.compareTo(codePointRange)) {
                 case -1 -> l = m + 1;
                 case  1 -> r = m - 1;
                  
@@ -153,7 +154,8 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
     
     private void growIfNeeded() {
         if (size == entries.length) {
-            TransitionMapEntry[] newEntries = new TransitionMapEntry[(size * 3) / 2];
+            TransitionMapEntry[] newEntries = 
+                    new TransitionMapEntry[(size * 3) / 2];
             
             System.arraycopy(this.entries,
                              0,
@@ -163,6 +165,24 @@ final class DeterministicFiniteAutomatonStateTransitionMap {
             
             this.entries = newEntries;
         }
+    }
+    
+    @Override
+    public Iterator<TransitionMapEntry> iterator() {
+        
+        return new Iterator<>() {
+            private int index;
+            
+            @Override
+            public boolean hasNext() {
+                return index < size;
+            }
+
+            @Override
+            public TransitionMapEntry next() {
+                return entries[index++];    
+            }
+        };
     }
     
     static final class TransitionMapEntry 

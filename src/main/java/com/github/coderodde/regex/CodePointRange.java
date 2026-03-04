@@ -1,9 +1,12 @@
 package com.github.coderodde.regex;
 
+import java.util.Iterator;
+
 /**
  * This class implements a simple code point range.
  */
-final class CodePointRange implements Comparable<CodePointRange> {
+final class CodePointRange implements Comparable<CodePointRange>,
+                                      Iterable<Integer> {
     
     private int minimumCodePoint;
     private int maximumCodePoint;
@@ -69,5 +72,22 @@ final class CodePointRange implements Comparable<CodePointRange> {
                 + " to "
                 + maximumCodePoint 
                 + "]";
+    }
+
+    @Override
+    public Iterator<Integer> iterator() {
+        return new Iterator() {
+            private int nextCodePoint = minimumCodePoint;
+            
+            @Override
+            public boolean hasNext() {
+                return nextCodePoint <= maximumCodePoint;
+            }
+
+            @Override
+            public Object next() {
+                return nextCodePoint++;
+            }
+        };
     }
 }

@@ -10,8 +10,6 @@ package com.github.coderodde.regex;
 public class DeterministicFiniteAutomatonState {
     
     private final int id;
-    private final int sourceStateId;
-    private final int targetStateId;
     
     private final DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
               new DeterministicFiniteAutomatonStateTransitionMap();
@@ -22,24 +20,12 @@ public class DeterministicFiniteAutomatonState {
      * 
      * @param id the ID of the new state.
      */
-    public DeterministicFiniteAutomatonState(int id,
-                                             int sourceStateId,
-                                             int targetStateId) {
+    public DeterministicFiniteAutomatonState(int id) {
         this.id = id;
-        this.sourceStateId = sourceStateId;
-        this.targetStateId = targetStateId;
     }
     
     int getStateId() {
         return id;
-    }
-    
-    int getSourceStateId() {
-        return sourceStateId;
-    }
-    
-    int getTargetStateId() {
-        return targetStateId;
     }
     
     DeterministicFiniteAutomatonStateTransitionMap getTransitionMap() {

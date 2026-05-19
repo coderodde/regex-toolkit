@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -25,6 +26,12 @@ public final class DeterministicFiniteAutomaton
     private DeterministicFiniteAutomatonState initialState;
     
     /**
+     * The set of <b>all</b> states in this DFA.
+     */
+    private final Set<DeterministicFiniteAutomatonState> states =
+            new HashSet<>();
+    
+    /**
      * The set of accepting states.
      */
     private final Set<DeterministicFiniteAutomatonState> acceptingStateSet = 
@@ -33,9 +40,18 @@ public final class DeterministicFiniteAutomaton
     /**
      * If this Boolean flag is set to {@code true}, upon matching a string, the
      * algorithm will actually simulate that of NFA in order to plausibly deal
-     * with dot operators.
+     * with dot operators. An empty DFA does not contain a dot operator.
      */
-    private boolean containsDotOperator;
+    private boolean containsDotOperator = false;
+    
+    /**
+     * Returns the initial state.
+     * 
+     * @return the initial state.
+     */
+    public DeterministicFiniteAutomatonState getInitialState() {
+        return this.initialState;
+    }
     
     /**
      * Sets the initial state.
@@ -43,11 +59,14 @@ public final class DeterministicFiniteAutomaton
      * @param initialState the new initial state.
      */
     public void setInitialState(
-            DeterministicFiniteAutomatonState initialState) {
+        DeterministicFiniteAutomatonState initialState) {
+        
         this.initialState =
                 Objects.requireNonNull(
                         initialState,
                         "The input initial state is null.");
+        
+        this.states.add(initialState);
     }
     
     /**
@@ -57,6 +76,16 @@ public final class DeterministicFiniteAutomaton
      */
     Set<DeterministicFiniteAutomatonState> getAcceptingStates() {
         return Collections.unmodifiableSet(acceptingStateSet);
+    }
+    
+    /**
+     * Returns the set view over all states in this DFA, containing also
+     * possible initial state and accepting states.
+     * 
+     * @return the set view over all states in this DFA. 
+     */
+    Set<DeterministicFiniteAutomatonState> getAllStates() {
+        return Collections.unmodifiableSet(states);
     }
     
     /**
@@ -71,7 +100,7 @@ public final class DeterministicFiniteAutomaton
         if (containsDotOperator) {
             return matchesWithDotOperators(text);
         } else {
-            return matchesRawImpl(text);
+            return matchesWithoutDotOperators(text);
         }
     }
     
@@ -89,16 +118,17 @@ public final class DeterministicFiniteAutomaton
         
         int stateId = 0;
         
-        List<Set<DeterministicFiniteAutomatonState>> equivalenceClasses =
+        List<Set<DeterministicFiniteAutomatonState>> P =
                 minimizeViaHopcroftsAlgorithmImpl();
         
+        // The output DFA:
         DeterministicFiniteAutomaton dfa = new DeterministicFiniteAutomaton();
         
         Map<Set<DeterministicFiniteAutomatonState>, 
             DeterministicFiniteAutomatonState> stateMap = new HashMap<>();
         
         for (Set<DeterministicFiniteAutomatonState> encodedState : 
-                equivalenceClasses) {
+                P) {
             
             DeterministicFiniteAutomatonState dfaState = 
                     new DeterministicFiniteAutomatonState(stateId++);
@@ -106,6 +136,12 @@ public final class DeterministicFiniteAutomaton
             stateMap.put(encodedState, dfaState);
             
             if (encodedState.contains(this.initialState)) {
+                
+                if (dfa.getInitialState() != null) {
+                    throw new IllegalStateException(
+                        "dfa.getInitialState() != null");
+                }
+                
                 dfa.setInitialState(dfaState);
             }
             
@@ -116,19 +152,20 @@ public final class DeterministicFiniteAutomaton
         }
         
         for (Set<DeterministicFiniteAutomatonState> equivalenceClass :
-                equivalenceClasses) {
+                P) {
             
             DeterministicFiniteAutomatonState currentDFAState =
                     stateMap.get(equivalenceClass);
             
             for (int codePoint : getLocalAlphabet(equivalenceClass)) {
-                Set<DeterministicFiniteAutomatonState> followerEquivalenceClass = 
-                    getNextEquivalenceClass( 
-                                equivalenceClass, 
-                                codePoint);
-            
+                
+                Set<DeterministicFiniteAutomatonState> 
+                    followerEquivalenceClass = 
+                        getNextEquivalenceClass(equivalenceClass, 
+                                                codePoint);
+
                 Set<DeterministicFiniteAutomatonState> nextEquivalenceClass = 
-                    getNext(equivalenceClasses, 
+                    getNext(P, 
                             followerEquivalenceClass);
             
                 DeterministicFiniteAutomatonState nextDFAState =
@@ -149,7 +186,7 @@ public final class DeterministicFiniteAutomaton
      * @return {@code true} if and only if {@code text} belongs to the regular
      *         language recognized by this DFA.
      */
-    private boolean matchesRawImpl(String text) {
+    private boolean matchesWithoutDotOperators(String text) {
         DeterministicFiniteAutomatonState state = deltaStar(text);
         
         if (state == null) {
@@ -169,15 +206,25 @@ public final class DeterministicFiniteAutomaton
         return !Utils.intersection(state, acceptingStateSet).isEmpty();
     }
     
+    /**
+     * Computes the next equivalence class starting from the input equivalence
+     * class and following the character encoded by {@code codePoint}.
+     * 
+     * @param currentEquivalenceClass the current equivalence class.
+     * @param codePoint               the code point.
+     * @return the follower equivalence class.
+     */
     private static Set<DeterministicFiniteAutomatonState> 
         getNextEquivalenceClass(
-                Set<DeterministicFiniteAutomatonState> currentDFAStateSet,
+                Set<DeterministicFiniteAutomatonState> currentEquivalenceClass,
                 int codePoint) {
             
         Set<DeterministicFiniteAutomatonState> nextDFAStateSet =
                 new HashSet<>();
             
-        for (DeterministicFiniteAutomatonState state : currentDFAStateSet) {
+        for (DeterministicFiniteAutomatonState state : 
+                currentEquivalenceClass) {
+            
             nextDFAStateSet.add(state.traverse(codePoint));
         }
         
@@ -206,6 +253,7 @@ public final class DeterministicFiniteAutomaton
     private static Set<DeterministicFiniteAutomatonState> 
         getNext(List<Set<DeterministicFiniteAutomatonState>> equivalenceClasses,
                 Set<DeterministicFiniteAutomatonState> followerState) {
+            
         for (Set<DeterministicFiniteAutomatonState> equivalenceClass
                 : equivalenceClasses) {
             if (equivalenceClass.containsAll(followerState)) {
@@ -295,20 +343,37 @@ public final class DeterministicFiniteAutomaton
         }
     }
     
+    /**
+     * Returns the list of equivalence classes from which a minimized DFA may be
+     * built.
+     * 
+     * @return the list of equivalence classes. 
+     */
     private List<Set<DeterministicFiniteAutomatonState>>
          minimizeViaHopcroftsAlgorithmImpl() {
              
         List<Set<DeterministicFiniteAutomatonState>> p = new LinkedList<>();
-        Set<Set<DeterministicFiniteAutomatonState>> w = new HashSet<>();
+         Set<Set<DeterministicFiniteAutomatonState>> w = new HashSet<>();
         
         Set<DeterministicFiniteAutomatonState> reachableStates = 
                 getAllReachableStates();
         
-        p.add(getAcceptingStates());
-        p.add(Utils.difference(reachableStates, getAcceptingStates()));
+        pruneUnreachableStates(reachableStates);
         
-        w.add(getAcceptingStates());
-        w.add(Utils.difference(reachableStates, getAcceptingStates()));
+        Set<DeterministicFiniteAutomatonState> F = getAcceptingStates();
+        
+        if (!F.isEmpty()) {
+            p.add(F);
+            w.add(F);
+        }
+        
+        Set<DeterministicFiniteAutomatonState> QminusF = 
+            Utils.difference(getAllStates(), F);
+        
+        if (!QminusF.isEmpty()) {
+            p.add(QminusF);
+            w.add(QminusF);
+        }
         
         while (!w.isEmpty()) {
             Set<DeterministicFiniteAutomatonState> a = w.iterator().next();
@@ -365,15 +430,13 @@ public final class DeterministicFiniteAutomaton
     }
     
     private Set<DeterministicFiniteAutomatonState> 
-        getX(int c, 
-             Set<DeterministicFiniteAutomatonState> allStates,
-             Set<DeterministicFiniteAutomatonState> a) {
+        getX(int ch, Set<DeterministicFiniteAutomatonState> a) {
             
         Set<DeterministicFiniteAutomatonState> x = new HashSet<>();
         
-        for (DeterministicFiniteAutomatonState state : allStates) {
-            if (a.contains(state.traverse(c))) {
-                x.add(state);
+        for (DeterministicFiniteAutomatonState q : this.states) {
+            if (a.contains(q.traverse(ch))) {
+                x.add(q);
             }
         }
         
@@ -471,6 +534,12 @@ public final class DeterministicFiniteAutomaton
         return currentState;
     }
     
+    /**
+     * A simple, directed BFS starting from he initial state and trying to reach
+     * as many states as feasible.
+     * 
+     * @return a set of states reachable from the initial state.
+     */
     private Set<DeterministicFiniteAutomatonState> getAllReachableStates() {
         Deque<DeterministicFiniteAutomatonState> queue = new ArrayDeque<>();
         Set<DeterministicFiniteAutomatonState> visited = new HashSet<>();
@@ -492,22 +561,25 @@ public final class DeterministicFiniteAutomaton
                     visited.add(followerState);
                     queue.addLast(followerState);
                 }
-                
             }
         }
         
         return visited;
     }
-    
-//    void hasBothDotAndCharacterTransitions() {
-//        Set<DeterministicFiniteAutomatonState> states = getAllReachableStates();
-//        
-//        for (DeterministicFiniteAutomatonState state : states) {
-//            if (state.getDotTransition() != null 
-//                    && !state.followerMap.isEmpty()) {
-//                System.out.println("Gotcha!");
-//                return;
-//            }
-//        }
-//    }
+
+    private void pruneUnreachableStates(
+        Set<DeterministicFiniteAutomatonState> reachableStates) {
+        
+        Iterator<DeterministicFiniteAutomatonState> iterator =
+                states.iterator();
+        
+        while (iterator.hasNext()) {
+            DeterministicFiniteAutomatonState state = iterator.next();
+            
+            if (!reachableStates.contains(state)) {
+                state.clear();
+                iterator.remove();
+            }
+        }
+    }
 }

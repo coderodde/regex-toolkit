@@ -28,6 +28,9 @@ implements Iterable<TransitionMapEntry> {
      */
     private TransitionMapEntry[] entries = new TransitionMapEntry[DEFAULT_ENTRY_ARRAY_CAPACITY];
     
+    /**
+     * Possible dot transition state.
+     */
     private DeterministicFiniteAutomatonState dotTransitionState;
     
     void addDotTransitionState(DeterministicFiniteAutomatonState state) {
@@ -75,6 +78,16 @@ implements Iterable<TransitionMapEntry> {
     
     int size() {
         return size;
+    }
+    
+    void clear() {
+        dotTransitionState = null;
+        
+        for (int i = 0; i != size; ++i) {
+            entries[i] = null;
+        }
+        
+        entries = null;
     }
     
     TransitionMapEntry get(int index) {

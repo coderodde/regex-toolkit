@@ -2,6 +2,7 @@ package com.github.coderodde.regex;
 
 import com.github.coderodde.regex.DeterministicFiniteAutomatonStateTransitionFunction.TransitionFunctionEntry;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
@@ -49,6 +50,11 @@ public final class DeterministicFiniteAutomaton
      * The state transition function.
      */
     private DeterministicFiniteAutomatonStateTransitionFunction delta;
+    
+    /**
+     * The current, tentative alphabet of this DFA.
+     */
+    private final Set<Integer> alphabet = new HashSet<>();
     
     /**
      * If this Boolean flag is set to {@code true}, upon matching a string, the
@@ -271,7 +277,7 @@ public final class DeterministicFiniteAutomaton
                 int codePoint) {
             
         Set<DeterministicFiniteAutomatonState> nextDFAStateSet =
-                new HashSet<>();
+                new HashSet<>(currentEquivalenceClass.size());
             
         for (DeterministicFiniteAutomatonState state : 
                 currentEquivalenceClass) {
@@ -313,8 +319,8 @@ public final class DeterministicFiniteAutomaton
         }
         
         // TODO: deal with this:
-        return Collections.emptySet();
-//        throw new IllegalStateException();
+//        return Collections.emptySet();
+        throw new IllegalStateException("getNext() failed");
     }
     
     private void populateStatesIn(
@@ -396,15 +402,157 @@ public final class DeterministicFiniteAutomaton
     
     public DeterministicFiniteAutomaton 
         minimize(MinimizationAlgorithm algorithm) {
+            
+        Objects.requireNonNull(
+            algorithm,
+            "The minimization algorithm selector is null.");
         
         DeterministicFiniteAutomaton targetDfa = 
                 new DeterministicFiniteAutomaton(this);
-            
-        List<Set<DeterministicFiniteAutomatonState>> equivalenceClasses;
         
-        
+        switch (algorithm) {
+            case HOPCROFT:
+                return buildDfaImpl(minimizeViaHopcroftsAlgorithmImpl());
+                
+            case MOORE:
+                return buildDfaImpl(minimizeViaMooresAlgorithmImpl());
+                
+            default:
+                throw new EnumConstantNotPresentException(MinimizationAlgorithm.class, algorithm.name());
+        }
     }
     
+    private DeterministicFiniteAutomaton buildDfaImpl(
+        List<Set<DeterministicFiniteAutomatonState>> equivalenceClasses) {
+        
+        int stateId = 0;
+        DeterministicFiniteAutomaton dfa = new DeterministicFiniteAutomaton();
+        Map<Set<DeterministicFiniteAutomatonState>, 
+                DeterministicFiniteAutomatonState> stateMap = 
+                new HashMap<>(equivalenceClasses.size());
+        
+        // Create all states of the minimized DFA. Also, sets the initial state
+        // and possibly creates the accepting state set:
+        for (Set<DeterministicFiniteAutomatonState> equivalenceClass
+                : equivalenceClasses) {
+            
+            DeterministicFiniteAutomatonState dfaState = 
+                    new DeterministicFiniteAutomatonState(stateId++);
+            
+            stateMap.put(equivalenceClass, dfaState);
+            
+            if (equivalenceClass.contains(initialState)) {
+                if (dfa.getInitialState() != null) {
+                    throw new IllegalStateException(
+                        "The constructed DFA already has an initial state.");
+                }
+                
+                dfa.setInitialState(dfaState);
+            }
+            
+            // If the current equivalence class intersects with the accepting 
+            // state set of this DFA, add to the accepting state of the 
+            // constructed DFA:
+            if (!Utils.intersection(equivalenceClass, 
+                                    getAcceptingStates()).isEmpty()) {
+                
+                dfa.acceptingStateSet.add(dfaState);
+            }
+        }
+        
+        // Builds the state transitions:
+        for (Set<DeterministicFiniteAutomatonState> equivalenceClass 
+                : equivalenceClasses) {
+            
+            DeterministicFiniteAutomatonState currentDfaState = 
+                stateMap.get(equivalenceClass);
+            
+            // Process the state transitions of 'currentDfaState'
+            for (int codePoint : getLocalAlphabet(equivalenceClass)) {
+                
+                Set<DeterministicFiniteAutomatonState> 
+                    followerEquivalenceClass =
+                        getNextEquivalenceClass(equivalenceClass, codePoint);
+                
+                Set<DeterministicFiniteAutomatonState> nextEquivalenceClass =
+                    getNext(equivalenceClasses, followerEquivalenceClass);
+                
+                DeterministicFiniteAutomatonState nextDfaState = 
+                    stateMap.get(nextEquivalenceClass);
+                
+                currentDfaState.addFollowerState(codePoint, nextDfaState);
+            }
+        }
+        
+        return dfa;
+    }
+        
+    private List<Set<DeterministicFiniteAutomatonState>>
+         minimizeViaMooresAlgorithmImpl() {
+         List<Set<DeterministicFiniteAutomatonState>> p = new ArrayList<>();
+         Set<DeterministicFiniteAutomatonState> bacc = getAcceptingStates();
+         Set<DeterministicFiniteAutomatonState> brej = 
+             setminus(new HashSet<DeterministicFiniteAutomatonState>(states),
+                      new HashSet<DeterministicFiniteAutomatonState>(
+                          acceptingStateSet));
+         
+         if (!bacc.isEmpty()) {
+             p.add(bacc);
+         }
+         
+         if (!brej.isEmpty()) {
+             p.add(brej);
+         }
+         
+         
+         Map<DeterministicFiniteAutomatonState, Integer> blockIdMap = 
+             buildBlockIdMap(p);
+         
+         boolean changed = true;
+         
+         while (changed) {
+             changed = false;
+             
+             List<Set<DeterministicFiniteAutomatonState>> pNew = 
+                 new ArrayList<>();
+             
+             for (Set<DeterministicFiniteAutomatonState> block : p) {
+                 Map<List<DeterministicFiniteAutomatonState>, 
+                     Set<Integer>> groups = new HashMap<>();
+                 
+                 for (DeterministicFiniteAutomatonState q : block) {
+                     List<DeterministicFiniteAutomatonState> signature = 
+                         new ArrayList<>();
+                     
+                     for (CodePointRange codePointRange : delta.getAlphabet()) {
+                         for (int codePoint : codePointRange) {
+                             
+                             int nextState = delta.p
+                         }
+                     } 
+                 }
+             }
+         }
+    }
+    
+    private Map<DeterministicFiniteAutomatonState, Integer>
+        buildBlockIdMap(List<Set<DeterministicFiniteAutomatonState>> p) {
+        Map<DeterministicFiniteAutomatonState, Integer> blockIdMap = 
+                new HashMap<>();
+        
+        int id = 0;
+        
+        for (Set<DeterministicFiniteAutomatonState> block : p) {
+            for (DeterministicFiniteAutomatonState q : block) {
+                blockIdMap.put(q, id);
+            }
+            
+            ++id;
+        }
+        
+        return blockIdMap;
+    }
+         
     /**
      * Returns the list of equivalence classes from which a minimized DFA may be
      * built.
@@ -443,10 +591,7 @@ public final class DeterministicFiniteAutomaton
             w.remove(a);
             
             for (int codePoint : getLocalAlphabet(a)) {
-                Set<DeterministicFiniteAutomatonState> x = 
-                        getX(codePoint, 
-                             reachableStates, 
-                             a);
+                Set<DeterministicFiniteAutomatonState> x = getX(codePoint, a);
                 
                 ListIterator<Set<DeterministicFiniteAutomatonState>>
                         pListIterator = p.listIterator();
@@ -643,5 +788,17 @@ public final class DeterministicFiniteAutomaton
                 iterator.remove();
             }
         }
+    }
+    
+    /**
+     * Returns the set {@code a} setminus {@code b}.
+     * 
+     * @param a the set to minus from.
+     * @param b the set to minus.
+     * @return {@code a \setminus b}.
+     */
+    private static <T> Set<T> setminus(Set<T> a, Set<T> b) {
+        a.removeAll(b);
+        return a;
     }
 }

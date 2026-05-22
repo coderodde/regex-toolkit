@@ -1,7 +1,9 @@
 package com.github.coderodde.regex;
 
 import com.github.coderodde.regex.DeterministicFiniteAutomatonStateTransitionFunction.TransitionFunctionEntry;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * This class implements a transition map mapping character ranges to the 
@@ -104,6 +106,20 @@ implements Iterable<TransitionFunctionEntry> {
         }
         
         entries = null;
+    }
+    
+    Set<CodePointRange> getAlphabet() {
+        Set<CodePointRange> alphabet = new HashSet<>();
+        
+        for (TransitionFunctionEntry e : entries) {
+            if (e == null) {
+               break; 
+            }
+            
+            alphabet.add(e.codePointRange);
+        }
+        
+        return alphabet;
     }
     
     TransitionFunctionEntry get(int index) {

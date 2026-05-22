@@ -1,6 +1,6 @@
 package com.github.coderodde.regex;
 
-import com.github.coderodde.regex.DeterministicFiniteAutomatonStateTransitionMap.TransitionMapEntry;
+import com.github.coderodde.regex.DeterministicFiniteAutomatonStateTransitionFunction.TransitionFunctionEntry;
 import java.util.Iterator;
 
 /**
@@ -11,8 +11,8 @@ import java.util.Iterator;
  * @version 1.6 (Dec 10, 2023)
  * @since 1.6 (Dec 10, 2023)
  */
-final class DeterministicFiniteAutomatonStateTransitionMap 
-implements Iterable<TransitionMapEntry> {
+final class DeterministicFiniteAutomatonStateTransitionFunction 
+implements Iterable<TransitionFunctionEntry> {
     
     private static final int DEFAULT_ENTRY_ARRAY_CAPACITY = 8;
     
@@ -26,16 +26,32 @@ implements Iterable<TransitionMapEntry> {
     /**
      * The actual array of entries.
      */
-    private TransitionMapEntry[] entries = new TransitionMapEntry[DEFAULT_ENTRY_ARRAY_CAPACITY];
+    private TransitionFunctionEntry[] entries = 
+        new TransitionFunctionEntry[DEFAULT_ENTRY_ARRAY_CAPACITY];
     
     /**
      * Possible dot transition state.
      */
     private DeterministicFiniteAutomatonState dotTransitionState;
-    
-    void addDotTransitionState(DeterministicFiniteAutomatonState state) {
-        this.dotTransitionState = state;
+
+    public DeterministicFiniteAutomatonStateTransitionFunction() {
+        entries = new TransitionFunctionEntry[DEFAULT_ENTRY_ARRAY_CAPACITY];
     }
+    
+    public DeterministicFiniteAutomatonStateTransitionFunction(
+           DeterministicFiniteAutomatonStateTransitionFunction other) {
+        
+        this.entries = new TransitionFunctionEntry[other.entries.length];
+        this.size = other.size;
+        
+        for (int i = 0; i < size; ++i) {
+            entries[i] = other.entries[i];
+        }
+    }
+    
+//    void addDotTransitionState(DeterministicFiniteAutomatonState state) {
+//        this.dotTransitionState = state;
+//    }
     
     DeterministicFiniteAutomatonState getDotTransitionState() {
         return this.dotTransitionState;
@@ -45,8 +61,8 @@ implements Iterable<TransitionMapEntry> {
                        DeterministicFiniteAutomatonState sourceState,
                        DeterministicFiniteAutomatonState targetState) {
         growIfNeeded();
-        TransitionMapEntry targetTransitionMapEntry =  
-                new TransitionMapEntry(characterRange, 
+        TransitionFunctionEntry targetTransitionMapEntry =  
+                new TransitionFunctionEntry(characterRange, 
                                        sourceState,
                                        targetState);
     
@@ -90,7 +106,7 @@ implements Iterable<TransitionMapEntry> {
         entries = null;
     }
     
-    TransitionMapEntry get(int index) {
+    TransitionFunctionEntry get(int index) {
         return entries[index];
     }
     
@@ -116,7 +132,7 @@ implements Iterable<TransitionMapEntry> {
         return null;
     }
         
-    TransitionMapEntry getTransitionMapEntry(int codePoint) {
+    TransitionFunctionEntry getTransitionMapEntry(int codePoint) {
         
         CODE_POINT_RANGE.setMinimumCodePoint(codePoint);
         CODE_POINT_RANGE.setMaximumCodePoint(codePoint);
@@ -167,8 +183,8 @@ implements Iterable<TransitionMapEntry> {
     
     private void growIfNeeded() {
         if (size == entries.length) {
-            TransitionMapEntry[] newEntries = 
-                    new TransitionMapEntry[(size * 3) / 2];
+            TransitionFunctionEntry[] newEntries = 
+                    new TransitionFunctionEntry[(size * 3) / 2];
             
             System.arraycopy(this.entries,
                              0,
@@ -181,7 +197,7 @@ implements Iterable<TransitionMapEntry> {
     }
     
     @Override
-    public Iterator<TransitionMapEntry> iterator() {
+    public Iterator<TransitionFunctionEntry> iterator() {
         
         return new Iterator<>() {
             private int index;
@@ -192,20 +208,20 @@ implements Iterable<TransitionMapEntry> {
             }
 
             @Override
-            public TransitionMapEntry next() {
+            public TransitionFunctionEntry next() {
                 return entries[index++];    
             }
         };
     }
     
-    static final class TransitionMapEntry 
-            implements Comparable<TransitionMapEntry> {
+    static final class TransitionFunctionEntry 
+            implements Comparable<TransitionFunctionEntry> {
         
         private final CodePointRange codePointRange;
         private DeterministicFiniteAutomatonState sourceState;
         private DeterministicFiniteAutomatonState targetState;
         
-        TransitionMapEntry(CodePointRange characterRange, 
+        TransitionFunctionEntry(CodePointRange characterRange, 
                            DeterministicFiniteAutomatonState sourceState,
                            DeterministicFiniteAutomatonState targetState) {
             this.codePointRange = characterRange;
@@ -237,7 +253,7 @@ implements Iterable<TransitionMapEntry> {
         }
         
         @Override
-        public int compareTo(TransitionMapEntry o) {
+        public int compareTo(TransitionFunctionEntry o) {
             return this.codePointRange.compareTo(o.codePointRange);
         }
     }

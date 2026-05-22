@@ -1,6 +1,6 @@
 package com.github.coderodde.regex;
 
-import com.github.coderodde.regex.DeterministicFiniteAutomatonStateTransitionMap.TransitionMapEntry;
+import com.github.coderodde.regex.DeterministicFiniteAutomatonStateTransitionFunction.TransitionFunctionEntry;
 import static com.github.coderodde.regex.NondeterministicFiniteAutomaton.epsilonExpand;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -668,7 +668,7 @@ public class NondeterministicFiniteAutomatonTest {
         alphabet.add(Character.codePointAt(str, 1));
         alphabet.add(Character.codePointAt(str, 2));
         
-        DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
+        DeterministicFiniteAutomatonStateTransitionFunction transitionMap = 
                 NondeterministicFiniteAutomaton
                         .computeTransitionMapWithoutPeriodWildcard(alphabet,
                                                                    10);
@@ -698,8 +698,8 @@ public class NondeterministicFiniteAutomatonTest {
     
     @Test
     public void transitionMapSortingWorking() {
-        DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
-                new DeterministicFiniteAutomatonStateTransitionMap();
+        DeterministicFiniteAutomatonStateTransitionFunction transitionMap = 
+                new DeterministicFiniteAutomatonStateTransitionFunction();
         
         DeterministicFiniteAutomatonState stateA = 
                 new DeterministicFiniteAutomatonState(0);
@@ -710,7 +710,7 @@ public class NondeterministicFiniteAutomatonTest {
         DeterministicFiniteAutomatonState stateC = 
                 new DeterministicFiniteAutomatonState(2);
         
-        TransitionMapEntry transitionMapEntry = transitionMap.get(0);
+        TransitionFunctionEntry transitionMapEntry = transitionMap.get(0);
         CodePointRange expectedCharacterRange = new CodePointRange('A');
         
         CodePointRange range2 = new CodePointRange('A');

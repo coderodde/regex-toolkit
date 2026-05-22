@@ -1,6 +1,6 @@
 package com.github.coderodde.regex;
 
-import com.github.coderodde.regex.DeterministicFiniteAutomatonStateTransitionMap.TransitionMapEntry;
+import com.github.coderodde.regex.DeterministicFiniteAutomatonStateTransitionFunction.TransitionFunctionEntry;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Deque;
@@ -21,6 +21,14 @@ public final class DeterministicFiniteAutomaton
         implements RegularExpressionMatcher {
     
     /**
+     * This enumeration specifies which DFA minimization algorithm to use.
+     */
+    public enum MinimizationAlgorithm {
+        HOPCROFT,
+        MOORE;
+    }
+    
+    /**
      * The initial state of the DFA.
      */
     private DeterministicFiniteAutomatonState initialState;
@@ -38,11 +46,54 @@ public final class DeterministicFiniteAutomaton
             new HashSet<>();
     
     /**
+     * The state transition function.
+     */
+    private DeterministicFiniteAutomatonStateTransitionFunction delta;
+    
+    /**
      * If this Boolean flag is set to {@code true}, upon matching a string, the
      * algorithm will actually simulate that of NFA in order to plausibly deal
      * with dot operators. An empty DFA does not contain a dot operator.
      */
     private boolean containsDotOperator = false;
+    
+    /**
+     * Constructs an empty DFA with no states and transitions.
+     */
+    public DeterministicFiniteAutomaton() {
+        this.delta = new DeterministicFiniteAutomatonStateTransitionFunction();
+    }
+    
+    /**
+     * Copy-constructs this DFA which has exactly the same structure as the 
+     * {@code other} DFA.
+     * 
+     * @param other the DFA to copy. 
+     */
+    public DeterministicFiniteAutomaton(DeterministicFiniteAutomaton other) {
+        Objects.requireNonNull(other, "The input DFA is null.");
+        
+        setInitialState(other.getInitialState());
+        
+        if (other.containsDotOperator) {
+            setContansDotOperator();
+        }
+        
+        this.acceptingStateSet.addAll(other.acceptingStateSet);
+        
+        this.delta = new DeterministicFiniteAutomatonStateTransitionFunction(
+                        other.delta);
+        
+        
+    }
+    
+    public void addAcceptingState(DeterministicFiniteAutomatonState q) {
+        acceptingStateSet.add(q);
+    }
+    
+    public boolean containsDotOperator() {
+        return containsDotOperator;
+    }
     
     /**
      * Returns the initial state.
@@ -299,11 +350,11 @@ public final class DeterministicFiniteAutomaton
             GeneralizedNondeterministicFiniteAutomatonState gnfaState = 
                     stateMap.get(dfaState);
             
-            DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
+            DeterministicFiniteAutomatonStateTransitionFunction transitionMap = 
                     dfaState.getTransitionMap();
             
             for (int i = 0; i != transitionMap.size(); i++) {
-                TransitionMapEntry entry = transitionMap.get(i);
+                TransitionFunctionEntry entry = transitionMap.get(i);
                 
                 // TODO: Check this:
                 GeneralizedNondeterministicFiniteAutomatonState 
@@ -341,6 +392,17 @@ public final class DeterministicFiniteAutomaton
             
             gnfaState.addEpsilonTransition(gnfaAcceptingState);
         }
+    }
+    
+    public DeterministicFiniteAutomaton 
+        minimize(MinimizationAlgorithm algorithm) {
+        
+        DeterministicFiniteAutomaton targetDfa = 
+                new DeterministicFiniteAutomaton(this);
+            
+        List<Set<DeterministicFiniteAutomatonState>> equivalenceClasses;
+        
+        
     }
     
     /**
@@ -449,10 +511,10 @@ public final class DeterministicFiniteAutomaton
         Set<Integer> localAlphabet = new HashSet<>();
         
         for (DeterministicFiniteAutomatonState state : stateSet) {
-            DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
+            DeterministicFiniteAutomatonStateTransitionFunction transitionMap = 
                     state.getTransitionMap();
             
-            for (TransitionMapEntry transitionMapEntry : transitionMap) {
+            for (TransitionFunctionEntry transitionMapEntry : transitionMap) {
                 if (transitionMapEntry != null) {
                     CodePointRange codePointRange = 
                             transitionMapEntry.getCharacterRange();
@@ -549,11 +611,11 @@ public final class DeterministicFiniteAutomaton
         
         while (!queue.isEmpty()) {
             DeterministicFiniteAutomatonState state = queue.removeFirst();
-            DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
+            DeterministicFiniteAutomatonStateTransitionFunction transitionMap = 
                     state.getTransitionMap();
             
             for (int i = 0; i != transitionMap.size(); i++) {
-                TransitionMapEntry transitionMapEntry = transitionMap.get(i);
+                TransitionFunctionEntry transitionMapEntry = transitionMap.get(i);
                 DeterministicFiniteAutomatonState followerState = 
                         transitionMapEntry.getFollowerState();
                 

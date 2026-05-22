@@ -396,12 +396,12 @@ public final class NondeterministicFiniteAutomaton
         }
     }
     
-    static DeterministicFiniteAutomatonStateTransitionMap
+    static DeterministicFiniteAutomatonStateTransitionFunction
         computeTransitionMapWithoutPeriodWildcard(Set<Integer> alphabet,
                                                   int startId) {
         
-        DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
-                new DeterministicFiniteAutomatonStateTransitionMap();
+        DeterministicFiniteAutomatonStateTransitionFunction transitionMap = 
+                new DeterministicFiniteAutomatonStateTransitionFunction();
         
         for (int codePoint : alphabet) {
             transitionMap.addTransition(
@@ -413,11 +413,11 @@ public final class NondeterministicFiniteAutomaton
         return transitionMap;
     }
         
-    static DeterministicFiniteAutomatonStateTransitionMap 
+    static DeterministicFiniteAutomatonStateTransitionFunction 
         computeTransitionMapWithPeriodWildcard(TreeSet<Character> alphabet) {
         
-        DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
-                new DeterministicFiniteAutomatonStateTransitionMap();
+        DeterministicFiniteAutomatonStateTransitionFunction transitionMap = 
+                new DeterministicFiniteAutomatonStateTransitionFunction();
             
         Iterator<Character> alphabetIterator = alphabet.iterator();
         

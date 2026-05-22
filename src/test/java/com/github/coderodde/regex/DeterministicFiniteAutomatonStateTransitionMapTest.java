@@ -9,8 +9,8 @@ public class DeterministicFiniteAutomatonStateTransitionMapTest {
     
     @Test
     public void returnsNullOnNoMatchingCharacterRange() {
-        DeterministicFiniteAutomatonStateTransitionMap map = 
-                new DeterministicFiniteAutomatonStateTransitionMap();
+        DeterministicFiniteAutomatonStateTransitionFunction map = 
+                new DeterministicFiniteAutomatonStateTransitionFunction();
         
         DeterministicFiniteAutomatonState state0 = 
                 new DeterministicFiniteAutomatonState(0);
@@ -45,8 +45,8 @@ public class DeterministicFiniteAutomatonStateTransitionMapTest {
     
     @Test
     public void doesNotThrowOnLargeData() {
-        DeterministicFiniteAutomatonStateTransitionMap map =
-                new DeterministicFiniteAutomatonStateTransitionMap();
+        DeterministicFiniteAutomatonStateTransitionFunction map =
+                new DeterministicFiniteAutomatonStateTransitionFunction();
         
         List<DeterministicFiniteAutomatonState> states = new ArrayList<>(1000);
         

@@ -11,8 +11,8 @@ public class DeterministicFiniteAutomatonState {
     
     private final int id;
     
-    private DeterministicFiniteAutomatonStateTransitionMap transitionMap = 
-              new DeterministicFiniteAutomatonStateTransitionMap();
+    private DeterministicFiniteAutomatonStateTransitionFunction transitionMap = 
+              new DeterministicFiniteAutomatonStateTransitionFunction();
     
     
     /**
@@ -33,7 +33,7 @@ public class DeterministicFiniteAutomatonState {
         transitionMap = null;
     }
     
-    DeterministicFiniteAutomatonStateTransitionMap getTransitionMap() {
+    DeterministicFiniteAutomatonStateTransitionFunction getTransitionMap() {
         return transitionMap;
     }
     

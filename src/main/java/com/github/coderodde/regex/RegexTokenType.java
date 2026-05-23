@@ -17,5 +17,7 @@ public enum RegexTokenType {
     CHARACTER,
     EPSILON,
     LEFT_PARENTHESIS,
-    RIGHT_PARENTHESIS;
+    RIGHT_PARENTHESIS,
+    START,
+    END;
 }

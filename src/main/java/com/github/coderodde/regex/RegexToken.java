@@ -10,6 +10,7 @@ import java.util.Objects;
  * @since 1.6 (Nov 15, 2023)
  */
 public final class RegexToken {
+    
     private final RegexTokenType tokenType;
     private final Character character;
     

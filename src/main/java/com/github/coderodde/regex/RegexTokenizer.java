@@ -55,6 +55,8 @@ public final class RegexTokenizer {
                         regex, "The input regular expression is null.")
         );
         
+        
+        
         List<RegexToken> tokens = new ArrayList<>();
         char previousCharacter = '\0';
         
@@ -64,7 +66,8 @@ public final class RegexTokenizer {
             switch (ch) {
                 case '*':
                     if (i == 0) {
-                        throw new InvalidRegexException();
+                        throw new InvalidRegexException(
+                            "The regex starts with Kleene star.");
                     }
                     
                     tokens.add(REGEX_TOKEN_KLEENE_STAR);
@@ -72,7 +75,8 @@ public final class RegexTokenizer {
                     
                 case '+':
                     if (i == 0) {
-                        throw new InvalidRegexException();
+                        throw new InvalidRegexException(
+                            "The regex starts with the + operator.");
                     }
                     
                     tokens.add(REGEX_TOKEN_PLUS);
@@ -80,7 +84,8 @@ public final class RegexTokenizer {
                     
                 case '?':
                     if (i == 0) {
-                        throw new InvalidRegexException();
+                        throw new InvalidRegexException(
+                            "The regex starts with ? operator.");
                     }
                     
                     tokens.add(REGEX_TOKEN_QUESTION);
@@ -151,6 +156,8 @@ public final class RegexTokenizer {
             case '(':
             case ')':
             case '\0':
+            case '^':
+            case '$':
                 return false;
                 
             default:

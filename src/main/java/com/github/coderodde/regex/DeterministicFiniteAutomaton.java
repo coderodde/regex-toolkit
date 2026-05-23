@@ -527,12 +527,14 @@ public final class DeterministicFiniteAutomaton
                      for (CodePointRange codePointRange : delta.getAlphabet()) {
                          for (int codePoint : codePointRange) {
                              
-                             int nextState = delta.p
+//                             int nextState = delta.p
                          }
                      } 
                  }
              }
          }
+         
+         return null;
     }
     
     private Map<DeterministicFiniteAutomatonState, Integer>

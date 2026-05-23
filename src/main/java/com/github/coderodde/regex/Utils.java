@@ -68,4 +68,75 @@ public final class Utils {
         
         return r;
     }
+    
+    public static void choiceBracketsValid(String regex) {
+        boolean in = false;
+        
+        for (int i = 0; i < regex.length(); ++i) {
+            char ch = regex.charAt(i);
+            
+            if (ch == '[') {
+                if (in) {
+                    throw new InvalidRegexException(
+                        String.format("Reopening the choice at index %d.n", i));
+                }
+                
+                in = true;
+            } else if (ch == ']') {
+                if (in) {
+                    in = false;
+                } else {
+                    throw new InvalidRegexException(
+                        String.format(
+                            "Closing non existent choice at index %d.n",
+                            i));
+                }
+            }
+        }
+        
+        if (in) {
+            throw new InvalidRegexException("Last [ is not matched.");
+        }
+    }
+    
+    public static void validateStartOfLineSymbol(String regex) {
+        if (regex.length() == 0) {
+            throw new InvalidRegexException("Empty regular expression.");
+        }
+        
+        boolean pumpingBackslashesBeforeCircumflex = false;
+        int prevBackslashes = 0;
+        int endIndex = regex.charAt(0) == '^' ? 1 : 0; 
+        
+        for (int i = regex.length() - 1; i >= endIndex; --i) {
+            switch (regex.charAt(i)) {
+                case '^':
+                    pumpingBackslashesBeforeCircumflex = true;
+                    break;
+                    
+                case '\\':
+                    if (pumpingBackslashesBeforeCircumflex) {
+                        ++prevBackslashes;
+                    }
+                    
+                    break;
+                    
+                default:
+                    
+                    if (pumpingBackslashesBeforeCircumflex && 
+                        prevBackslashes % 2 == 0) {
+                        throw new InvalidRegexException(
+                                String.format("Non-escaped ^ at index %d.", i));
+                    }
+                    
+                    pumpingBackslashesBeforeCircumflex = false;
+                    prevBackslashes = 0;
+                    break;
+            }
+        }
+        
+        if (pumpingBackslashesBeforeCircumflex && prevBackslashes % 2 == 0) {
+            throw new InvalidRegexException();
+        }
+    }
 }

@@ -2,12 +2,7 @@ package com.github.coderodde.regex;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -100,5 +95,97 @@ public class UtilsTest {
         assertFalse(r.contains(4));
         assertFalse(r.contains(0));
         assertFalse(r.contains(5));
+    }
+    
+    @Test
+    public void choiceBraces1() {
+        try {
+            Utils.choiceBracketsValid("[abc]");
+        } catch (InvalidRegexException ex) {
+            fail();
+        }
+    }
+    
+    @Test
+    public void choiceBraces2() {
+        try {
+            Utils.choiceBracketsValid("[abc]d[ef]");
+        } catch (InvalidRegexException ex) {
+            fail();
+        }
+    }
+    
+    @Test
+    public void choiceBraces3() {
+        try {
+            Utils.choiceBracketsValid("[abc]d[ef][]");
+        } catch (InvalidRegexException ex) {
+            fail();
+        }
+    }
+    
+    @Test(expected = InvalidRegexException.class)
+    public void choiceBracesThrows1() {
+        Utils.choiceBracketsValid("[");
+    }
+    
+    @Test(expected = InvalidRegexException.class)
+    public void choiceBracesThrows2() {
+        Utils.choiceBracketsValid("]");
+    }
+    
+    @Test(expected = InvalidRegexException.class)
+    public void choiceBracesThrows3() {
+        Utils.choiceBracketsValid("][");
+    }
+    
+    @Test(expected = InvalidRegexException.class)
+    public void choiceBracesThrows4() {
+        Utils.choiceBracketsValid("[]]");
+    }
+    
+    @Test
+    public void startSymbol2() {
+        Utils.validateStartOfLineSymbol("^");
+    }
+    
+    @Test
+    public void startSymbol3() {
+        Utils.validateStartOfLineSymbol("^\\^");
+    }
+    
+    @Test
+    public void startSymbol4() {
+        Utils.validateStartOfLineSymbol("\\\\\\^");
+    }
+    
+    @Test
+    public void startSymbol5() {
+        Utils.validateStartOfLineSymbol("\\^abc\\\\\\^def\\\\\\\\\\^g");
+    }
+    
+    @Test
+    public void startSymbol6() {
+        Utils.validateStartOfLineSymbol("^\\^");
+    }
+    
+    @Test(expected = InvalidRegexException.class)
+    public void startSymbolThrows1() {
+        Utils.validateStartOfLineSymbol("\\\\^");
+    }
+    
+    @Test(expected = InvalidRegexException.class)
+    public void startSymbolThrows2() {
+        Utils.validateStartOfLineSymbol("^\\\\^");
+    }
+    
+    @Test(expected = InvalidRegexException.class)
+    public void startSymbolThrows3() {
+        Utils.validateStartOfLineSymbol("^abc\\\\^");
+    }
+    
+    @Test(expected = InvalidRegexException.class)
+    public void startSymbolThrows4() {
+        Utils.validateStartOfLineSymbol("^abc\\^def^");
     }
 }

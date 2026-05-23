@@ -51,9 +51,9 @@ implements Iterable<TransitionFunctionEntry> {
         }
     }
     
-//    void addDotTransitionState(DeterministicFiniteAutomatonState state) {
-//        this.dotTransitionState = state;
-//    }
+    void addDotTransitionState(DeterministicFiniteAutomatonState state) {
+        this.dotTransitionState = state;
+    }
     
     DeterministicFiniteAutomatonState getDotTransitionState() {
         return this.dotTransitionState;

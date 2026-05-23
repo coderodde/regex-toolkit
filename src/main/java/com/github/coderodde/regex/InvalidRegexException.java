@@ -6,4 +6,11 @@ package com.github.coderodde.regex;
  */
 public final class InvalidRegexException extends RuntimeException {
     
+    public InvalidRegexException() {
+        super();
+    }
+    
+    public InvalidRegexException(String exceptionMessage) {
+        super(exceptionMessage);
+    }
 }

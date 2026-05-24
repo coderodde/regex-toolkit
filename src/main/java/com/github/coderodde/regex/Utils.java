@@ -6,10 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- *
- * @author Rodion "rodde" Efremov
- * @version 1.6 (Nov 12, 2023)
- * @since 1.6 (Nov 12, 2023)
+ * This class contains various methods usable in regular expression engines.
  */
 public final class Utils {
     
@@ -99,44 +96,41 @@ public final class Utils {
         }
     }
     
-    public static void validateStartOfLineSymbol(String regex) {
+    public static int countNonescapedStartOfLineSymbols(String regex) {
+        return countNonescapedStartOrEndOfLineSymbolsImpl(regex, '^');
+    }
+    
+    public static int countNonescapedEndOfLineSymbols(String regex) {
+        return countNonescapedStartOrEndOfLineSymbolsImpl(regex, '$');
+    }
+    
+    private static int countNonescapedStartOrEndOfLineSymbolsImpl(
+            String regex, char symbol) {
+        
+        regex = regex.trim();
+        
         if (regex.length() == 0) {
             throw new InvalidRegexException("Empty regular expression.");
         }
         
-        boolean pumpingBackslashesBeforeCircumflex = false;
-        int prevBackslashes = 0;
-        int endIndex = regex.charAt(0) == '^' ? 1 : 0; 
+        int count = 0;
+        int consecutiveBackslashes = 0;
         
-        for (int i = regex.length() - 1; i >= endIndex; --i) {
-            switch (regex.charAt(i)) {
-                case '^':
-                    pumpingBackslashesBeforeCircumflex = true;
-                    break;
-                    
-                case '\\':
-                    if (pumpingBackslashesBeforeCircumflex) {
-                        ++prevBackslashes;
-                    }
-                    
-                    break;
-                    
-                default:
-                    
-                    if (pumpingBackslashesBeforeCircumflex && 
-                        prevBackslashes % 2 == 0) {
-                        throw new InvalidRegexException(
-                                String.format("Non-escaped ^ at index %d.", i));
-                    }
-                    
-                    pumpingBackslashesBeforeCircumflex = false;
-                    prevBackslashes = 0;
-                    break;
+        for (int i = 0; i < regex.length(); ++i) {
+            char ch = regex.charAt(i);
+            
+            if (ch == '\\') {
+                consecutiveBackslashes++;
+                continue; // Go to the next character.
             }
+            
+            if (ch == symbol && consecutiveBackslashes % 2 == 0) {
+                count++;
+            }
+        
+            consecutiveBackslashes = 0;
         }
         
-        if (pumpingBackslashesBeforeCircumflex && prevBackslashes % 2 == 0) {
-            throw new InvalidRegexException();
-        }
+        return count;
     }
 }

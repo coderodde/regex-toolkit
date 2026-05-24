@@ -145,47 +145,51 @@ public class UtilsTest {
     }
     
     @Test
+    public void startSymbol1() {
+        assertEquals(1, Utils.countNonescapedStartOfLineSymbols("^"));
+    }
+    
+    @Test
     public void startSymbol2() {
-        Utils.validateStartOfLineSymbol("^");
+        assertEquals(1, Utils.countNonescapedStartOfLineSymbols("^\\^"));
     }
     
     @Test
     public void startSymbol3() {
-        Utils.validateStartOfLineSymbol("^\\^");
+        assertEquals(1, Utils.countNonescapedStartOfLineSymbols("^\\\\\\^"));
     }
     
     @Test
     public void startSymbol4() {
-        Utils.validateStartOfLineSymbol("\\\\\\^");
+        assertEquals(
+            0, 
+            Utils.countNonescapedStartOfLineSymbols(
+                "\\^abc\\\\\\^def\\\\\\\\\\^g"));
     }
     
     @Test
     public void startSymbol5() {
-        Utils.validateStartOfLineSymbol("\\^abc\\\\\\^def\\\\\\\\\\^g");
+        assertEquals(1, Utils.countNonescapedStartOfLineSymbols("\\\\^"));
     }
     
     @Test
     public void startSymbol6() {
-        Utils.validateStartOfLineSymbol("^\\^");
+        assertEquals(2, Utils.countNonescapedStartOfLineSymbols("^\\\\^"));
     }
     
-    @Test(expected = InvalidRegexException.class)
-    public void startSymbolThrows1() {
-        Utils.validateStartOfLineSymbol("\\\\^");
+    @Test
+    public void startSymbol8() {
+        assertEquals(2, Utils.countNonescapedStartOfLineSymbols("^abc\\\\^"));
     }
     
-    @Test(expected = InvalidRegexException.class)
-    public void startSymbolThrows2() {
-        Utils.validateStartOfLineSymbol("^\\\\^");
+    @Test
+    public void startSymbol9() {
+        assertEquals(2, Utils.countNonescapedStartOfLineSymbols("^abc\\^def^"));
     }
     
-    @Test(expected = InvalidRegexException.class)
-    public void startSymbolThrows3() {
-        Utils.validateStartOfLineSymbol("^abc\\\\^");
-    }
-    
-    @Test(expected = InvalidRegexException.class)
-    public void startSymbolThrows4() {
-        Utils.validateStartOfLineSymbol("^abc\\^def^");
+    @Test
+    public void startSymbol10() {
+        assertEquals(5, Utils.countNonescapedStartOfLineSymbols(
+                "ab^c^^^d\\^a^"));
     }
 }

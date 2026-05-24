@@ -66,33 +66,50 @@ public final class Utils {
         return r;
     }
     
-    public static void choiceBracketsValid(String regex) {
-        boolean in = false;
+    public static void characterClassBracketsValid(String regex) {
+        boolean inClass = false;
+        boolean escaped = false;
         
         for (int i = 0; i < regex.length(); ++i) {
             char ch = regex.charAt(i);
             
+            if (escaped) {
+                escaped = false;
+                continue;
+            }
+            
+            if (ch == '\\') {
+                escaped = true;
+                continue;
+            }
+            
             if (ch == '[') {
-                if (in) {
+                if (inClass) {
                     throw new InvalidRegexException(
-                        String.format("Reopening the choice at index %d.n", i));
+                        "Unescaped '[' inside character class at index " + i);
                 }
                 
-                in = true;
-            } else if (ch == ']') {
-                if (in) {
-                    in = false;
-                } else {
+                inClass = true;
+                continue;
+            }
+            
+            if (ch == ']') {
+                if (!inClass) {
                     throw new InvalidRegexException(
-                        String.format(
-                            "Closing non existent choice at index %d.n",
-                            i));
+                        "Unescaped ']' outside character class at index " + i);
                 }
+                
+                inClass = false;
             }
         }
         
-        if (in) {
-            throw new InvalidRegexException("Last [ is not matched.");
+        if (escaped) {
+            throw new InvalidRegexException("Dangling escape at end of regex.");
+        }
+        
+        if (inClass) {
+            throw new InvalidRegexException(
+                "Unclosed character class: missing ].");
         }
     }
     

@@ -100,7 +100,7 @@ public class UtilsTest {
     @Test
     public void choiceBraces1() {
         try {
-            Utils.choiceBracketsValid("[abc]");
+            Utils.characterClassBracketsValid("[abc]");
         } catch (InvalidRegexException ex) {
             fail();
         }
@@ -109,7 +109,7 @@ public class UtilsTest {
     @Test
     public void choiceBraces2() {
         try {
-            Utils.choiceBracketsValid("[abc]d[ef]");
+            Utils.characterClassBracketsValid("[abc]d[ef]");
         } catch (InvalidRegexException ex) {
             fail();
         }
@@ -118,7 +118,7 @@ public class UtilsTest {
     @Test
     public void choiceBraces3() {
         try {
-            Utils.choiceBracketsValid("[abc]d[ef][]");
+            Utils.characterClassBracketsValid("[abc]d[ef][]");
         } catch (InvalidRegexException ex) {
             fail();
         }
@@ -126,22 +126,22 @@ public class UtilsTest {
     
     @Test(expected = InvalidRegexException.class)
     public void choiceBracesThrows1() {
-        Utils.choiceBracketsValid("[");
+        Utils.characterClassBracketsValid("[");
     }
     
     @Test(expected = InvalidRegexException.class)
     public void choiceBracesThrows2() {
-        Utils.choiceBracketsValid("]");
+        Utils.characterClassBracketsValid("]");
     }
     
     @Test(expected = InvalidRegexException.class)
     public void choiceBracesThrows3() {
-        Utils.choiceBracketsValid("][");
+        Utils.characterClassBracketsValid("][");
     }
     
     @Test(expected = InvalidRegexException.class)
     public void choiceBracesThrows4() {
-        Utils.choiceBracketsValid("[]]");
+        Utils.characterClassBracketsValid("[]]");
     }
     
     @Test

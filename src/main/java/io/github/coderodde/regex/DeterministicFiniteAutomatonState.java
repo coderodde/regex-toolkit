@@ -54,14 +54,14 @@ public class DeterministicFiniteAutomatonState {
         
         return id == otherState.id;
     }
-    
-    void addFollowerState(int codePoint,
-                          DeterministicFiniteAutomatonState followerState) {
-        
-        transitionMap.addTransition(new CodePointRange(codePoint), 
-                                    this,
-                                    followerState);
-    }
+//    
+//    void addFollowerState(int codePoint,
+//                          DeterministicFiniteAutomatonState followerState) {
+//        
+//        transitionMap.addTransition(new CodePointRange(codePoint), 
+//                                    this,
+//                                    followerState);
+//    }
     
     void addFollowerState(CodePointRange characterRange, 
                           DeterministicFiniteAutomatonState followerState) {

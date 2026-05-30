@@ -177,7 +177,7 @@ implements Iterable<TransitionFunctionEntry> {
             int m = l + (r - l) / 2;
             
             if (entries[m].codePointRange.codePointIsWithinRange(codePoint)) {
-                return entries[m].sourceState;
+                return entries[m].goalState;
             }
             
             if (entries[m].codePointRange
@@ -232,7 +232,7 @@ implements Iterable<TransitionFunctionEntry> {
                 case  1 -> r = m - 1;
                  
                 default -> {
-                    return entries[m].sourceState;
+                    return entries[m].goalState;
                 }
             }
         }
@@ -277,27 +277,27 @@ implements Iterable<TransitionFunctionEntry> {
             implements Comparable<TransitionFunctionEntry> {
         
         private final CodePointRange codePointRange;
-        private DeterministicFiniteAutomatonState sourceState;
-        private DeterministicFiniteAutomatonState targetState;
+//        private DeterministicFiniteAutomatonState sourceState;
+        private DeterministicFiniteAutomatonState goalState;
         
         TransitionFunctionEntry(CodePointRange characterRange, 
                            DeterministicFiniteAutomatonState sourceState,
                            DeterministicFiniteAutomatonState targetState) {
             this.codePointRange = characterRange;
-            this.sourceState = sourceState;
-            this.targetState = targetState;
+//            this.sourceState = sourceState;
+            this.goalState = targetState;
         }
         
         CodePointRange getCharacterRange() {
             return codePointRange;
         }
         
-        DeterministicFiniteAutomatonState getFollowerState() {
-            return sourceState;
+        DeterministicFiniteAutomatonState getGoalState() {
+            return goalState;
         }
 
-        void setFollowerState(DeterministicFiniteAutomatonState followerState) {
-            this.sourceState = followerState;
+        void setGoalState(DeterministicFiniteAutomatonState goalState) {
+            this.goalState = goalState;
         }
         
         @Override
@@ -306,8 +306,8 @@ implements Iterable<TransitionFunctionEntry> {
                     + codePointRange.getMinimumCodePoint() 
                     + "' - '" 
                     + codePointRange.getMaximumCodePoint() 
-                    + ", state ID = " 
-                    + sourceState.getStateId() 
+                    + ", goal state ID = " 
+                    + goalState.getStateId() 
                     + "}";
         }
         

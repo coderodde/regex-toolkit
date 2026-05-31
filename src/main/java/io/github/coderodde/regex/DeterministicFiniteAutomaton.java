@@ -7,7 +7,6 @@
     import java.util.Deque;
     import java.util.HashMap;
     import java.util.HashSet;
-    import java.util.Iterator;
     import java.util.LinkedList;
     import java.util.List;
     import java.util.ListIterator;
@@ -49,7 +48,7 @@
         /**
          * The state transition function.
          */
-        private DeterministicFiniteAutomatonStateTransitionFunction delta;
+        private final DeterministicFiniteAutomatonStateTransitionFunction delta;
 
         /**
          * If this Boolean flag is set to {@code true}, upon matching a string, the
@@ -104,8 +103,12 @@
         public void addTransition(DeterministicFiniteAutomatonState startState,
                                   CodePointRange codePointRange,
                                   DeterministicFiniteAutomatonState goalState) {
+            
             Objects.requireNonNull(startState, "The start state is null.");
-            Objects.requireNonNull(codePointRange, "The code point range is null.");
+            Objects.requireNonNull(
+                codePointRange, 
+                "The code point range is null.");
+            
             Objects.requireNonNull(goalState, "The goal state is null.");
 
             startState.addFollowerState(codePointRange, goalState);
@@ -126,6 +129,14 @@
                                   DeterministicFiniteAutomatonState goalState) {
 
             addTransition(startState, new CodePointRange((int) symbol), goalState);
+        }
+        
+        public void addDotTransition(
+            DeterministicFiniteAutomatonState startState,
+            DeterministicFiniteAutomatonState goalState) {
+            
+            startState.addDotTransitionState(goalState);
+            this.containsDotOperator = true;
         }
 
         public int getNumberOfStates() {
@@ -230,6 +241,15 @@
             return acceptingStateSet.contains(state);
         }
 
+        /**
+         * Matches the input {@code text} in case this DFA <b>contains</b> at  
+         * least one dot operator. This forces us to use NFA matching instead of 
+         * more efficient DFA matching.
+         * 
+         * @param text the text to match.
+         * @return {@code true} only if {@code text} belongs to the language 
+         *         recognized by this DFA.
+         */
         private boolean matchesWithDotOperators(String text) {
             Set<DeterministicFiniteAutomatonState> state = deltaStarDot(text);
 
@@ -731,20 +751,24 @@
             return alphabet;
         }
 
-        private Set<DeterministicFiniteAutomatonState> deltaStarDot(String text) {
+        private Set<DeterministicFiniteAutomatonState> 
+            deltaStarDot(String text) {
+                
             int n = text.length();
             int textCodePointIndex = 0;
-            Set<DeterministicFiniteAutomatonState> currentState = new HashSet<>();
+            Set<DeterministicFiniteAutomatonState> currentState = 
+                    new HashSet<>();
+            
             currentState.add(initialState);
 
-            while (textCodePointIndex++ != n) {
+            while (textCodePointIndex != n) {
                 int codePoint = text.codePointAt(textCodePointIndex);
-                Set<DeterministicFiniteAutomatonState> nextStates = new HashSet<>();
+                Set<DeterministicFiniteAutomatonState> nextStates = 
+                        new HashSet<>();
 
                 for (DeterministicFiniteAutomatonState q : currentState) {
                     if (containsDotOperator) {
-                        nextStates.add(
-                                q.getTransitionMap().getDotTransitionState());
+                        nextStates.add(q.getDotTransitionGoal());
                     }
 
                     DeterministicFiniteAutomatonState next = 
@@ -754,6 +778,7 @@
                 }
 
                 currentState = nextStates;
+                ++textCodePointIndex;
             }
 
             return currentState;

@@ -1,5 +1,7 @@
 package io.github.coderodde.regex;
 
+import java.util.Objects;
+
 /**
  * This class models the state in deterministic finite automata (DFA for short).
  * 
@@ -9,7 +11,16 @@ package io.github.coderodde.regex;
  */
 public class DeterministicFiniteAutomatonState {
     
+    /**
+     * The ID used for distinguishing between the states.
+     */
     private final int id;
+    
+    /**
+     * If set, refers to the state to which we transit in case of reading a dot
+     * operator.
+     */
+    private DeterministicFiniteAutomatonState dotTargetState;
     
     private DeterministicFiniteAutomatonStateTransitionFunction transitionMap = 
               new DeterministicFiniteAutomatonStateTransitionFunction();
@@ -30,7 +41,8 @@ public class DeterministicFiniteAutomatonState {
     
     void clear() {
         transitionMap.clear();
-        transitionMap = null;
+        // TODO: Figure out.
+//        transitionMap = null;
     }
     
     DeterministicFiniteAutomatonStateTransitionFunction getTransitionMap() {
@@ -54,14 +66,6 @@ public class DeterministicFiniteAutomatonState {
         
         return id == otherState.id;
     }
-//    
-//    void addFollowerState(int codePoint,
-//                          DeterministicFiniteAutomatonState followerState) {
-//        
-//        transitionMap.addTransition(new CodePointRange(codePoint), 
-//                                    this,
-//                                    followerState);
-//    }
     
     void addFollowerState(CodePointRange characterRange, 
                           DeterministicFiniteAutomatonState followerState) {
@@ -69,6 +73,17 @@ public class DeterministicFiniteAutomatonState {
         transitionMap.addTransition(characterRange, 
                                     this,
                                     followerState);
+    }
+    
+    void addDotTransitionState(DeterministicFiniteAutomatonState goalState) {
+        dotTargetState =
+            Objects.requireNonNull(
+                goalState,
+                "The input goal state is null.");
+    }
+    
+    DeterministicFiniteAutomatonState getDotTransitionGoal() {
+        return dotTargetState;
     }
     
     DeterministicFiniteAutomatonState traverse(int codePoint) {

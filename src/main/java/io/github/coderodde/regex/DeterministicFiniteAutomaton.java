@@ -482,11 +482,13 @@
         private List<Set<DeterministicFiniteAutomatonState>>
              minimizeViaMooresAlgorithmImpl() {
              List<Set<DeterministicFiniteAutomatonState>> p = new ArrayList<>();
-             Set<DeterministicFiniteAutomatonState> bacc = getAcceptingStates();
+             
+             Set<DeterministicFiniteAutomatonState> bacc = 
+                     new HashSet<>(getAcceptingStates());
+             
              Set<DeterministicFiniteAutomatonState> brej = 
-                 setminus(new HashSet<DeterministicFiniteAutomatonState>(states),
-                          new HashSet<DeterministicFiniteAutomatonState>(
-                              acceptingStateSet));
+                 setminus(new HashSet<>(states),
+                          new HashSet<>(acceptingStateSet));
 
              if (!bacc.isEmpty()) {
                  p.add(bacc);
@@ -496,8 +498,7 @@
                  p.add(brej);
              }
 
-             Map<DeterministicFiniteAutomatonState, 
-                 DeterministicFiniteAutomatonState> blockIdMap = 
+             Map<DeterministicFiniteAutomatonState, Integer> blockIdMap = 
                  buildBlockIdMap(p);
 
              boolean changed = true;
@@ -509,21 +510,22 @@
                      new ArrayList<>();
 
                  for (Set<DeterministicFiniteAutomatonState> block : p) {
-                     Map<List<DeterministicFiniteAutomatonState>, 
+                     
+                     Map<List<Integer>, 
                          Set<DeterministicFiniteAutomatonState>> groups =
                              new HashMap<>();
 
                      for (DeterministicFiniteAutomatonState q : block) {
-                         List<DeterministicFiniteAutomatonState> signature = 
-                             new ArrayList<>();
+                         List<Integer> signature = new ArrayList<>();
 
-                         for (CodePointRange codePointRange : delta.getAlphabet()) {
+                         for (CodePointRange codePointRange 
+                             : getTotalAlphabet()) {
+                             
                              DeterministicFiniteAutomatonState nextState =
                                      q.traverse(codePointRange);
 
-                             DeterministicFiniteAutomatonState blockId = 
-                                     blockIdMap.get(nextState);
-
+                             Integer blockId = blockIdMap.get(nextState);
+                             
                              signature.add(blockId);
                          } 
 
@@ -547,19 +549,17 @@
              return p;
         }
 
-        private Map<DeterministicFiniteAutomatonState,
-                    DeterministicFiniteAutomatonState>
-
+        private Map<DeterministicFiniteAutomatonState, Integer>
             buildBlockIdMap(List<Set<DeterministicFiniteAutomatonState>> p) {
-            Map<DeterministicFiniteAutomatonState,
-                DeterministicFiniteAutomatonState> blockIdMap = 
+                
+            Map<DeterministicFiniteAutomatonState, Integer> blockIdMap = 
                     new HashMap<>();
 
             int id = 0;
 
             for (Set<DeterministicFiniteAutomatonState> block : p) {
                 for (DeterministicFiniteAutomatonState q : block) {
-                    blockIdMap.put(q, new DeterministicFiniteAutomatonState(id));
+                    blockIdMap.put(q, id);
                 }
 
                 ++id;
@@ -796,18 +796,20 @@
 
         private void pruneUnreachableStates(
             Set<DeterministicFiniteAutomatonState> reachableStates) {
-
-            Iterator<DeterministicFiniteAutomatonState> iterator =
-                    states.iterator();
-
-            while (iterator.hasNext()) {
-                DeterministicFiniteAutomatonState state = iterator.next();
-
-                if (!reachableStates.contains(state)) {
-                    state.clear();
-                    iterator.remove();
-                }
-            }
+            states.retainAll(reachableStates);
+            acceptingStateSet.retainAll(reachableStates);
+//
+//            Iterator<DeterministicFiniteAutomatonState> iterator =
+//                    states.iterator();
+//
+//            while (iterator.hasNext()) {
+//                DeterministicFiniteAutomatonState state = iterator.next();
+//
+//                if (!reachableStates.contains(state)) {
+//                    state.clear();
+//                    iterator.remove();
+//                }
+//            }
         }
 
         /**

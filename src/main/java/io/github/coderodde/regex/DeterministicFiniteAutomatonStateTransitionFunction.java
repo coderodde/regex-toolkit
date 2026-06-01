@@ -64,7 +64,7 @@ implements Iterable<TransitionFunctionEntry> {
            DeterministicFiniteAutomatonStateTransitionFunction other) {
         
         this.entries = new TransitionFunctionEntry[other.entries.length];
-        this.size = other.size;
+        this.size = other.size  ;
         
         for (int i = 0; i < size; ++i) {
             entries[i] = other.entries[i];

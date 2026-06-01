@@ -1,6 +1,7 @@
 package io.github.coderodde.regex;
 
-import static io.github.coderodde.regex.RegexTokenType.CHARACTER;
+import io.github.coderodde.regex.parser.ast.tokens.RegexToken;
+import static io.github.coderodde.regex.parser.ast.RegexTokenType.CHARACTER;
 import java.util.ArrayDeque;
 import java.util.Deque;
 

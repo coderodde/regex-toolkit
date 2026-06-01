@@ -1,6 +1,6 @@
 package io.github.coderodde.regex;
 
-import io.github.coderodde.regex.RegexToken;
+import io.github.coderodde.regex.parser.ast.tokens.RegexToken;
 import io.github.coderodde.regex.RegexTokenizer;
 import io.github.coderodde.regex.InvalidRegexException;
 import static io.github.coderodde.regex.TestUtils.getCharToken;

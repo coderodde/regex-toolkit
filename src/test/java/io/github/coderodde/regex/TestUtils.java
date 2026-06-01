@@ -1,7 +1,7 @@
 package io.github.coderodde.regex;
 
-import io.github.coderodde.regex.RegexToken;
-import io.github.coderodde.regex.RegexTokenType;
+import io.github.coderodde.regex.parser.ast.tokens.RegexToken;
+import io.github.coderodde.regex.parser.ast.RegexTokenType;
 
 class TestUtils {
     

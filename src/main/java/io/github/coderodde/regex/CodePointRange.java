@@ -5,8 +5,8 @@ import java.util.Iterator;
 /**
  * This class implements a simple code point range.
  */
-final class CodePointRange implements Comparable<CodePointRange>,
-                                      Iterable<Integer> {
+public final class CodePointRange implements Comparable<CodePointRange>,
+                                             Iterable<Integer> {
     
     private int minimumCodePoint;
     private int maximumCodePoint;

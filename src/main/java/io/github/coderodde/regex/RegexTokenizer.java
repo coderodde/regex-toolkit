@@ -1,5 +1,7 @@
 package io.github.coderodde.regex;
 
+import io.github.coderodde.regex.parser.ast.tokens.RegexToken;
+import io.github.coderodde.regex.parser.ast.RegexTokenType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

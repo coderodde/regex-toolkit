@@ -1,14 +1,14 @@
 package io.github.coderodde.regex.benchmark;
 
-import io.github.coderodde.regex.RegexToken;
-import io.github.coderodde.regex.RegexTokenType;
-import static io.github.coderodde.regex.RegexTokenType.CHARACTER;
-import static io.github.coderodde.regex.RegexTokenType.CONCAT;
-import static io.github.coderodde.regex.RegexTokenType.DOT;
-import static io.github.coderodde.regex.RegexTokenType.KLEENE_STAR;
-import static io.github.coderodde.regex.RegexTokenType.PLUS;
-import static io.github.coderodde.regex.RegexTokenType.QUESTION;
-import static io.github.coderodde.regex.RegexTokenType.UNION;
+import io.github.coderodde.regex.parser.ast.tokens.RegexToken;
+import io.github.coderodde.regex.parser.ast.RegexTokenType;
+import static io.github.coderodde.regex.parser.ast.RegexTokenType.CHARACTER;
+import static io.github.coderodde.regex.parser.ast.RegexTokenType.CONCAT;
+import static io.github.coderodde.regex.parser.ast.RegexTokenType.DOT;
+import static io.github.coderodde.regex.parser.ast.RegexTokenType.KLEENE_STAR;
+import static io.github.coderodde.regex.parser.ast.RegexTokenType.PLUS;
+import static io.github.coderodde.regex.parser.ast.RegexTokenType.QUESTION;
+import static io.github.coderodde.regex.parser.ast.RegexTokenType.UNION;
 import java.util.Random;
 
 /**

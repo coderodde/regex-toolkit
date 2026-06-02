@@ -116,11 +116,11 @@ public final class RegexParser {
         return true;
     }
     
-    private Token previous() {
+    private RegexToken previous() {
         return tokens.get(index - 1);
     }
     
-    private Token peek() {
+    private RegexToken peek() {
         return tokens.get(index);
     }
     

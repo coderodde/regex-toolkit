@@ -10,6 +10,7 @@ package io.github.coderodde.regex.parser.ast;
 public enum RegexTokenType {
     LITERAL,
     DOT,
+    CONCATENATION,
     UNION,              // |
     KLEENE_STAR,        // *
     PLUS,               // +

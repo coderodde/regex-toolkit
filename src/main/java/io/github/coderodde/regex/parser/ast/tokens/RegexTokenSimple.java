@@ -1,8 +1,20 @@
 package io.github.coderodde.regex.parser.ast.tokens;
 
+import io.github.coderodde.regex.parser.ast.RegexTokenType;
+
 /**
  * This record represents all the regex tokens that do not "take parameters".
  */
-record RegexTokenSimple() implements RegexToken {
+public final class RegexTokenSimple implements RegexToken {
+
+    private final RegexTokenType type;
     
+    public RegexTokenSimple(RegexTokenType type) {
+        this.type = type;
+    }
+    
+    @Override
+    public RegexTokenType type() {
+        return type;
+    }
 }

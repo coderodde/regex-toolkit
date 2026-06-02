@@ -67,12 +67,10 @@ public class DeterministicFiniteAutomatonState {
         return id == otherState.id;
     }
     
-    void addFollowerState(CodePointRange characterRange, 
+    void addFollowerState(Integer codePoint, 
                           DeterministicFiniteAutomatonState followerState) {
         
-        transitionMap.addTransition(characterRange, 
-                                    this,
-                                    followerState);
+        transitionMap.addTransition(codePoint, followerState, dotTargetState);
     }
     
     void addDotTransitionState(DeterministicFiniteAutomatonState goalState) {

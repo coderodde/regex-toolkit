@@ -71,7 +71,7 @@ public class NondeterministicFiniteAutomatonTest {
                 new NondeterministicFiniteAutomatonState(3);
         
         nfa.setInitialState(q0);
-        nfa.setAcceptingState(q3);
+        nfa.addAcceptingState(q3);
         
         q0.addTransition('a', q0);
         q0.addTransition('b', q0);
@@ -108,7 +108,7 @@ public class NondeterministicFiniteAutomatonTest {
                 new NondeterministicFiniteAutomatonState(3);
         
         nfa.setInitialState(a);
-        nfa.setAcceptingState(d);
+        nfa.addAcceptingState(d);
         
         a.addTransition('0', a);
         a.addTransition('0', b);
@@ -146,7 +146,7 @@ public class NondeterministicFiniteAutomatonTest {
                 new NondeterministicFiniteAutomatonState(1);
         
         nfa.setInitialState(state1);
-        nfa.setAcceptingState(state2);
+        nfa.addAcceptingState(state2);
         
         state1.addTransition('1', state2);
         state1.addEpsilonTransition(state2);

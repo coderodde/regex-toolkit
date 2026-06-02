@@ -1,9 +1,12 @@
 package io.github.coderodde.regex;
 
+import io.github.coderodde.regex.parser.ast.RegexParser;
 import io.github.coderodde.regex.tokenizer.RegexTokenizer;
 import io.github.coderodde.regex.parser.ast.tokens.RegexToken;
+import io.github.coderodde.regex.parser.ast.tree.RegexNode;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,36 +18,37 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- *
- * @author Rodion "rodde" Efremov
- * @version 1.6 (Nov 17, 2023)
- * @since 1.6 (Nov 17, 2023)
+ * This class implements a 
+ * <a href="https://en.wikipedia.org/wiki/Nondeterministic_finite_automaton">Nondeterministic finite automaton</a>.
  */
 public final class NondeterministicFiniteAutomaton
         implements RegularExpressionMatcher {
     
     private NondeterministicFiniteAutomatonState initialState;
-    private NondeterministicFiniteAutomatonState acceptingState;
+    private final Set<NondeterministicFiniteAutomatonState> acceptingStates = 
+            new HashSet<>();
     
     public NondeterministicFiniteAutomatonState getInitialState() {
         return initialState;
     }
     
-    public NondeterministicFiniteAutomatonState getAcceptingState() {
-        return acceptingState;
+    public Set<NondeterministicFiniteAutomatonState> getAcceptingStates() {
+        return Collections.unmodifiableSet(acceptingStates);
     }
     
     public void setInitialState(
             NondeterministicFiniteAutomatonState initialState) {
+        
         this.initialState = 
                 Objects.requireNonNull(
                         initialState,
                         "The input initial state is null.");
     }
     
-    public void setAcceptingState(
+    public void addAcceptingState(
             NondeterministicFiniteAutomatonState acceptingState) {
-        this.acceptingState = acceptingState;
+        
+        acceptingStates.add(acceptingState);
     }
     
     public int getNumberOfStates() {
@@ -63,6 +67,7 @@ public final class NondeterministicFiniteAutomaton
             
             for (Set<NondeterministicFiniteAutomatonState> followerSet 
                     : state.map.values()) {
+                
                 for (NondeterministicFiniteAutomatonState follower 
                         : followerSet) {
                     if (!visited.contains(follower)) {
@@ -110,17 +115,16 @@ public final class NondeterministicFiniteAutomaton
         
     public static NondeterministicFiniteAutomaton compile(String regex) {
         List<RegexToken> infixTokens = new RegexTokenizer().tokenize(regex);
-        Deque<RegexToken> postfixTokens = 
-                new RegexInfixToPostfixConverter()
-                        .convert(infixTokens);
-        
-        return new NondeterministicFiniteAutomatonCompiler()
-                .compile(postfixTokens);
+        RegexParser parser = new RegexParser(infixTokens);
+        RegexNode abstractSyntaxTree = parser.parse();
+        return null;
+//        return new NondeterministicFiniteAutomatonCompiler()
+//                .compile(postfixTokens);
     }
     
-    private static Set<Character> 
+    private static Set<Integer> 
         getLocalAlphabet(Set<NondeterministicFiniteAutomatonState> states) {
-        Set<Character> localAlphabet = new HashSet<>();
+        Set<Integer> localAlphabet = new HashSet<>();
         
         for (NondeterministicFiniteAutomatonState state : states) {
             localAlphabet.addAll(state.map.keySet());
@@ -136,15 +140,18 @@ public final class NondeterministicFiniteAutomaton
         Set<NondeterministicFiniteAutomatonState> currentStates =
                 epsilonExpand(startSet);
         
-        for (int i = 0; i != text.length(); i++) {
-            char ch = text.charAt(i);
+        int[] codePoints = text.codePoints().toArray();
+        
+        for (int i = 0; i != codePoints.length; i++) {
+            int cp = codePoints[i];
             
             Set<NondeterministicFiniteAutomatonState> nextStates = 
                     new HashSet<>();
         
             for (NondeterministicFiniteAutomatonState q : currentStates) {
+                
                 Set<NondeterministicFiniteAutomatonState> nextState =
-                        q.getFollowingStates(ch);
+                        q.getFollowingStates(cp);
                 
                 if (q.getDotTransitionState() != null) {
                     nextStates.add(q.getDotTransitionState());
@@ -197,7 +204,8 @@ public final class NondeterministicFiniteAutomaton
     
     private boolean isAcceptingStateSet(
             Set<NondeterministicFiniteAutomatonState> finalStateSet) {
-        return finalStateSet.contains(acceptingState);
+        
+        return !Utils.intersection(finalStateSet, acceptingStates).isEmpty();
     }
     
     private final class NFAToDFAConverter {
@@ -263,29 +271,34 @@ public final class NondeterministicFiniteAutomaton
                         stateQueue.addLast(nextNFAState);
                     }
                     
-                    if (nextNFAState.contains(nfa.getAcceptingState())) {
-                        dfa.getAcceptingStates().add(nextDFAState);
+                    if (isAcceptingStateSet(nextNFAState)) {
+                        dfa.addAcceptingState(nextDFAState);
                     }
+                    
+//                    if (nextNFAState.contains(nfa.getAcceptingState())) {
+//                        dfa.getAcceptingStates().add(nextDFAState);
+//                    }
                     // TODO: rework this!
 //                    currentDFAState.addDotTransition(nextDFAState);
                 } else {
-                    Set<Character> localAlphabet = 
-                            getLocalAlphabet(currentNFAState);
+                    Set<Integer> localAlphabet = 
+                        getLocalAlphabet(currentNFAState);
                     
-                    for (Character character : localAlphabet) {
+                    for (Integer codePoint : localAlphabet) {
                         Set<NondeterministicFiniteAutomatonState> nextNFAState = 
                                 new HashSet<>();
                         
                         for (NondeterministicFiniteAutomatonState state 
                                 : currentNFAState) {
+                            
                             Set<NondeterministicFiniteAutomatonState>
                                     followingStates = 
-                                    state.getFollowingStates(character);
+                                    state.getFollowingStates(codePoint);
                             
                             if (followingStates != null) {
                                 // TODO: can followingStates be null?
                                 nextNFAState.addAll(
-                                        state.getFollowingStates(character));
+                                        state.getFollowingStates(codePoint));
                             }
                         }
                         
@@ -303,11 +316,13 @@ public final class NondeterministicFiniteAutomaton
                             stateQueue.addLast(nextNFAState);
                         }
 
-                        if (nextNFAState.contains(nfa.getAcceptingState())) {
-                            dfa.getAcceptingStates().add(nextDFAState);
-                        }
+                        // TODO
+//                        if (Utils.intersection(nextNFA, dotSet))
+//                        if (nextNFAState.contains(nfa.getAcceptingState())) {
+//                            dfa.getAcceptingStates().add(nextDFAState);
+//                        }
 
-                        currentDFAState.addFollowerState(character, 
+                        currentDFAState.addFollowerState(codePoint,     
                                                          nextDFAState);
                     }
                 }
@@ -343,20 +358,20 @@ public final class NondeterministicFiniteAutomaton
             Set<NondeterministicFiniteAutomatonState> outputStateSet = 
                     new HashSet<>();
             
-            Set<Character> localAlphabet = getLocalAlphabet(currentNFAState);
+            Set<Integer> localAlphabet = getLocalAlphabet(currentNFAState);
             
-            for (Character character : localAlphabet) {
+            for (Integer codePoint : localAlphabet) {
                 Set<NondeterministicFiniteAutomatonState> nextNFAState = 
                         new HashSet<>();
                 
                 for (NondeterministicFiniteAutomatonState state
                         : currentNFAState) {
                     Set<NondeterministicFiniteAutomatonState> followingStates = 
-                            state.getFollowingStates(character);
+                            state.getFollowingStates(codePoint);
                     
                     if (followingStates != null) {
                         nextNFAState.addAll(
-                                state.getFollowingStates(character));
+                                state.getFollowingStates(codePoint));
                     }
                 }
                 
@@ -378,10 +393,10 @@ public final class NondeterministicFiniteAutomaton
             stateMap.put(startState, dfaInitialState);
             stateQueue.addLast(startState);
             dfa.setInitialState(dfaInitialState);
-            
-            if (startState.contains(nfa.getAcceptingState())) {
-                dfa.getAcceptingStates().add(dfaInitialState);
-            }
+//            TODO
+//            if (startState.contains(nfa.getAcceptingState())) {
+//                dfa.getAcceptingStates().add(dfaInitialState);
+//            }
             
             Set<NondeterministicFiniteAutomatonState> emptyNFAState = 
                     new HashSet<>();
@@ -414,54 +429,54 @@ public final class NondeterministicFiniteAutomaton
         
         return transitionMap;
     }
-        
-    static DeterministicFiniteAutomatonStateTransitionFunction 
-        computeTransitionMapWithPeriodWildcard(TreeSet<Character> alphabet) {
-        
-        DeterministicFiniteAutomatonStateTransitionFunction transitionMap = 
-                new DeterministicFiniteAutomatonStateTransitionFunction();
-            
-        Iterator<Character> alphabetIterator = alphabet.iterator();
-        
-        Character leftCharacter  = alphabetIterator.next();
-        Character rightCharacter = null;
-        
-        if (leftCharacter > Character.MIN_VALUE) {
-            CodePointRange firstCharacterRange = 
-                    new CodePointRange(Character.MIN_VALUE, leftCharacter);
-            
-            transitionMap.addTransition(firstCharacterRange, null, null);
-        }
-        
-        while (alphabetIterator.hasNext()) {
-            rightCharacter = alphabetIterator.next();
-            
-            CodePointRange characterRange1 =
-                    new CodePointRange(leftCharacter);
-
-            CodePointRange characterRange2 = 
-                    new CodePointRange(rightCharacter);
-            
-            if (leftCharacter + 1 < rightCharacter) {
-                CodePointRange middleCharacterRange = 
-                        new CodePointRange(
-                                (char)(leftCharacter + 1), 
-                                (char)(rightCharacter - 1));
-            } 
-            
-            transitionMap.addTransition(characterRange1, null, null);
-            transitionMap.addTransition(characterRange2, null, null);
-            leftCharacter = rightCharacter;
-        }
-        
-        if (rightCharacter < Character.MAX_VALUE) {
-            CodePointRange concludingCharacterRange = 
-                    new CodePointRange(rightCharacter,
-                                       Character.MAX_VALUE);
-            
-            transitionMap.addTransition(concludingCharacterRange, null, null);
-        }
-        
-        return transitionMap;
-    }
+//        
+//    static DeterministicFiniteAutomatonStateTransitionFunction 
+//        computeTransitionMapWithPeriodWildcard(TreeSet<Character> alphabet) {
+//        
+//        DeterministicFiniteAutomatonStateTransitionFunction transitionMap = 
+//                new DeterministicFiniteAutomatonStateTransitionFunction();
+//            
+//        Iterator<Character> alphabetIterator = alphabet.iterator();
+//        
+//        Character leftCharacter  = alphabetIterator.next();
+//        Character rightCharacter = null;
+//        
+//        if (leftCharacter > Character.MIN_VALUE) {
+//            CodePointRange firstCharacterRange = 
+//                    new CodePointRange(Character.MIN_VALUE, leftCharacter);
+//            
+//            transitionMap.addTransition(firstCharacterRange, null, null);
+//        }
+//        
+//        while (alphabetIterator.hasNext()) {
+//            rightCharacter = alphabetIterator.next();
+//            
+//            CodePointRange characterRange1 =
+//                    new CodePointRange(leftCharacter);
+//
+//            CodePointRange characterRange2 = 
+//                    new CodePointRange(rightCharacter);
+//            
+//            if (leftCharacter + 1 < rightCharacter) {
+//                CodePointRange middleCharacterRange = 
+//                        new CodePointRange(
+//                                (char)(leftCharacter + 1), 
+//                                (char)(rightCharacter - 1));
+//            } 
+//            
+//            transitionMap.addTransition(characterRange1, null, null);
+//            transitionMap.addTransition(characterRange2, null, null);
+//            leftCharacter = rightCharacter;
+//        }
+//        
+//        if (rightCharacter < Character.MAX_VALUE) {
+//            CodePointRange concludingCharacterRange = 
+//                    new CodePointRange(rightCharacter,
+//                                       Character.MAX_VALUE);
+//            
+//            transitionMap.addTransition(concludingCharacterRange, null, null);
+//        }
+//        
+//        return transitionMap;
+//    }
 }

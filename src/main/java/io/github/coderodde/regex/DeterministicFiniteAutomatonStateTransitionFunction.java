@@ -103,13 +103,12 @@ implements Iterable<TransitionFunctionEntry> {
     }
     
     void addTransition(CodePointRange characterRange, 
-                       DeterministicFiniteAutomatonState sourceState,
-                       DeterministicFiniteAutomatonState targetState) {
+                       DeterministicFiniteAutomatonState goalState) {
+        
         growIfNeeded();
+        
         TransitionFunctionEntry targetTransitionMapEntry =  
-                new TransitionFunctionEntry(characterRange, 
-                                       sourceState,
-                                       targetState);
+            new TransitionFunctionEntry(characterRange, goalState);
     
         entries[size] = targetTransitionMapEntry;
         
@@ -132,9 +131,7 @@ implements Iterable<TransitionFunctionEntry> {
         
         CodePointRange characterRange = new CodePointRange(codePoint);
         
-        addTransition(characterRange,
-                      sourceState,
-                      targetState);
+        addTransition(characterRange, targetState);
     }
     
     int size() {
@@ -277,15 +274,13 @@ implements Iterable<TransitionFunctionEntry> {
             implements Comparable<TransitionFunctionEntry> {
         
         private final CodePointRange codePointRange;
-//        private DeterministicFiniteAutomatonState sourceState;
         private DeterministicFiniteAutomatonState goalState;
         
         TransitionFunctionEntry(CodePointRange characterRange, 
-                           DeterministicFiniteAutomatonState sourceState,
-                           DeterministicFiniteAutomatonState targetState) {
+                           DeterministicFiniteAutomatonState goalState) {
+            
             this.codePointRange = characterRange;
-//            this.sourceState = sourceState;
-            this.goalState = targetState;
+            this.goalState = goalState;
         }
         
         CodePointRange getCharacterRange() {

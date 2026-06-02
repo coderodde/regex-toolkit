@@ -16,7 +16,7 @@ public final class NondeterministicFiniteAutomatonState {
     
     private final int id;
     
-    final Map<Character, Set<NondeterministicFiniteAutomatonState>> map = 
+    final Map<Integer, Set<NondeterministicFiniteAutomatonState>> map = 
             new HashMap<>();
     
     final Set<NondeterministicFiniteAutomatonState> epsilonSet = 
@@ -55,17 +55,18 @@ public final class NondeterministicFiniteAutomatonState {
         return dotTransition;
     }
     
-    void addDotTransition(NondeterministicFiniteAutomatonState nextState) {
+    void setDotTransition(NondeterministicFiniteAutomatonState nextState) {
         this.dotTransition = nextState;
     }
     
-    void addTransition(Character character, 
+    void addTransition(int codePoint, 
                        NondeterministicFiniteAutomatonState nextState) {
-        if (!map.containsKey(character)) {
-            map.put(character, new HashSet<>());
+        
+        if (!map.containsKey(codePoint)) {
+            map.put(codePoint, new HashSet<>());
         }
             
-        map.get(character).add(nextState);
+        map.get(codePoint).add(nextState);
     }
     
     void addEpsilonTransition(NondeterministicFiniteAutomatonState nextState) {
@@ -73,11 +74,16 @@ public final class NondeterministicFiniteAutomatonState {
     }
     
     Set<NondeterministicFiniteAutomatonState> 
-        getFollowingStates(Character character) {
+        getFollowingStates(Integer character) {
+            
         return map.get(character);
     }
         
     Set<NondeterministicFiniteAutomatonState> getEpsilonStates() {
         return epsilonSet;
+    }
+        
+    NondeterministicFiniteAutomatonState getDotTransition() {
+        return dotTransition;
     }
 }

@@ -1,11 +1,21 @@
 package io.github.coderodde.regex;
 
+import io.github.coderodde.regex.parser.ast.tree.CharacterClassRegexNode;
+import io.github.coderodde.regex.parser.ast.tree.ConcatenationRegexNode;
+import io.github.coderodde.regex.parser.ast.tree.DotRegexNode;
+import io.github.coderodde.regex.parser.ast.tree.KleeneStarRegexNode;
+import io.github.coderodde.regex.parser.ast.tree.LiteralRegexNode;
+import io.github.coderodde.regex.parser.ast.tree.OptionalRegexNode;
+import io.github.coderodde.regex.parser.ast.tree.PlusRegexNode;
 import io.github.coderodde.regex.parser.ast.tree.RegexNode;
+import io.github.coderodde.regex.parser.ast.tree.UnionRegexNode;
+import java.util.List;
 import java.util.Objects;
 
 public final class NondeterministicFiniteAutomatonCompiler {
     
     private final RegexNode syntaxTreeRoot;
+    private int stateId = 0;
     
     public NondeterministicFiniteAutomatonCompiler(RegexNode syntaxTreeRoot) {
         this.syntaxTreeRoot =
@@ -15,8 +25,6 @@ public final class NondeterministicFiniteAutomatonCompiler {
     }
     
     public NondeterministicFiniteAutomaton compile() {
-        int stateId = 0;
-        
         Fragment fragment = build(syntaxTreeRoot);
         
         NondeterministicFiniteAutomaton nfa =
@@ -29,7 +37,130 @@ public final class NondeterministicFiniteAutomatonCompiler {
     }
     
     private Fragment build(RegexNode node) {
-        return null;
+        if (node instanceof LiteralRegexNode n) {
+            return literal(n.codePoint());
+        }
+        
+        if (node instanceof DotRegexNode) {
+            return dot();
+        }
+        
+        if (node instanceof CharacterClassRegexNode n) {
+            return characterClass(n.ranges());
+        }
+        
+        if (node instanceof ConcatenationRegexNode n) {
+            return concatenate(build(n.left()), build(n.right()));
+        }
+        
+        if (node instanceof UnionRegexNode n) {
+            return union(build(n.left()), build(n.right()));
+        }
+        
+        if (node instanceof KleeneStarRegexNode n) {
+            return kleeneStar(build(n.child()));
+        } 
+        
+        if (node instanceof PlusRegexNode n) {
+            return plus(build(n.child()));
+        }
+        
+        if (node instanceof OptionalRegexNode n) {
+            return optional(build(n.child()));
+        }
+        
+        throw new IllegalArgumentException("Unknown AST node: " + node);
+    }
+    
+    private Fragment literal(int codePoint) {
+        NondeterministicFiniteAutomatonState start  = newState();
+        NondeterministicFiniteAutomatonState accept = newState();
+        
+        start.addTransition(codePoint, accept);
+        
+        return new Fragment(start, accept);
+    }
+    
+    private Fragment dot() {
+        NondeterministicFiniteAutomatonState start  = newState();
+        NondeterministicFiniteAutomatonState accept = newState();
+        
+        start.addDotTransition(accept);
+        
+        return new Fragment(start, accept);
+    }
+    
+    private Fragment characterClass(List<CodePointRange> ranges) {
+        NondeterministicFiniteAutomatonState start  = newState();
+        NondeterministicFiniteAutomatonState accept = newState();
+        
+        for (CodePointRange range : ranges) {
+            for (Integer codePoint : range) {
+                start.addTransition(codePoint, accept);
+            }
+        }
+        
+        return new Fragment(start, accept);
+    }
+    
+    private Fragment concatenate(Fragment left, Fragment right) {
+        left.accept.addEpsilonTransition(right.start);
+        
+        return new Fragment(left.start, right.accept);
+    }
+    
+    private Fragment union(Fragment left, Fragment right) {
+        NondeterministicFiniteAutomatonState start  = newState();
+        NondeterministicFiniteAutomatonState accept = newState();
+        
+        start.addEpsilonTransition(left.start);
+        start.addEpsilonTransition(right.start);
+        
+        left.accept.addEpsilonTransition(accept);
+        right.accept.addEpsilonTransition(accept);
+        
+        return new Fragment(start, accept);
+    }
+    
+    private Fragment kleeneStar(Fragment fragment) {
+        NondeterministicFiniteAutomatonState start  = newState();
+        NondeterministicFiniteAutomatonState accept = newState();
+        
+        start.addEpsilonTransition(fragment.start);
+        start.addEpsilonTransition(accept);
+        
+        fragment.accept.addEpsilonTransition(fragment.start);
+        fragment.accept.addEpsilonTransition(accept);
+        
+        return new Fragment(start, accept);
+    }
+    
+    private Fragment plus(Fragment fragment) {
+        NondeterministicFiniteAutomatonState start  = newState();
+        NondeterministicFiniteAutomatonState accept = newState();
+        
+        start.addEpsilonTransition(fragment.start);
+        
+        fragment.accept.addEpsilonTransition(fragment.start);
+        fragment.accept.addEpsilonTransition(accept);
+        
+        return new Fragment(start, accept);
+    }
+    
+    private Fragment optional(Fragment fragment) {
+        NondeterministicFiniteAutomatonState start  = newState();
+        NondeterministicFiniteAutomatonState accept = newState();
+        
+        start.addEpsilonTransition(fragment.start);
+        start.addEpsilonTransition(accept);
+        
+        fragment.accept.addEpsilonTransition(accept);
+        
+        return new Fragment(start, accept);
+    }
+    
+    private NondeterministicFiniteAutomatonState newState() {
+        return new NondeterministicFiniteAutomatonState(stateId++);
     }
 }
 
@@ -43,306 +174,3 @@ final class Fragment {
         this.accept = accept;
     }
 }
-//
-//import io.github.coderodde.regex.parser.ast.tokens.RegexToken;
-//import java.util.ArrayDeque;
-//import java.util.Deque;
-//
-///**
-// * This class provides a method for converting regular expressions in postfix
-// * notation into NFAs.
-// * 
-// * @author Rodion "rodde" Efremov
-// * @version 1.6 (Nov 17, 2023)
-// * @since 1.6 (Nov 17, 2023)
-// */
-//public final class NondeterministicFiniteAutomatonCompiler {
-//    
-//    private int stateIDCounter = 0;
-//    private final Deque<RegexToken> postfixRegex;
-//    private final Deque<NondeterministicFiniteAutomaton> nfaStack =
-//            new ArrayDeque<>();
-//    
-//    private NondeterministicFiniteAutomatonCompiler(
-//            Deque<RegexToken> postfixRegex) {
-//        this.postfixRegex = postfixRegex;
-//    }
-//    
-//    public NondeterministicFiniteAutomatonCompiler() {
-//        this.postfixRegex = null;
-//    }
-//    
-//    public NondeterministicFiniteAutomaton
-//        compile(Deque<RegexToken> postfixRegex) {
-//        return new NondeterministicFiniteAutomatonCompiler(postfixRegex)
-//                .compileImpl();
-//    }
-//         
-//    /**
-//     * This method compiles the input postfix regular expression into a NFA. 
-//     * This algorithm is known as 
-//     * <a href="https://en.wikipedia.org/wiki/Thompson%27s_construction">Thompson's construction</a>.
-//     * 
-//     * @return an {@code NondeterministicFiniteAutomaton} recognizing the same 
-//     *         language as the input postfix regex.
-//     */
-//    private NondeterministicFiniteAutomaton compileImpl() {
-//        while (true) {
-//            RegexToken token = postfixRegex.removeFirst();
-//            
-//            switch (token.getTokenType()) {
-//                case CHARACTER:
-//                    processCharacter(token);  
-//                    break;
-//                    
-//                case CONCAT: 
-//                    processConcatenationOperator();
-//                    break;
-//                    
-//                case DOT:
-//                    processPeriodWildcard();
-//                    break;
-//                    
-//                case UNION: 
-//                    processUnionOperator();
-//                    break;
-//                    
-//                case QUESTION:
-//                    processQuestionMarkOperator();
-//                    break;
-//                    
-//                case KLEENE_STAR: 
-//                    processKleeneStar();
-//                    break;
-//                    
-//                case PLUS:
-//                    processPlusOperator();
-//                    break;
-//                    
-//                case EPSILON:
-//                    processEpsilonTransition();
-//                    break;
-//                    
-//                default:
-//                    throw new IllegalArgumentException(
-//                            "Unknown regex token type: " + token);
-//            }
-//            
-//            if (postfixRegex.isEmpty()) {
-//                return nfaStack.getLast();
-//            }
-//        }
-//    }
-//        
-//    private void processCharacter(RegexToken token) {
-//        NondeterministicFiniteAutomaton nfa =
-//                new NondeterministicFiniteAutomaton();
-//        
-//        NondeterministicFiniteAutomatonState initialState = 
-//                new NondeterministicFiniteAutomatonState(
-//                        getNextStateId());
-//        
-//        NondeterministicFiniteAutomatonState acceptingState = 
-//                new NondeterministicFiniteAutomatonState(
-//                        getNextStateId());
-//        
-//        nfa.setInitialState(initialState);
-//        nfa.setAcceptingState(acceptingState);
-//        initialState.addTransition(token.getCharacter(), acceptingState);
-//        
-//        nfaStack.addLast(nfa);
-//    }
-//    
-//    private void processPeriodWildcard() {
-//        NondeterministicFiniteAutomaton nfa =
-//                new NondeterministicFiniteAutomaton();
-//        
-//        NondeterministicFiniteAutomatonState initialState = 
-//                new NondeterministicFiniteAutomatonState(
-//                        getNextStateId());
-//        
-//        NondeterministicFiniteAutomatonState acceptingState = 
-//                new NondeterministicFiniteAutomatonState(
-//                        getNextStateId());
-//        
-//        nfa.setInitialState(initialState);
-//        nfa.setAcceptingState(acceptingState);
-//        initialState.setDotTransition(acceptingState);
-//        
-//        nfaStack.addLast(nfa);
-//    }
-//    
-//    private void processQuestionMarkOperator() {
-//        if (nfaStack.isEmpty()) {
-//            throw new InvalidRegexException();
-//        }
-//        
-//        NondeterministicFiniteAutomaton nfa = nfaStack.removeLast();
-//        NondeterministicFiniteAutomaton resultNFA = 
-//                new NondeterministicFiniteAutomaton();
-//        
-//        NondeterministicFiniteAutomatonState initialState =
-//                new NondeterministicFiniteAutomatonState(getNextStateId());
-//        
-//        NondeterministicFiniteAutomatonState acceptingState = 
-//                new NondeterministicFiniteAutomatonState(getNextStateId());
-//        
-//        resultNFA.setInitialState(initialState);
-//        resultNFA.setAcceptingState(acceptingState);
-//        
-//        initialState.addEpsilonTransition(acceptingState);
-//        initialState.addEpsilonTransition(nfa.getInitialState());
-//        nfa.getAcceptingState().addEpsilonTransition(acceptingState);
-//        nfa.setAcceptingState(null);
-//        
-//        nfaStack.addLast(resultNFA);
-//    }
-//    
-//    private void processUnionOperator() {
-//        if (nfaStack.isEmpty()) {
-//            throw new InvalidRegexException();
-//        }
-//        
-//        NondeterministicFiniteAutomaton nfa1 = nfaStack.removeLast();
-//        
-//        if (nfaStack.isEmpty()) {
-//            throw new InvalidRegexException();
-//        }
-//        
-//        NondeterministicFiniteAutomaton nfa2 = nfaStack.removeLast();
-//        NondeterministicFiniteAutomaton resultNFA =
-//                new NondeterministicFiniteAutomaton();
-//        
-//        NondeterministicFiniteAutomatonState initialState = 
-//                new NondeterministicFiniteAutomatonState(
-//                        getNextStateId());
-//        
-//        NondeterministicFiniteAutomatonState acceptingState =
-//                new NondeterministicFiniteAutomatonState(
-//                        getNextStateId());
-//        
-//        resultNFA.setInitialState(initialState);
-//        resultNFA.setAcceptingState(acceptingState);
-//        
-//        initialState.addEpsilonTransition(nfa1.getInitialState());
-//        initialState.addEpsilonTransition(nfa2.getInitialState());
-//        
-//        nfa1.getAcceptingState().addEpsilonTransition(acceptingState);
-//        nfa2.getAcceptingState().addEpsilonTransition(acceptingState);
-//        
-//        nfa1.setAcceptingState(null);
-//        nfa2.setAcceptingState(null);
-//        
-//        nfaStack.addLast(resultNFA);
-//    }
-//    
-//    private void processConcatenationOperator() {
-//        if (nfaStack.isEmpty()) {
-//            throw new InvalidRegexException();
-//        }
-//        
-//        NondeterministicFiniteAutomaton nfa2 = nfaStack.removeLast();
-//        
-//        if (nfaStack.isEmpty()) {
-//            throw new InvalidRegexException();
-//        }
-//        
-//        NondeterministicFiniteAutomaton nfa1 = nfaStack.removeLast();
-//        NondeterministicFiniteAutomaton resultNFA =
-//                new NondeterministicFiniteAutomaton();
-//        
-//        resultNFA.setInitialState(nfa1.getInitialState());
-//        resultNFA.setAcceptingState(nfa2.getAcceptingState());
-//        
-//        nfa1.getAcceptingState().addEpsilonTransition(nfa2.getInitialState());
-//        nfa1.setAcceptingState(null);
-//        
-//        nfaStack.addLast(resultNFA);
-//    }
-//    
-//    private void processEpsilonTransition() {
-//        if (nfaStack.isEmpty()) {
-//            throw new InvalidRegexException();
-//        }
-//        
-//        NondeterministicFiniteAutomaton nfa2 = nfaStack.removeLast();
-//        
-//        if (nfaStack.isEmpty()) {
-//            throw new InvalidRegexException();
-//        }
-//        
-//        NondeterministicFiniteAutomaton nfa1 = nfaStack.removeLast();
-//        NondeterministicFiniteAutomaton resultNFA = 
-//                new NondeterministicFiniteAutomaton();
-//        
-//        resultNFA.setInitialState(nfa1.getInitialState());
-//        resultNFA.setAcceptingState(nfa2.getAcceptingState());
-//        
-//        nfa1.getAcceptingState().addEpsilonTransition(nfa2.getInitialState());
-//        nfa1.setAcceptingState(null);
-//        
-//        nfaStack.addLast(resultNFA);
-//    }
-//    
-//    private void processKleeneStar() {
-//        if (nfaStack.isEmpty()) {
-//            throw new InvalidRegexException();
-//        }
-//        
-//        NondeterministicFiniteAutomatonState initialState = 
-//                new NondeterministicFiniteAutomatonState(getNextStateId());
-//        
-//        NondeterministicFiniteAutomatonState acceptingState = 
-//                new NondeterministicFiniteAutomatonState(getNextStateId());
-//        
-//        initialState.addEpsilonTransition(acceptingState);
-//        
-//        NondeterministicFiniteAutomaton nfa = nfaStack.removeLast();
-//        
-//        initialState.addEpsilonTransition(nfa.getInitialState());
-//        nfa.getAcceptingState().addEpsilonTransition(acceptingState);
-//        
-//        nfa.getAcceptingState().addEpsilonTransition(nfa.getInitialState());
-//        nfa.setAcceptingState(null);
-//        
-//        NondeterministicFiniteAutomaton resultNFA =
-//                new NondeterministicFiniteAutomaton();
-//        
-//        resultNFA.setInitialState(initialState);
-//        resultNFA.setAcceptingState(acceptingState);
-//        
-//        nfaStack.addLast(resultNFA);
-//    }
-//    
-//    private void processPlusOperator() {
-//        if (nfaStack.isEmpty()) {
-//            throw new InvalidRegexException();
-//        }
-//        
-//        NondeterministicFiniteAutomatonState initialState = 
-//                new NondeterministicFiniteAutomatonState(getNextStateId());
-//        
-//        NondeterministicFiniteAutomatonState acceptingState = 
-//                new NondeterministicFiniteAutomatonState(getNextStateId());
-//        
-//        NondeterministicFiniteAutomaton nfa = nfaStack.removeLast();
-//        
-//        initialState.addEpsilonTransition(nfa.getInitialState());
-//        nfa.getAcceptingState().addEpsilonTransition(acceptingState);
-//        
-//        nfa.getAcceptingState().addEpsilonTransition(nfa.getInitialState());
-//        nfa.setAcceptingState(null);
-//        
-//        NondeterministicFiniteAutomaton resultNFA =
-//                new NondeterministicFiniteAutomaton();
-//        
-//        resultNFA.setInitialState(initialState);
-//        resultNFA.setAcceptingState(acceptingState);
-//        
-//        nfaStack.addLast(resultNFA); 
-//    }
-//    
-//    private int getNextStateId() {
-//        return stateIDCounter++;
-//    }
-//}

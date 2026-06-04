@@ -5,4 +5,8 @@ package io.github.coderodde.regex.parser.ast.tree;
  */
 public record LiteralRegexNode(int codePoint) implements RegexNode {
     
+    @Override
+    public String toString() {
+        return "[Literal '" + new String(Character.toChars(codePoint)) + "']";
+    }
 }

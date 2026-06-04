@@ -30,4 +30,9 @@ public final class RegexTokenCharacterClass implements RegexToken {
         List<CodePointRange> other = (List<CodePointRange>) o;
         return ranges.equals(other);
     }
+    
+    @Override
+    public String toString() {
+        return "[Character class: '" + ranges + "']";
+    }
 }

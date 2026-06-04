@@ -74,11 +74,10 @@ public final class CodePointRange implements Comparable<CodePointRange>,
     
     @Override
     public String toString() {
-        return "[CharacterRange: " 
-                + minimumCodePoint
-                + " to "
-                + maximumCodePoint 
-                + "]";
+        String min = new String(Character.toChars(minimumCodePoint));
+        String max = new String(Character.toChars(maximumCodePoint));
+        
+        return "[From '" + min + "' to '" + max + "']";
     }
 
     @Override

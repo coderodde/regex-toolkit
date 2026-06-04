@@ -22,4 +22,9 @@ public final class RegexTokenLiteral implements RegexToken {
     public int codePoint() {
         return codePoint;
     }
+    
+    @Override
+    public boolean equals(Object o) {
+        return codePoint == ((RegexTokenLiteral) o).codePoint;
+    }
 }

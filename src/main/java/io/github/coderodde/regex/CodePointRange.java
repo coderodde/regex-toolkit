@@ -53,6 +53,13 @@ public final class CodePointRange implements Comparable<CodePointRange>,
     }
     
     @Override
+    public boolean equals(Object o) {
+        CodePointRange other = (CodePointRange) o;
+        return minimumCodePoint == other.minimumCodePoint &&
+               maximumCodePoint == other.maximumCodePoint;
+    }
+    
+    @Override
     public int compareTo(CodePointRange other) {
         if (this.maximumCodePoint < other.minimumCodePoint) {
             return -1;

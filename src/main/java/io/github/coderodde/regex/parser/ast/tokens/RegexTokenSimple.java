@@ -17,4 +17,9 @@ public final class RegexTokenSimple implements RegexToken {
     public RegexTokenType type() {
         return type;
     }
+    
+    @Override
+    public boolean equals(Object o) {
+        return type == ((RegexTokenSimple) o).type;
+    }
 }

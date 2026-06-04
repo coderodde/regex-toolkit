@@ -43,5 +43,7 @@ public class RegexParserTest {
         
         RegexParser parser = new RegexParser(tokens);
         RegexNode root = parser.parse();
+        
+        assertTrue(root instanceof RegexToken)
     }
 }

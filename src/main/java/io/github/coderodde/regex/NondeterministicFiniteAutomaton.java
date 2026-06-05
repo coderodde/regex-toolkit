@@ -10,12 +10,10 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * This class implements a 
@@ -66,7 +64,7 @@ public final class NondeterministicFiniteAutomaton
             NondeterministicFiniteAutomatonState state = queue.removeFirst();
             
             for (Set<NondeterministicFiniteAutomatonState> followerSet 
-                    : state.map.values()) {
+                    : state.followerStateIterable()) {
                 
                 for (NondeterministicFiniteAutomatonState follower 
                         : followerSet) {
@@ -122,12 +120,15 @@ public final class NondeterministicFiniteAutomaton
 //                .compile(postfixTokens);
     }
     
-    private static Set<Integer> 
+    private static Set<CodePointRange> 
         getLocalAlphabet(Set<NondeterministicFiniteAutomatonState> states) {
-        Set<Integer> localAlphabet = new HashSet<>();
+            
+        Set<CodePointRange> localAlphabet = new HashSet<>();
         
         for (NondeterministicFiniteAutomatonState state : states) {
-            localAlphabet.addAll(state.map.keySet());
+            for (int i = 0; i < state.getTransitionCount(); ++i) {
+                localAlphabet.add(state.getTransition(i).getCharacterRange());
+            }
         }
         
         return localAlphabet;
@@ -151,7 +152,7 @@ public final class NondeterministicFiniteAutomaton
             for (NondeterministicFiniteAutomatonState q : currentStates) {
                 
                 Set<NondeterministicFiniteAutomatonState> nextState =
-                        q.getFollowingStates(cp);
+                        q.getGoalStates(cp);
                 
                 if (q.getDotTransitionState() != null) {
                     nextStates.add(q.getDotTransitionState());
@@ -281,10 +282,10 @@ public final class NondeterministicFiniteAutomaton
                     // TODO: rework this!
 //                    currentDFAState.addDotTransition(nextDFAState);
                 } else {
-                    Set<Integer> localAlphabet = 
+                    Set<CodePointRange> localAlphabet = 
                         getLocalAlphabet(currentNFAState);
                     
-                    for (Integer codePoint : localAlphabet) {
+                    for (CodePointRange codePointRange : localAlphabet) {
                         Set<NondeterministicFiniteAutomatonState> nextNFAState = 
                                 new HashSet<>();
                         
@@ -293,12 +294,12 @@ public final class NondeterministicFiniteAutomaton
                             
                             Set<NondeterministicFiniteAutomatonState>
                                     followingStates = 
-                                    state.getFollowingStates(codePoint);
+                                    state.getGoalStates(codePointRange);
                             
                             if (followingStates != null) {
                                 // TODO: can followingStates be null?
-                                nextNFAState.addAll(
-                                        state.getFollowingStates(codePoint));
+                                nextNFAState.addAll(followingStates);
+//                                        state.getGoalStates(codePointRange));
                             }
                         }
                         
@@ -322,8 +323,10 @@ public final class NondeterministicFiniteAutomaton
 //                            dfa.getAcceptingStates().add(nextDFAState);
 //                        }
 
-                        currentDFAState.addFollowerState(codePoint,     
-                                                         nextDFAState);
+                        // TODO: Add DFA.addFollowerState(CodePointRange, DFAState)
+//                        currentDFAState.addFollowerState(stateID, nextDFAState);
+//                        currentDFAState.addFollowerState(codePointRange,     
+//                                                         nextDFAState);
                     }
                 }
             }
@@ -358,20 +361,20 @@ public final class NondeterministicFiniteAutomaton
             Set<NondeterministicFiniteAutomatonState> outputStateSet = 
                     new HashSet<>();
             
-            Set<Integer> localAlphabet = getLocalAlphabet(currentNFAState);
+            Set<CodePointRange> localAlphabet = getLocalAlphabet(currentNFAState);
             
-            for (Integer codePoint : localAlphabet) {
+            for (CodePointRange codePointRange : localAlphabet) {
                 Set<NondeterministicFiniteAutomatonState> nextNFAState = 
                         new HashSet<>();
                 
                 for (NondeterministicFiniteAutomatonState state
                         : currentNFAState) {
-                    Set<NondeterministicFiniteAutomatonState> followingStates = 
-                            state.getFollowingStates(codePoint);
+                    Set<NondeterministicFiniteAutomatonState> followingStates =
+                            state.getGoalStates(codePointRange);
                     
                     if (followingStates != null) {
                         nextNFAState.addAll(
-                                state.getFollowingStates(codePoint));
+                                state.getGoalStates(codePointRange));
                     }
                 }
                 

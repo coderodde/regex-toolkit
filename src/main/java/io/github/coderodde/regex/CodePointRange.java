@@ -37,7 +37,7 @@ public final class CodePointRange implements Comparable<CodePointRange>,
     }
     
     void setMaximumCodePoint(int maximumCodePoint) {
-        this.minimumCodePoint = maximumCodePoint;
+        this.maximumCodePoint = maximumCodePoint;
     }
     
     boolean codePointIsWithinRange(int codePoint) {

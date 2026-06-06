@@ -1,7 +1,5 @@
 package io.github.coderodde.regex;
 
-import io.github.coderodde.regex.InvalidRegexException;
-import io.github.coderodde.regex.Utils;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;

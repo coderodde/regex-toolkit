@@ -72,6 +72,10 @@ public final class NondeterministicFiniteAutomatonCompiler {
         throw new IllegalArgumentException("Unknown AST node: " + node);
     }
     
+    private void addTransition() {
+        
+    }
+    
     private Fragment literal(int codePoint) {
         NondeterministicFiniteAutomatonState start  = newState();
         NondeterministicFiniteAutomatonState accept = newState();

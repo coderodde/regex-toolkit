@@ -1,5 +1,6 @@
 package io.github.coderodde.regex.parser.ast;
 
+import io.github.coderodde.regex.DeterministicFiniteAutomaton;
 import io.github.coderodde.regex.NondeterministicFiniteAutomaton;
 import io.github.coderodde.regex.NondeterministicFiniteAutomatonCompiler;
 import io.github.coderodde.regex.parser.ast.tokens.RegexToken;
@@ -77,5 +78,8 @@ public class RegexParserTest {
         assertFalse(nfa.matches("ef"));
         assertFalse(nfa.matches("bccd"));
         assertFalse(nfa.matches("aa"));
+        
+//        DeterministicFiniteAutomaton dfa =
+//            nfa.convertToDetermenisticFiniteAutomaton();
     }
 }

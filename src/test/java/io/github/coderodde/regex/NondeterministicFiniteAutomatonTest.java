@@ -1,11 +1,5 @@
 package io.github.coderodde.regex;
 
-import io.github.coderodde.regex.DeterministicFiniteAutomatonState;
-import io.github.coderodde.regex.DeterministicFiniteAutomaton;
-import io.github.coderodde.regex.DeterministicFiniteAutomatonStateTransitionFunction;
-import io.github.coderodde.regex.NondeterministicFiniteAutomaton;
-import io.github.coderodde.regex.CodePointRange;
-import io.github.coderodde.regex.NondeterministicFiniteAutomatonState;
 import io.github.coderodde.regex.DeterministicFiniteAutomatonStateTransitionFunction.TransitionFunctionEntry;
 import static io.github.coderodde.regex.NondeterministicFiniteAutomaton.epsilonExpand;
 import java.util.Arrays;

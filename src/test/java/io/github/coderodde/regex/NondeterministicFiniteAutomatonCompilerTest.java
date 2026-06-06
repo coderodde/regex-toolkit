@@ -1,6 +1,5 @@
 package io.github.coderodde.regex;
 
-import io.github.coderodde.regex.NondeterministicFiniteAutomaton;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

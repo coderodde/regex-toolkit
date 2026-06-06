@@ -96,14 +96,39 @@ public final class NondeterministicFiniteAutomaton
     }
         
     public boolean matches(String text) {
-        Set<NondeterministicFiniteAutomatonState> finalStateSet = 
-                simulateNFA(text);
+        Objects.requireNonNull(text, "The input text is null.");
         
-        if (finalStateSet == null) {
-            return false;
+        Set<NondeterministicFiniteAutomatonState> states = 
+            epsilonExpand(Set.of(initialState));
+        
+        for (int cp : text.codePoints().toArray()) {
+            Set<NondeterministicFiniteAutomatonState> nextStates =
+                new HashSet<>();
+            
+            for (NondeterministicFiniteAutomatonState state : states) {
+                Set<NondeterministicFiniteAutomatonState> followers = 
+                    state.getGoalStates(cp);
+                
+                if (followers != null) {
+                    nextStates.addAll(followers);
+                }
+                
+                NondeterministicFiniteAutomatonState dotState = 
+                    state.getDotTransition();
+                
+                if (dotState != null) {
+                    nextStates.add(dotState);
+                }
+            }
+            
+            if (nextStates.isEmpty()) {
+                return false;
+            }
+            
+            states = epsilonExpand(nextStates);
         }
     
-        return isAcceptingStateSet(finalStateSet);
+        return isAcceptingStateSet(states);
     }
     
     public DeterministicFiniteAutomaton 

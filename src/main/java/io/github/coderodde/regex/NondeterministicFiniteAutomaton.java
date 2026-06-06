@@ -140,58 +140,7 @@ public final class NondeterministicFiniteAutomaton
         List<RegexToken> infixTokens = new RegexTokenizer().tokenize(regex);
         RegexParser parser = new RegexParser(infixTokens);
         RegexNode abstractSyntaxTree = parser.parse();
-        return null;
-//        return new NondeterministicFiniteAutomatonCompiler()
-//                .compile(postfixTokens);
-    }
-    
-    private static Set<CodePointRange> 
-        getLocalAlphabet(Set<NondeterministicFiniteAutomatonState> states) {
-            
-        Set<CodePointRange> localAlphabet = new HashSet<>();
-        
-        for (NondeterministicFiniteAutomatonState state : states) {
-            for (int i = 0; i < state.getTransitionCount(); ++i) {
-                localAlphabet.add(state.getTransition(i).getCharacterRange());
-            }
-        }
-        
-        return localAlphabet;
-    }
-    
-    private Set<NondeterministicFiniteAutomatonState> simulateNFA(String text) {
-        Set<NondeterministicFiniteAutomatonState> startSet = 
-                new HashSet<>(Arrays.asList(initialState));
-        
-        Set<NondeterministicFiniteAutomatonState> currentStates =
-                epsilonExpand(startSet);
-        
-        int[] codePoints = text.codePoints().toArray();
-        
-        for (int i = 0; i != codePoints.length; i++) {
-            int cp = codePoints[i];
-            
-            Set<NondeterministicFiniteAutomatonState> nextStates = 
-                    new HashSet<>();
-        
-            for (NondeterministicFiniteAutomatonState q : currentStates) {
-                
-                Set<NondeterministicFiniteAutomatonState> nextState =
-                        q.getGoalStates(cp);
-                
-                if (q.getDotTransitionState() != null) {
-                    nextStates.add(q.getDotTransitionState());
-                }
-                
-                if (nextState != null) {
-                    nextStates.addAll(nextState);
-                }
-            }
-                
-            currentStates = epsilonExpand(nextStates);
-        }
-        
-        return currentStates;
+        throw new UnsupportedOperationException();
     }
     
     static Set<NondeterministicFiniteAutomatonState> 
@@ -263,6 +212,8 @@ public final class NondeterministicFiniteAutomaton
             DeterministicFiniteAutomatonState dfaStart = 
                 getOrCreateDFAState(startSet);
             
+            dfa.setInitialState(dfaStart);
+            
             if (isAcceptingStateSet(startSet)) {
                 dfa.addAcceptingState(dfaStart);
             }
@@ -295,7 +246,7 @@ public final class NondeterministicFiniteAutomaton
                         dfa.addAcceptingState(nextDFAState);
                     }
                     
-                    currentDFAState.addFollowerState(range, nextDFAState);
+                    dfa.addTransition(currentDFAState, range, nextDFAState);
                 }
             }
             
@@ -399,87 +350,6 @@ public final class NondeterministicFiniteAutomaton
         private boolean intersects(CodePointRange a, CodePointRange b) {
             return a.getMinimumCodePoint() <= b.getMaximumCodePoint()
                 && b.getMinimumCodePoint() <= a.getMaximumCodePoint();
-        }
-        
-        private Set<NondeterministicFiniteAutomatonState> 
-        computePeriodWildcardSet(
-            Set<NondeterministicFiniteAutomatonState> currentNFAState) {
-            Set<NondeterministicFiniteAutomatonState> periodWildcardStates = 
-                    new HashSet<>();
-
-            // Try to find dot transitions:
-            for (NondeterministicFiniteAutomatonState state :
-                    currentNFAState) {
-                NondeterministicFiniteAutomatonState periodWildcardState = 
-                        state.getDotTransitionState();
-
-                if (periodWildcardState != null) {
-                    periodWildcardStates.add(periodWildcardState);
-                }
-            }
-            
-            return periodWildcardStates;
-        }
-        
-        private Set<NondeterministicFiniteAutomatonState>
-        computeCharacterTransitions(
-                Set<NondeterministicFiniteAutomatonState> currentNFAState) {
-            
-            Set<NondeterministicFiniteAutomatonState> outputStateSet = 
-                    new HashSet<>();
-            
-            Set<CodePointRange> localAlphabet = getLocalAlphabet(currentNFAState);
-            
-            for (CodePointRange codePointRange : localAlphabet) {
-                Set<NondeterministicFiniteAutomatonState> nextNFAState = 
-                        new HashSet<>();
-                
-                for (NondeterministicFiniteAutomatonState state
-                        : currentNFAState) {
-                    Set<NondeterministicFiniteAutomatonState> followingStates =
-                            state.getGoalStates(codePointRange);
-                    
-                    if (followingStates != null) {
-                        nextNFAState.addAll(
-                                state.getGoalStates(codePointRange));
-                    }
-                }
-                
-                outputStateSet.addAll(nextNFAState);
-            }
-            
-            return outputStateSet;
-        }
-        
-        private void init() {
-            Set<NondeterministicFiniteAutomatonState> startState = 
-                    new HashSet<>(Arrays.asList(nfa.getInitialState()));
-            
-            startState = epsilonExpand(startState);
-            
-            DeterministicFiniteAutomatonState dfaInitialState = 
-                    new DeterministicFiniteAutomatonState(getStateID());
-            
-            map.put(startState, dfaInitialState);
-            stateQueue.addLast(startState);
-            dfa.setInitialState(dfaInitialState);
-//            TODO
-//            if (startState.contains(nfa.getAcceptingState())) {
-//                dfa.getAcceptingStates().add(dfaInitialState);
-//            }
-            
-            Set<NondeterministicFiniteAutomatonState> emptyNFAState = 
-                    new HashSet<>();
-            
-            DeterministicFiniteAutomatonState emptyDFAState = 
-                    new DeterministicFiniteAutomatonState(getNumberOfStates());
-            
-            map.put(emptyNFAState, emptyDFAState);
-//            emptyDFAState.addDotTransition(emptyDFAState);
-        }
-        
-        private int getStateID() {
-            return stateId++;
         }
     }
     

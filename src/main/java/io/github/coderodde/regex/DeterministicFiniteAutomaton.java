@@ -213,16 +213,6 @@
             }
         }
 
-    //    /**
-    //     * Computes the number of (reachable from the initial state) states in this 
-    //     * DFA.
-    //     * 
-    //     * @return the number of reachable states in this DFA. 
-    //     */
-    //    public int getNumberOfStates() {
-    //        return getAllReachableStates().size();
-    //    }
-
         /**
          * Matches the input {@code text} in case this DFA does not contain dot 
          * operator transitions.
@@ -277,46 +267,6 @@
 
         private void setContansDotOperator() {
             this.containsDotOperator = true;
-        }
-
-//        private static Set<DeterministicFiniteAutomatonState> 
-//            getNext(List<Set<DeterministicFiniteAutomatonState>> equivalenceClasses,
-//                    Set<DeterministicFiniteAutomatonState> followerState) {
-//
-//            for (Set<DeterministicFiniteAutomatonState> equivalenceClass
-//                    : equivalenceClasses) {
-//    //            if (equivalenceClass.containsAll(followerState)) {
-//                if (equivalenceClass.equals(followerState)) {
-//                    return equivalenceClass;
-//                }
-//            }
-//
-//            throw new IllegalStateException("getNext() failed");
-//        }
-
-        /**
-         * Computes the next equivalence class starting from the input equivalence
-         * class and following the character encoded by {@code codePoint}.
-         * 
-         * @param currentEquivalenceClass the current equivalence class.
-         * @param codePointRange               the code point.
-         * @return the follower equivalence class.
-         */
-        private static Set<DeterministicFiniteAutomatonState> 
-            getNextEquivalenceClass(
-                    Set<DeterministicFiniteAutomatonState> currentEquivalenceClass,
-                    CodePointRange codePointRange) {
-
-            Set<DeterministicFiniteAutomatonState> nextDFAStateSet =
-                    new HashSet<>(currentEquivalenceClass.size());
-
-            for (DeterministicFiniteAutomatonState state : 
-                    currentEquivalenceClass) {
-
-                nextDFAStateSet.add(state.traverse(codePointRange));
-            }
-
-            return nextDFAStateSet;
         }
 
         private void populateStatesIn(
@@ -686,25 +636,6 @@
             return predecessorStateSet;
         }
 
-        private Set<CodePointRange> 
-            getLocalAlphabet(Set<DeterministicFiniteAutomatonState> stateSet) {
-
-            Set<CodePointRange> localAlphabet = new HashSet<>();
-
-            for (DeterministicFiniteAutomatonState state : stateSet) {
-                DeterministicFiniteAutomatonStateTransitionFunction transitionMap = 
-                        state.getTransitionMap();
-
-                for (TransitionFunctionEntry transitionMapEntry : transitionMap) {
-                    if (transitionMapEntry != null) {
-                        localAlphabet.add(transitionMapEntry.getCharacterRange());
-                    }
-                }
-            }
-
-            return localAlphabet;
-        }
-
         public DeterministicFiniteAutomaton minimizeViaMooresAlgorithm() {
 
             return null;
@@ -735,7 +666,7 @@
                 }
 
                 currentState = nextState;
-                textCodePointIndex++;
+                textCodePointIndex += Character.charCount(codePoint);
             }
 
             return currentState;
@@ -799,8 +730,8 @@
 
             while (!queue.isEmpty()) {
                 DeterministicFiniteAutomatonState state = queue.removeFirst();
-                DeterministicFiniteAutomatonStateTransitionFunction transitionMap = 
-                        state.getTransitionMap();
+                DeterministicFiniteAutomatonStateTransitionFunction 
+                    transitionMap = state.getTransitionMap();
 
                 for (int i = 0; i != transitionMap.size(); i++) {
                     TransitionFunctionEntry transitionMapEntry = 
@@ -823,18 +754,6 @@
             Set<DeterministicFiniteAutomatonState> reachableStates) {
             states.retainAll(reachableStates);
             acceptingStateSet.retainAll(reachableStates);
-//
-//            Iterator<DeterministicFiniteAutomatonState> iterator =
-//                    states.iterator();
-//
-//            while (iterator.hasNext()) {
-//                DeterministicFiniteAutomatonState state = iterator.next();
-//
-//                if (!reachableStates.contains(state)) {
-//                    state.clear();
-//                    iterator.remove();
-//                }
-//            }
         }
 
         /**

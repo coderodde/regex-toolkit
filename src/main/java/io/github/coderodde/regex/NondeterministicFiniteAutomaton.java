@@ -236,127 +236,169 @@ public final class NondeterministicFiniteAutomaton
     
     private final class NFAToDFAConverter {
         
+        private static final int MIN_CP = 0x000000;
+        private static final int MAX_CP = 0x10FFFF;
+        
         private final Deque<Set<NondeterministicFiniteAutomatonState>> 
                 stateQueue = new ArrayDeque<>();
         
         private final Map<Set<NondeterministicFiniteAutomatonState>,
-                          DeterministicFiniteAutomatonState> stateMap = 
-                                  new HashMap<>();
+                          DeterministicFiniteAutomatonState> map =
+            new HashMap<>();
         
         private final NondeterministicFiniteAutomaton nfa;
-        private int stateID = 0;
+        private int stateId = 0;
         private final DeterministicFiniteAutomaton dfa = 
                   new DeterministicFiniteAutomaton();
 
-        public NFAToDFAConverter(NondeterministicFiniteAutomaton nfa) {
+        NFAToDFAConverter(NondeterministicFiniteAutomaton nfa) {
             this.nfa = nfa;
         }
         
         DeterministicFiniteAutomaton convert() {
-            init();
+            
+            Set<NondeterministicFiniteAutomatonState> startSet = 
+                epsilonExpand(Set.of(nfa.getInitialState()));
+            
+            DeterministicFiniteAutomatonState dfaStart = 
+                getOrCreateDFAState(startSet);
+            
+            if (isAcceptingStateSet(startSet)) {
+                dfa.addAcceptingState(dfaStart);
+            }
             
             while (!stateQueue.isEmpty()) {
-                Set<NondeterministicFiniteAutomatonState> currentNFAState = 
-                        stateQueue.removeFirst();
+                
+                Set<NondeterministicFiniteAutomatonState> currentSet = 
+                    stateQueue.removeFirst();
                 
                 DeterministicFiniteAutomatonState currentDFAState = 
-                        stateMap.get(currentNFAState);
+                    map.get(currentSet);
                 
-                currentNFAState = epsilonExpand(currentNFAState);
+                Set<CodePointRange> alphabet = 
+                    computeDisjointAlphabet(currentSet);
                 
-                Set<NondeterministicFiniteAutomatonState> dotSet = 
-                        computePeriodWildcardSet(currentNFAState);
-                
-                if (dotSet.isEmpty()) {
-                    // Once here, we must populate the transition map only with
-                    // arcs with actual labels:
-//                    Set<NondeterministicFiniteAutomatonState> nextNFAState = 
-                } else {
-                    // Once here, we must populate the transition map with all 
-                    // the character ranges covering 65536 characters:
-                }
-                
-                if (!dotSet.isEmpty()) {
-                    // Once here, we must merge all the outgoing characters with
-                    // a single dot operator:
-                    Set<NondeterministicFiniteAutomatonState> nextNFAState = 
-                            computeCharacterTransitions(currentNFAState);
+                for (CodePointRange range : alphabet) {
+                    Set<NondeterministicFiniteAutomatonState> nextSet = 
+                        move(currentSet, range);
                     
-                    nextNFAState.addAll(dotSet);
-                    nextNFAState = epsilonExpand(nextNFAState);
-                    
-                    DeterministicFiniteAutomatonState nextDFAState = 
-                            stateMap.get(nextNFAState);
-                    
-                    if (nextDFAState == null) {
-                        nextDFAState = 
-                                new DeterministicFiniteAutomatonState(
-                                        getStateID());
-                        
-                        stateMap.put(nextNFAState, nextDFAState);
-                        stateQueue.addLast(nextNFAState);
+                    if (nextSet.isEmpty()) {
+                        continue;
                     }
                     
-                    if (isAcceptingStateSet(nextNFAState)) {
+                    nextSet = epsilonExpand(nextSet);
+                    
+                    DeterministicFiniteAutomatonState nextDFAState = 
+                        getOrCreateDFAState(nextSet);
+                    
+                    if (isAcceptingStateSet(nextSet)) {
                         dfa.addAcceptingState(nextDFAState);
                     }
                     
-//                    if (nextNFAState.contains(nfa.getAcceptingState())) {
-//                        dfa.getAcceptingStates().add(nextDFAState);
-//                    }
-                    // TODO: rework this!
-//                    currentDFAState.addDotTransition(nextDFAState);
-                } else {
-                    Set<CodePointRange> localAlphabet = 
-                        getLocalAlphabet(currentNFAState);
-                    
-                    for (CodePointRange codePointRange : localAlphabet) {
-                        Set<NondeterministicFiniteAutomatonState> nextNFAState = 
-                                new HashSet<>();
-                        
-                        for (NondeterministicFiniteAutomatonState state 
-                                : currentNFAState) {
-                            
-                            Set<NondeterministicFiniteAutomatonState>
-                                    followingStates = 
-                                    state.getGoalStates(codePointRange);
-                            
-                            if (followingStates != null) {
-                                // TODO: can followingStates be null?
-                                nextNFAState.addAll(followingStates);
-//                                        state.getGoalStates(codePointRange));
-                            }
-                        }
-                        
-                        nextNFAState = epsilonExpand(nextNFAState);
-
-                        DeterministicFiniteAutomatonState nextDFAState = 
-                                stateMap.get(nextNFAState);
-
-                        if (nextDFAState == null) {
-                            nextDFAState = 
-                                    new DeterministicFiniteAutomatonState(
-                                            getStateID());
-
-                            stateMap.put(nextNFAState, nextDFAState);
-                            stateQueue.addLast(nextNFAState);
-                        }
-
-                        // TODO
-//                        if (Utils.intersection(nextNFA, dotSet))
-//                        if (nextNFAState.contains(nfa.getAcceptingState())) {
-//                            dfa.getAcceptingStates().add(nextDFAState);
-//                        }
-
-                        // TODO: Add DFA.addFollowerState(CodePointRange, DFAState)
-//                        currentDFAState.addFollowerState(stateID, nextDFAState);
-//                        currentDFAState.addFollowerState(codePointRange,     
-//                                                         nextDFAState);
-                    }
+                    currentDFAState.addFollowerState(range, nextDFAState);
                 }
             }
             
             return dfa;
+        }
+        
+        private DeterministicFiniteAutomatonState getOrCreateDFAState(
+            Set<NondeterministicFiniteAutomatonState> nfaStateSet) {
+            Set<NondeterministicFiniteAutomatonState> key = 
+                new HashSet<>(nfaStateSet);
+            
+            DeterministicFiniteAutomatonState dfaState = map.get(key);
+            
+            if (dfaState != null) {
+                return dfaState;
+            }
+            
+            dfaState = new DeterministicFiniteAutomatonState(stateId++);
+            
+            map.put(key, dfaState);
+            stateQueue.addLast(key);
+            
+            return dfaState;
+        }
+        
+        private Set<NondeterministicFiniteAutomatonState> move(
+                Set<NondeterministicFiniteAutomatonState> states,
+                CodePointRange range) {
+            
+            Set<NondeterministicFiniteAutomatonState> result = new HashSet<>();
+            
+            for (NondeterministicFiniteAutomatonState state : states) {
+                
+                for (int i = 0; i < state.getTransitionCount(); ++i) {
+                    NondeterministicFiniteAutomatonState
+                        .TransitionFunctionEntry e = 
+                        state.getTransition(i);
+                    
+                    if (intersects(e.getCharacterRange(), range)) {
+                        result.addAll(e.getGoalStates());
+                    }
+                }
+                
+                NondeterministicFiniteAutomatonState dotState = 
+                    state.getDotTransition();
+
+                if (dotState != null) {
+                    result.add(dotState);
+                }
+            }
+            
+            return result;
+        }
+        
+        private Set<CodePointRange> computeDisjointAlphabet(
+                Set<NondeterministicFiniteAutomatonState> states) {
+            
+            Set<Integer> points = new HashSet<>();
+            
+            boolean hasDot = false;
+            
+            for (NondeterministicFiniteAutomatonState state : states) {
+                if (state.getDotTransition() != null) {
+                    hasDot = true;
+                }
+                
+                for (int i = 0; i < state.getTransitionCount(); ++i) {
+                    CodePointRange range = 
+                        state.getTransition(i).getCharacterRange();
+                    
+                    points.add(range.getMinimumCodePoint());
+                    
+                    if (range.getMaximumCodePoint() < MAX_CP) {
+                        points.add(range.getMaximumCodePoint() + 1);
+                    }
+                }
+            }
+            
+            if (hasDot) {
+                points.add(MIN_CP);
+                points.add(MAX_CP + 1);
+            }
+            
+            Integer[] sorted = points.toArray(Integer[]::new);
+            Arrays.sort(sorted);
+            
+            Set<CodePointRange> result = new HashSet<>();
+            
+            for (int i = 0; i + 1 < sorted.length; ++i) {
+                int left  = sorted[i];
+                int right = sorted[i + 1] - 1;
+                
+                if (left <= right) {
+                    result.add(new CodePointRange(left, right));
+                }
+            }
+            
+            return result;
+        }
+        
+        private boolean intersects(CodePointRange a, CodePointRange b) {
+            return a.getMinimumCodePoint() <= b.getMaximumCodePoint()
+                && b.getMinimumCodePoint() <= a.getMaximumCodePoint();
         }
         
         private Set<NondeterministicFiniteAutomatonState> 
@@ -418,7 +460,7 @@ public final class NondeterministicFiniteAutomaton
             DeterministicFiniteAutomatonState dfaInitialState = 
                     new DeterministicFiniteAutomatonState(getStateID());
             
-            stateMap.put(startState, dfaInitialState);
+            map.put(startState, dfaInitialState);
             stateQueue.addLast(startState);
             dfa.setInitialState(dfaInitialState);
 //            TODO
@@ -432,12 +474,12 @@ public final class NondeterministicFiniteAutomaton
             DeterministicFiniteAutomatonState emptyDFAState = 
                     new DeterministicFiniteAutomatonState(getNumberOfStates());
             
-            stateMap.put(emptyNFAState, emptyDFAState);
+            map.put(emptyNFAState, emptyDFAState);
 //            emptyDFAState.addDotTransition(emptyDFAState);
         }
         
         private int getStateID() {
-            return stateID++;
+            return stateId++;
         }
     }
     
@@ -457,54 +499,4 @@ public final class NondeterministicFiniteAutomaton
         
         return transitionMap;
     }
-//        
-//    static DeterministicFiniteAutomatonStateTransitionFunction 
-//        computeTransitionMapWithPeriodWildcard(TreeSet<Character> alphabet) {
-//        
-//        DeterministicFiniteAutomatonStateTransitionFunction transitionMap = 
-//                new DeterministicFiniteAutomatonStateTransitionFunction();
-//            
-//        Iterator<Character> alphabetIterator = alphabet.iterator();
-//        
-//        Character leftCharacter  = alphabetIterator.next();
-//        Character rightCharacter = null;
-//        
-//        if (leftCharacter > Character.MIN_VALUE) {
-//            CodePointRange firstCharacterRange = 
-//                    new CodePointRange(Character.MIN_VALUE, leftCharacter);
-//            
-//            transitionMap.addTransition(firstCharacterRange, null, null);
-//        }
-//        
-//        while (alphabetIterator.hasNext()) {
-//            rightCharacter = alphabetIterator.next();
-//            
-//            CodePointRange characterRange1 =
-//                    new CodePointRange(leftCharacter);
-//
-//            CodePointRange characterRange2 = 
-//                    new CodePointRange(rightCharacter);
-//            
-//            if (leftCharacter + 1 < rightCharacter) {
-//                CodePointRange middleCharacterRange = 
-//                        new CodePointRange(
-//                                (char)(leftCharacter + 1), 
-//                                (char)(rightCharacter - 1));
-//            } 
-//            
-//            transitionMap.addTransition(characterRange1, null, null);
-//            transitionMap.addTransition(characterRange2, null, null);
-//            leftCharacter = rightCharacter;
-//        }
-//        
-//        if (rightCharacter < Character.MAX_VALUE) {
-//            CodePointRange concludingCharacterRange = 
-//                    new CodePointRange(rightCharacter,
-//                                       Character.MAX_VALUE);
-//            
-//            transitionMap.addTransition(concludingCharacterRange, null, null);
-//        }
-//        
-//        return transitionMap;
-//    }
 }

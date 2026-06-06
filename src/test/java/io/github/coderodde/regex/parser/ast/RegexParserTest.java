@@ -79,7 +79,22 @@ public class RegexParserTest {
         assertFalse(nfa.matches("bccd"));
         assertFalse(nfa.matches("aa"));
         
-//        DeterministicFiniteAutomaton dfa =
-//            nfa.convertToDetermenisticFiniteAutomaton();
+        DeterministicFiniteAutomaton dfa =
+            nfa.convertToDetermenisticFiniteAutomaton();
+        
+        System.out.println("states: " + dfa.getNumberOfStates());
+        
+        assertTrue(dfa.matches("a"));
+        assertTrue(dfa.matches("bef"));
+        assertTrue(dfa.matches("bcef"));
+        assertTrue(dfa.matches("bcccdgh"));
+        assertTrue(dfa.matches("bccefefgh"));
+        
+        assertFalse(dfa.matches("b"));
+        assertFalse(dfa.matches("bc"));
+        assertFalse(dfa.matches("bd"));
+        assertFalse(dfa.matches("ef"));
+        assertFalse(dfa.matches("bccd"));
+        assertFalse(dfa.matches("aa"));
     }
 }

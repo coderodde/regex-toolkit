@@ -140,7 +140,9 @@ public final class NondeterministicFiniteAutomaton
         List<RegexToken> infixTokens = new RegexTokenizer().tokenize(regex);
         RegexParser parser = new RegexParser(infixTokens);
         RegexNode abstractSyntaxTree = parser.parse();
-        throw new UnsupportedOperationException();
+        
+        return new NondeterministicFiniteAutomatonCompiler(abstractSyntaxTree)
+            .compile();
     }
     
     static Set<NondeterministicFiniteAutomatonState> 

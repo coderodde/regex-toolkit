@@ -39,7 +39,9 @@ public final class RegexTokenizer {
         REGEX_TOKEN_QUESTION    = new RegexTokenSimple(RegexTokenType.QUESTION);
         REGEX_TOKEN_DOT         = new RegexTokenSimple(RegexTokenType.DOT);
         REGEX_TOKEN_UNION       = new RegexTokenSimple(RegexTokenType.UNION);
-        REGEX_TOKEN_CONCAT      = new RegexTokenSimple(RegexTokenType.UNION);
+        REGEX_TOKEN_CONCAT      = 
+            new RegexTokenSimple(RegexTokenType.CONCATENATION);
+        
 //        REGEX_TOKEN_CONCATENATION = new RegexTokenSimple(RegexTokenType.CONCATENATION);
         
         REGEX_TOKEN_LEFT_PARENTHESIS = 

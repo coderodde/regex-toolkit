@@ -17,7 +17,7 @@ import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class RegexParserTest {
+public class RegexTest {
     
     private static final LiteralRegexNode a = new LiteralRegexNode((int) 'a');
     private static final LiteralRegexNode b = new LiteralRegexNode((int) 'b');
@@ -96,5 +96,7 @@ public class RegexParserTest {
         assertFalse(dfa.matches("ef"));
         assertFalse(dfa.matches("bccd"));
         assertFalse(dfa.matches("aa"));
+        
+        System.out.println(System.getenv("JAVA_HOME"));
     }
 }

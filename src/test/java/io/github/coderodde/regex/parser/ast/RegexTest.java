@@ -1,6 +1,8 @@
 package io.github.coderodde.regex.parser.ast;
 
 import io.github.coderodde.regex.DeterministicFiniteAutomaton;
+import static io.github.coderodde.regex.DeterministicFiniteAutomaton.MinimizationAlgorithm.HOPCROFT;
+import static io.github.coderodde.regex.DeterministicFiniteAutomaton.MinimizationAlgorithm.MOORE;
 import io.github.coderodde.regex.NondeterministicFiniteAutomaton;
 import io.github.coderodde.regex.NondeterministicFiniteAutomatonCompiler;
 import io.github.coderodde.regex.parser.ast.tokens.RegexToken;
@@ -102,6 +104,36 @@ public class RegexTest {
         assertFalse(dfa.matches("bccd"));
         assertFalse(dfa.matches("aa"));
         
-        System.out.println(System.getenv("JAVA_HOME"));
+        DeterministicFiniteAutomaton dfah = dfa.minimize(HOPCROFT);
+        DeterministicFiniteAutomaton dfam = dfa.minimize(MOORE);
+        
+        assertTrue(dfah.matches("a"));
+        assertTrue(dfah.matches("bef"));
+        assertTrue(dfah.matches("bcef"));
+        assertTrue(dfah.matches("bcccdgh"));
+        assertTrue(dfah.matches("bccefefgh"));
+        
+        assertFalse(dfah.matches("b"));
+        assertFalse(dfah.matches("bc"));
+        assertFalse(dfah.matches("bd"));
+        assertFalse(dfah.matches("ef"));
+        assertFalse(dfah.matches("bccd"));
+        assertFalse(dfah.matches("aa"));
+        
+        assertTrue(dfam.matches("a"));
+        assertTrue(dfam.matches("bef"));
+        assertTrue(dfam.matches("bcef"));
+        assertTrue(dfam.matches("bcccdgh"));
+        assertTrue(dfam.matches("bccefefgh"));
+        
+        assertFalse(dfam.matches("b"));
+        assertFalse(dfam.matches("bc"));
+        assertFalse(dfam.matches("bd"));
+        assertFalse(dfam.matches("ef"));
+        assertFalse(dfam.matches("bccd"));
+        assertFalse(dfam.matches("aa"));
+        
+        System.out.println(dfah.getNumberOfStates());
+        System.out.println(dfam.getNumberOfStates());
     }
 }

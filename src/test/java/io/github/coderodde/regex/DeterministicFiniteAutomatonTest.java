@@ -334,29 +334,4 @@ public class DeterministicFiniteAutomatonTest {
 //        assertEquals(2, nfa.getNumberOfStates());
 //        // TODO: compare by equals() (regex)
 //    }
-
-    @Test
-    public void dotOperators1() {
-        DeterministicFiniteAutomaton dfa = new DeterministicFiniteAutomaton();
-        
-        DeterministicFiniteAutomatonState q0 =
-            new DeterministicFiniteAutomatonState(0);
-        
-        DeterministicFiniteAutomatonState a = 
-            new DeterministicFiniteAutomatonState(1);
-        
-        DeterministicFiniteAutomatonState b = 
-            new DeterministicFiniteAutomatonState(2);
-        
-        dfa.setInitialState(q0);
-        
-        dfa.addTransition(q0, 'a', a);
-        
-        dfa.addDotTransition(q0, b);
-        
-        dfa.addAcceptingState(b);
-        
-        assertTrue(dfa.matches("a"));
-        assertTrue(dfa.matches("b"));
-    }
 }

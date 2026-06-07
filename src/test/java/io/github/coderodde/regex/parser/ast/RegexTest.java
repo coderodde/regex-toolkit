@@ -39,21 +39,26 @@ public class RegexTest {
     public void test1() {
         tokens.addAll(
             Arrays.asList(
-                new RegexTokenLiteral((int) 'a'),
-                new RegexTokenSimple(RegexTokenType.UNION),
-                new RegexTokenLiteral((int) 'b'),
-                new RegexTokenLiteral((int) 'c'),
-                new RegexTokenSimple(RegexTokenType.KLEENE_STAR),
-                new RegexTokenLiteral((int) 'd'),
-                new RegexTokenSimple(RegexTokenType.QUESTION),
-                new RegexTokenSimple(RegexTokenType.LEFT_PARENTHESIS),
-                new RegexTokenLiteral((int) 'e'),
-                new RegexTokenLiteral((int) 'f'),
-                new RegexTokenSimple(RegexTokenType.UNION),
-                new RegexTokenLiteral((int) 'g'),
-                new RegexTokenLiteral((int) 'h'),
-                new RegexTokenSimple(RegexTokenType.RIGHT_PARENTHESIS),
-                new RegexTokenSimple(RegexTokenType.PLUS)));
+                    new RegexTokenLiteral((int) 'a'),
+                    new RegexTokenSimple(RegexTokenType.UNION),
+                    new RegexTokenLiteral((int) 'b'),
+                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
+                    new RegexTokenLiteral((int) 'c'),
+                    new RegexTokenSimple(RegexTokenType.KLEENE_STAR),
+                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
+                    new RegexTokenLiteral((int) 'd'),
+                    new RegexTokenSimple(RegexTokenType.QUESTION),
+                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
+                    new RegexTokenSimple(RegexTokenType.LEFT_PARENTHESIS),
+                    new RegexTokenLiteral((int) 'e'),
+                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
+                    new RegexTokenLiteral((int) 'f'),
+                    new RegexTokenSimple(RegexTokenType.UNION),
+                    new RegexTokenLiteral((int) 'g'),
+                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
+                    new RegexTokenLiteral((int) 'h'),
+                    new RegexTokenSimple(RegexTokenType.RIGHT_PARENTHESIS),
+                    new RegexTokenSimple(RegexTokenType.PLUS)));
         
         RegexParser parser = new RegexParser(tokens);
         RegexNode root = parser.parse();

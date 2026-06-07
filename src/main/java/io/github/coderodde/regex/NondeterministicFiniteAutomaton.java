@@ -364,9 +364,8 @@ public final class NondeterministicFiniteAutomaton
         
         for (int codePoint : alphabet) {
             transitionMap.addTransition(
-                    codePoint, 
-                    new DeterministicFiniteAutomatonState(startId++),
-                    null);
+                new CodePointRange(codePoint),
+                new DeterministicFiniteAutomatonState(startId++));
         }
         
         return transitionMap;

@@ -73,6 +73,14 @@ public final class NondeterministicFiniteAutomatonState {
     
     void addTransition(CodePointRange codePointRange,
                        Set<NondeterministicFiniteAutomatonState> state) {
+        
+        for (int i = 0; i < size; ++i) {
+            if (entries[i].getCharacterRange().equals(codePointRange)) {
+                entries[i].getGoalStates().addAll(state);
+                return;
+            }
+        }
+        
         growIfNeeded();
         
         TransitionFunctionEntry transitionFunctionEntry = 

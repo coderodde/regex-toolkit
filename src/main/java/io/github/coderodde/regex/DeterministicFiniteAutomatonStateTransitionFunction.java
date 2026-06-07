@@ -125,14 +125,14 @@ implements Iterable<TransitionFunctionEntry> {
         size++;
     }
     
-    void addTransition(int codePoint,
-                       DeterministicFiniteAutomatonState sourceState,
-                       DeterministicFiniteAutomatonState targetState) {
-        
-        CodePointRange characterRange = new CodePointRange(codePoint);
-        
-        addTransition(characterRange, targetState);
-    }
+//    void addTransition(int codePoint,
+//                       DeterministicFiniteAutomatonState sourceState,
+//                       DeterministicFiniteAutomatonState targetState) {
+//        
+//        CodePointRange characterRange = new CodePointRange(codePoint);
+//        
+//        addTransition(characterRange, targetState);
+//    }
     
     int size() {
         return size;

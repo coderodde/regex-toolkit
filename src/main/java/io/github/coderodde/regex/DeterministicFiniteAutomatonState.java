@@ -61,8 +61,13 @@ public class DeterministicFiniteAutomatonState {
     
     @Override
     public boolean equals(Object o) {
-        DeterministicFiniteAutomatonState otherState = 
-                (DeterministicFiniteAutomatonState) o;
+        if (o == null) {
+            return false;
+        }
+        
+        if (!(o instanceof DeterministicFiniteAutomatonState otherState)) {
+            return false;
+        }
         
         return id == otherState.id;
     }

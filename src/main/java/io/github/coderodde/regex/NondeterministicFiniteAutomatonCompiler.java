@@ -99,9 +99,7 @@ public final class NondeterministicFiniteAutomatonCompiler {
         NondeterministicFiniteAutomatonState accept = newState();
         
         for (CodePointRange range : ranges) {
-            for (Integer codePoint : range) {
-                start.addTransition(codePoint, accept);
-            }
+            start.addTransition(range, accept);
         }
         
         return new Fragment(start, accept);

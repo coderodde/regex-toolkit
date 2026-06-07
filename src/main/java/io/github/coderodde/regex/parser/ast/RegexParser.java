@@ -50,7 +50,7 @@ public final class RegexParser {
     private RegexNode parseConcat() {
         RegexNode left = parsePostfix();
         
-        while (startsAtom(peekType())) {
+        while (match(RegexTokenType.CONCATENATION)) {
             RegexNode right = parsePostfix();
             left = new ConcatenationRegexNode(left, right);
         }

@@ -38,6 +38,9 @@
          */
         private final Set<DeterministicFiniteAutomatonState> states =
                 new HashSet<>();
+        
+        private boolean anchoredAtStart;
+        private boolean anchoredAtEnd;
 
         /**
          * The set of accepting states.
@@ -49,7 +52,13 @@
          * Constructs an empty DFA with no states and transitions.
          */
         public DeterministicFiniteAutomaton() {
+            this(false, false);
+        }
         
+        DeterministicFiniteAutomaton(boolean anchoredAtStart,
+                                     boolean anchoredAtEnd) {
+            this.anchoredAtStart = anchoredAtStart;
+            this.anchoredAtEnd   = anchoredAtEnd;
         }
 
         /**
@@ -58,7 +67,9 @@
          * 
          * @param other the DFA to copy. 
          */
-        public DeterministicFiniteAutomaton(DeterministicFiniteAutomaton other) {
+        public DeterministicFiniteAutomaton(
+               DeterministicFiniteAutomaton other) {
+            
             Objects.requireNonNull(other, "The input DFA is null.");
 
             Map<DeterministicFiniteAutomatonState, 
@@ -209,6 +220,50 @@
             }
 
             return acceptingStateSet.contains(state);
+        }
+        
+        public boolean find(String text) {
+            Objects.requireNonNull(text, "The input text is null.");
+            
+            int[] codePoints = text.codePoints().toArray();
+            
+            if (anchoredAtStart) {
+                return findStartingAt(codePoints, 0);
+            }
+            
+            for (int startIndex = 0; 
+                     startIndex <= codePoints.length;
+                     startIndex++) {
+                if (findStartingAt(codePoints, startIndex)) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        
+        private boolean findStartingAt(int[] codePoints, int startIndex) {
+            DeterministicFiniteAutomatonState state = initialState;
+            
+            if (acceptingStateSet.contains(state)) {
+                return !anchoredAtEnd || startIndex == codePoints.length;
+            }
+            
+            for (int i = startIndex; i < codePoints.length; i++) {
+                state = state.traverse(codePoints[i]);
+                
+                if (state == null) {
+                    return false;
+                }
+                
+                if (acceptingStateSet.contains(state)) {
+                    if (!anchoredAtEnd || i + 1 == codePoints.length) {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
         }
 
         public String computeRegularExression() {

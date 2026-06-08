@@ -1,5 +1,6 @@
 package io.github.coderodde.regex;
 
+import io.github.coderodde.regex.parser.ast.RegexTokenizationResult;
 import io.github.coderodde.regex.parser.ast.tree.CharacterClassRegexNode;
 import io.github.coderodde.regex.parser.ast.tree.ConcatenationRegexNode;
 import io.github.coderodde.regex.parser.ast.tree.DotRegexNode;
@@ -24,11 +25,13 @@ public final class NondeterministicFiniteAutomatonCompiler {
                 "The abstract syntax tree root is null.");
     }
     
-    public NondeterministicFiniteAutomaton compile() {
+    public NondeterministicFiniteAutomaton 
+        compile(RegexTokenizationResult result) {
+            
         Fragment fragment = build(syntaxTreeRoot);
         
         NondeterministicFiniteAutomaton nfa =
-            new NondeterministicFiniteAutomaton();
+            new NondeterministicFiniteAutomaton(result);
         
         nfa.setInitialState(fragment.start);
         nfa.addAcceptingState(fragment.accept);

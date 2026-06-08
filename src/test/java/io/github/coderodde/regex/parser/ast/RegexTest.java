@@ -40,30 +40,33 @@ public class RegexTest {
     
     @Test
     public void test1() {
-        tokens.addAll(
-            Arrays.asList(
-                    new RegexTokenLiteral((int) 'a'),
-                    new RegexTokenSimple(RegexTokenType.UNION),
-                    new RegexTokenLiteral((int) 'b'),
-                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
-                    new RegexTokenLiteral((int) 'c'),
-                    new RegexTokenSimple(RegexTokenType.KLEENE_STAR),
-                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
-                    new RegexTokenLiteral((int) 'd'),
-                    new RegexTokenSimple(RegexTokenType.QUESTION),
-                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
-                    new RegexTokenSimple(RegexTokenType.LEFT_PARENTHESIS),
-                    new RegexTokenLiteral((int) 'e'),
-                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
-                    new RegexTokenLiteral((int) 'f'),
-                    new RegexTokenSimple(RegexTokenType.UNION),
-                    new RegexTokenLiteral((int) 'g'),
-                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
-                    new RegexTokenLiteral((int) 'h'),
-                    new RegexTokenSimple(RegexTokenType.RIGHT_PARENTHESIS),
-                    new RegexTokenSimple(RegexTokenType.PLUS)));
+        String regex = "a|bc*d?(ef|gh)+";
+//        tokens.addAll(
+//            Arrays.asList(
+//                    new RegexTokenLiteral((int) 'a'),
+//                    new RegexTokenSimple(RegexTokenType.UNION),
+//                    new RegexTokenLiteral((int) 'b'),
+//                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
+//                    new RegexTokenLiteral((int) 'c'),
+//                    new RegexTokenSimple(RegexTokenType.KLEENE_STAR),
+//                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
+//                    new RegexTokenLiteral((int) 'd'),
+//                    new RegexTokenSimple(RegexTokenType.QUESTION),
+//                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
+//                    new RegexTokenSimple(RegexTokenType.LEFT_PARENTHESIS),
+//                    new RegexTokenLiteral((int) 'e'),
+//                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
+//                    new RegexTokenLiteral((int) 'f'),
+//                    new RegexTokenSimple(RegexTokenType.UNION),
+//                    new RegexTokenLiteral((int) 'g'),
+//                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
+//                    new RegexTokenLiteral((int) 'h'),
+//                    new RegexTokenSimple(RegexTokenType.RIGHT_PARENTHESIS),
+//                    new RegexTokenSimple(RegexTokenType.PLUS)));
+        RegexTokenizationResult tokenization = 
+                new RegexTokenizer().tokenize(regex);
         
-        RegexParser parser = new RegexParser(tokens);
+        RegexParser parser = new RegexParser(tokenization.tokens());
         RegexNode root = parser.parse();
         
         assertTrue(root instanceof UnionRegexNode);
@@ -72,7 +75,8 @@ public class RegexTest {
         assertTrue(((UnionRegexNode) root).right() instanceof ConcatenationRegexNode);
         
         NondeterministicFiniteAutomaton nfa = 
-                new NondeterministicFiniteAutomatonCompiler(root).compile();
+                new NondeterministicFiniteAutomatonCompiler(root)
+                    .compile(tokenization);
         
         assertTrue(nfa.matches("a"));
         assertTrue(nfa.matches("bef"));
@@ -146,7 +150,7 @@ public class RegexTest {
         
         DeterministicFiniteAutomaton dfa = 
             new NondeterministicFiniteAutomatonCompiler(parser.parse())
-                .compile()
+                .compile(tokenization)
                 .convertToDetermenisticFiniteAutomaton();
         
         assertTrue(dfa.matches("abc"));

@@ -3,7 +3,6 @@ package io.github.coderodde.regex;
 import io.github.coderodde.regex.parser.ast.RegexParser;
 import io.github.coderodde.regex.parser.ast.RegexTokenizationResult;
 import io.github.coderodde.regex.tokenizer.RegexTokenizer;
-import io.github.coderodde.regex.parser.ast.tokens.RegexToken;
 import io.github.coderodde.regex.parser.ast.tree.RegexNode;
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -11,7 +10,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -22,6 +20,18 @@ import java.util.Set;
  */
 public final class NondeterministicFiniteAutomaton
         implements RegularExpressionMatcher {
+    
+    private boolean anchoredAtStart;
+    private boolean anchoredAtEnd;
+
+    public NondeterministicFiniteAutomaton(RegexTokenizationResult result) {
+        this.anchoredAtStart = result.anchoredAtStart();
+        this.anchoredAtEnd   = result.anchoredAtEnd();
+    }
+    
+    public NondeterministicFiniteAutomaton() {
+        
+    }
     
     private NondeterministicFiniteAutomatonState initialState;
     private final Set<NondeterministicFiniteAutomatonState> acceptingStates = 
@@ -145,7 +155,7 @@ public final class NondeterministicFiniteAutomaton
         RegexNode abstractSyntaxTree = parser.parse();
         
         return new NondeterministicFiniteAutomatonCompiler(abstractSyntaxTree)
-            .compile();
+            .compile(tokenization);
     }
     
     static Set<NondeterministicFiniteAutomatonState> 
@@ -187,6 +197,11 @@ public final class NondeterministicFiniteAutomaton
         
         return !Utils.intersection(finalStateSet, acceptingStates).isEmpty();
     }
+
+    @Override
+    public boolean find(String text) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
     
     private final class NFAToDFAConverter {
         
@@ -202,14 +217,16 @@ public final class NondeterministicFiniteAutomaton
         
         private final NondeterministicFiniteAutomaton nfa;
         private int stateId = 0;
-        private final DeterministicFiniteAutomaton dfa = 
-                  new DeterministicFiniteAutomaton();
+        private DeterministicFiniteAutomaton dfa;
 
         NFAToDFAConverter(NondeterministicFiniteAutomaton nfa) {
             this.nfa = nfa;
         }
         
         DeterministicFiniteAutomaton convert() {
+            
+            dfa = new DeterministicFiniteAutomaton(anchoredAtStart,
+                                                   anchoredAtEnd);
             
             Set<NondeterministicFiniteAutomatonState> startSet = 
                 epsilonExpand(Set.of(nfa.getInitialState()));

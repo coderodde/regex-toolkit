@@ -2,6 +2,9 @@ package io.github.coderodde.regex;
 
 import static io.github.coderodde.regex.DeterministicFiniteAutomaton.MinimizationAlgorithm.HOPCROFT;
 import static io.github.coderodde.regex.DeterministicFiniteAutomaton.MinimizationAlgorithm.MOORE;
+import io.github.coderodde.regex.parser.ast.RegexParser;
+import io.github.coderodde.regex.parser.ast.RegexTokenizationResult;
+import io.github.coderodde.regex.tokenizer.RegexTokenizer;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -307,6 +310,38 @@ public class DeterministicFiniteAutomatonTest {
         assertEquals(2, dfa1.getNumberOfStates());
         assertEquals(2, dfa2.getNumberOfStates());
     } 
+    
+    @Test
+    public void find() {
+        DeterministicFiniteAutomaton dfa = getDfa("abc");
+        
+        assertTrue(dfa.find("abc"));
+        assertFalse(dfa.find("ab"));
+        assertFalse(dfa.find("abd"));
+        
+        assertTrue(dfa.find("xabcd"));
+        assertTrue(dfa.find("abcy"));
+        assertTrue(dfa.find("xabcy"));
+        
+        dfa = getDfa("^abc$");
+        
+        assertTrue(dfa.find("abc"));
+        assertFalse(dfa.find("ab"));
+        assertFalse(dfa.find("abd"));
+        
+        assertFalse(dfa.find("xabc"));
+        assertFalse(dfa.find("abcy"));
+        assertFalse(dfa.find("xabcy"));
+    }
+    
+    private static DeterministicFiniteAutomaton getDfa(String regex) {
+        RegexTokenizationResult result = new RegexTokenizer().tokenize(regex);
+        return new NondeterministicFiniteAutomatonCompiler(
+                new RegexParser(result.tokens())
+                .parse())
+                .compile(result)
+                .convertToDetermenisticFiniteAutomaton();
+    }
      
 //    @Test 
 //    public void toNFAConversion() {

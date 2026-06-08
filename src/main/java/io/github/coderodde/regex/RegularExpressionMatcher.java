@@ -1,10 +1,7 @@
 package io.github.coderodde.regex;
 
 /**
- *
- * @author Rodion "rodde" Efremov
- * @version 1.6 (Nov 26, 2023)
- * @since 1.6 (Nov 26, 2023)
+ * This interface defines the API for regular expression matchers.
  */
 public sealed interface RegularExpressionMatcher 
         permits DeterministicFiniteAutomaton, 
@@ -19,4 +16,14 @@ public sealed interface RegularExpressionMatcher
      * @return {@code true} if and only if {@code M} accepts {@code text}.
      */
     public boolean matches(String text);
+    
+    /**
+     * Tests whether the input text contains a pattern recognizable by this 
+     * matcher.
+     * 
+     * @param text the text to search for.
+     * @return {@code true} if the input text contains a pattern recognizable by 
+     *         the matcher.
+     */
+    public boolean find(String text);
 }

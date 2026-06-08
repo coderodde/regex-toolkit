@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.lucene.util.automaton.Automaton;
+import org.apache.lucene.util.automaton.Operations;
 import org.apache.lucene.util.automaton.RegExp;
 
 /**
@@ -17,7 +18,7 @@ import org.apache.lucene.util.automaton.RegExp;
 public final class Benchmark {
     
     private static final int MAXIMUM_REGEX_TREE_DEPTH = 5;
-    private static final int BENCHMARK_RUNS = 10_000;
+    private static final int BENCHMARK_RUNS = 50_000;
     
     public static void main(String[] args) {
 //        findFailingNFA();
@@ -120,8 +121,13 @@ public final class Benchmark {
         
         startTime = System.nanoTime();
         
-        Automaton luceneAutomaton = new RegExp(regex).toAutomaton();
+        Automaton luceneAutomaton = 
+            Operations.determinize(
+                new RegExp(regex).toAutomaton(), 
+                Operations.DEFAULT_DETERMINIZE_WORK_LIMIT);
         
+        luceneAutomaton = Operations.removeDeadStates(luceneAutomaton);
+                
         duration = System.nanoTime() - startTime;
         
         System.out.println(
@@ -158,18 +164,6 @@ public final class Benchmark {
         startTime = System.nanoTime();
         
         for (String text : benchmarkData) {
-            nfaResults.add(nfa.matches(text));
-        }
-        
-        duration = System.nanoTime() - startTime;
-        
-        System.out.println(
-                String.format("NFA duration: %.3f milliseconds.", 
-                              duration / 1_000_000.0).replace(',', '.'));
-        
-        startTime = System.nanoTime();
-        
-        for (String text : benchmarkData) {
             javaResults.add(pattern.matcher(text).matches());
         }
         
@@ -195,10 +189,8 @@ public final class Benchmark {
                         duration / 1_000_000.0).replace(',', '.'));
         
         System.out.println(
-                "Algorithms agree: " + 
-                        (nfaResults.equals(javaResults) && 
-                         javaResults.equals(luceneResults) &&
-                         luceneResults.equals(dfaResults)));
+                "Algorithms agree: " + (javaResults.equals(luceneResults) &&
+                                        javaResults.equals(dfaResults)));
     }
     
     private static boolean matchViaLucene(Automaton automaton, String text) {

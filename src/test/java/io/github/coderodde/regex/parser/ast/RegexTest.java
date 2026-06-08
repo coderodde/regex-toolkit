@@ -12,6 +12,7 @@ import io.github.coderodde.regex.parser.ast.tree.ConcatenationRegexNode;
 import io.github.coderodde.regex.parser.ast.tree.LiteralRegexNode;
 import io.github.coderodde.regex.parser.ast.tree.RegexNode;
 import io.github.coderodde.regex.parser.ast.tree.UnionRegexNode;
+import io.github.coderodde.regex.tokenizer.RegexTokenizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -135,5 +136,24 @@ public class RegexTest {
         
         System.out.println(dfah.getNumberOfStates());
         System.out.println(dfam.getNumberOfStates());
+    }
+    
+    @Test
+    public void startEndOfLineSymbol() {
+        RegexTokenizer tokenizer = new RegexTokenizer();
+        RegexTokenizationResult tokenization = tokenizer.tokenize("^abc$");
+        RegexParser parser = new RegexParser(tokenization.tokens());
+        
+        DeterministicFiniteAutomaton dfa = 
+            new NondeterministicFiniteAutomatonCompiler(parser.parse())
+                .compile()
+                .convertToDetermenisticFiniteAutomaton();
+        
+        assertTrue(dfa.matches("abc"));
+        
+        assertFalse(dfa.matches("adc"));
+        assertFalse(dfa.matches("xabc"));
+        assertFalse(dfa.matches("abcy"));
+        assertFalse(dfa.matches("xabcy"));
     }
 }

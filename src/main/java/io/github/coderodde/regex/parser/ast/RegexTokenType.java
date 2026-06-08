@@ -19,8 +19,6 @@ public enum RegexTokenType {
     LEFT_PARENTHESIS  ("<(>"),
     RIGHT_PARENTHESIS ("<)>"),
     CHARACTER_CLASS   ("<char-class>"),
-    BEGIN_OF_LINE     ("<^>"),
-    END_OF_LINE       ("<$>"),
     EOF               ("<eof>");
     
     private final String typeName;

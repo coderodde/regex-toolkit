@@ -4,6 +4,7 @@ import io.github.coderodde.regex.InvalidRegexException;
 import io.github.coderodde.regex.Utils;
 import io.github.coderodde.regex.parser.ast.tokens.RegexToken;
 import io.github.coderodde.regex.parser.ast.RegexTokenType;
+import io.github.coderodde.regex.parser.ast.RegexTokenizationResult;
 import io.github.coderodde.regex.parser.ast.tokens.RegexTokenLiteral;
 import io.github.coderodde.regex.parser.ast.tokens.RegexTokenSimple;
 import java.util.ArrayList;
@@ -27,9 +28,6 @@ public final class RegexTokenizer {
     private static final RegexToken REGEX_TOKEN_CONCAT;
     private static final RegexToken REGEX_TOKEN_LEFT_PARENTHESIS;
     private static final RegexToken REGEX_TOKEN_RIGHT_PARENTHESIS;
-//    private static final RegexToken REGEX_TOKEN_CONCATENATION;
-    private static final RegexToken REGEX_TOKEN_START_OF_LINE;
-    private static final RegexToken REGEX_TOKEN_END_OF_LINE;
     
     static {
         REGEX_TOKEN_KLEENE_STAR = 
@@ -42,19 +40,11 @@ public final class RegexTokenizer {
         REGEX_TOKEN_CONCAT      = 
             new RegexTokenSimple(RegexTokenType.CONCATENATION);
         
-//        REGEX_TOKEN_CONCATENATION = new RegexTokenSimple(RegexTokenType.CONCATENATION);
-        
         REGEX_TOKEN_LEFT_PARENTHESIS = 
             new RegexTokenSimple(RegexTokenType.LEFT_PARENTHESIS);
         
         REGEX_TOKEN_RIGHT_PARENTHESIS = 
             new RegexTokenSimple(RegexTokenType.RIGHT_PARENTHESIS);
-        
-        REGEX_TOKEN_START_OF_LINE = 
-            new RegexTokenSimple(RegexTokenType.BEGIN_OF_LINE);
-        
-        REGEX_TOKEN_END_OF_LINE = 
-            new RegexTokenSimple(RegexTokenType.END_OF_LINE);
     }
     
     /**
@@ -65,10 +55,14 @@ public final class RegexTokenizer {
      * @param regex the regular expression to tokenize.
      * @return the list of {@link RegexToken} objects.
      */
-    public List<RegexToken> tokenize(String regex) {
+    public RegexTokenizationResult tokenize(String regex) {
         Objects.requireNonNull(regex, "The input regex is null.");
         
         regex = regex.trim();
+        
+        if (regex.isEmpty()) {
+            return new RegexTokenizationResult(List.of(), false, false);
+        }
         
         Utils.validateRegularExpressionParentheses(regex);
         Utils.characterClassBracketsValid(regex);
@@ -77,36 +71,48 @@ public final class RegexTokenizer {
         
         if (startOfLineSymbols > 1) {
             throw new InvalidRegexException(
-                "The ^ token appears " + startOfLineSymbols + " times.");
+                "The ^ token appears " + startOfLineSymbols + 
+                " times. At most one expected.");
         }
         
-        List<RegexToken> tokens = new ArrayList<>();
+        int endOfLineSymbols = Utils.countNonescapedEndOfLineSymbols(regex);
+        
+        if (endOfLineSymbols > 1) {
+            throw new InvalidRegexException(
+                "The $ token appears " + endOfLineSymbols + " times.");
+        }
+        
+        boolean anchoredAtStart = false;
+        boolean anchoredAtEnd   = false;
         
         if (startOfLineSymbols == 1) {
             if (regex.charAt(0) != '^') {
                 throw new InvalidRegexException("Misplaced ^ symbol.");
             }
             
-            tokens.add(REGEX_TOKEN_START_OF_LINE);
+            anchoredAtStart = true;
+            regex = regex.substring(1);
         }
-        
-        int endOfLineSymbols = Utils.countNonescapedEndOfLineSymbols(regex);
-        
-        if (endOfLineSymbols > 2) {
-            throw new InvalidRegexException(
-                "The $ token appears " + endOfLineSymbols + " times.");
-        }
-        
-        boolean appendEndOfLineSymbol = false;
         
         if (endOfLineSymbols == 1) {
-            if (regex.charAt(regex.length() - 1) != '$') {
-                throw new InvalidRegexException("Misplaced $ symbol.");
+            if (!regex.endsWith("$")) {
+                throw new InvalidRegexException("Misplaceed $ symbol.");
             }
             
-            appendEndOfLineSymbol = true;
+            anchoredAtEnd = true;
+            regex = regex.substring(0, regex.length() - 1);
         }
         
+        List<RegexToken> tokens = tokenizeImpl(regex);
+        
+        return new RegexTokenizationResult(tokens, 
+                                           anchoredAtStart, 
+                                           anchoredAtEnd);
+    }
+    
+    
+    private List<RegexToken> tokenizeImpl(String regex) {
+        List<RegexToken> tokens = new ArrayList<>();
         int previousCodePoint = 0;
         int[] regexCodePoints = regex.codePoints().toArray();
         
@@ -191,10 +197,6 @@ public final class RegexTokenizer {
             }
             
             previousCodePoint = cp;
-        }
-        
-        if (appendEndOfLineSymbol) {
-            tokens.add(REGEX_TOKEN_END_OF_LINE);
         }
         
         return tokens;   

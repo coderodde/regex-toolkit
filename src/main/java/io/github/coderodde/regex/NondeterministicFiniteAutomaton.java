@@ -1,6 +1,7 @@
 package io.github.coderodde.regex;
 
 import io.github.coderodde.regex.parser.ast.RegexParser;
+import io.github.coderodde.regex.parser.ast.RegexTokenizationResult;
 import io.github.coderodde.regex.tokenizer.RegexTokenizer;
 import io.github.coderodde.regex.parser.ast.tokens.RegexToken;
 import io.github.coderodde.regex.parser.ast.tree.RegexNode;
@@ -137,8 +138,10 @@ public final class NondeterministicFiniteAutomaton
     }
         
     public static NondeterministicFiniteAutomaton compile(String regex) {
-        List<RegexToken> infixTokens = new RegexTokenizer().tokenize(regex);
-        RegexParser parser = new RegexParser(infixTokens);
+        RegexTokenizationResult tokenization = 
+            new RegexTokenizer().tokenize(regex);
+        
+        RegexParser parser = new RegexParser(tokenization.tokens());
         RegexNode abstractSyntaxTree = parser.parse();
         
         return new NondeterministicFiniteAutomatonCompiler(abstractSyntaxTree)

@@ -1,6 +1,7 @@
 package io.github.coderodde.regex.benchmark;
 
 import io.github.coderodde.regex.DeterministicFiniteAutomaton;
+import static io.github.coderodde.regex.DeterministicFiniteAutomaton.MinimizationAlgorithm.MOORE;
 import io.github.coderodde.regex.NondeterministicFiniteAutomaton;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,7 +105,7 @@ public final class Benchmark {
                 "Number of states in the NFA: " + nfa.getNumberOfStates());
         
         System.out.println(
-                "Number of states in the source DFA: " +
+                "Number of states in the DFA: " +
                         dfa.getNumberOfStates());
         
         startTime = System.nanoTime();
@@ -129,24 +130,23 @@ public final class Benchmark {
                         duration / 1_000_000.0).replace(',', '.'));
         
         startTime = System.nanoTime();
-//        dfa = dfa.minimizeViaHopcroftsAlgorithm();
+        dfa = dfa.minimize(MOORE);
         duration = System.nanoTime() - startTime;
         
         System.out.println(
-                "Number of states in the minimized DFA: " +
-                        dfa.getNumberOfStates());
+            "Number of states in the minimized DFA (via Moore's algorithm): " +
+            dfa.getNumberOfStates());
         
         System.out.println(
             String.format(
-                "Minimized the DFA via Hopcroft's algorithm in %.3f " +
+                "Minimized the DFA via Moore's algorithm in %.3f " +
                         "milliseconds.",
                     duration / 1_000_000.0).replace(',', '.'));
         
         startTime = System.nanoTime();
         
         for (String text : benchmarkData) {
-            boolean dfaMatches = dfa.matches(text);
-            dfaResults.add(dfaMatches);
+            dfaResults.add(dfa.matches(text));
         }
         
         duration = System.nanoTime() - startTime;
@@ -158,8 +158,7 @@ public final class Benchmark {
         startTime = System.nanoTime();
         
         for (String text : benchmarkData) {
-            boolean nfaMatches = nfa.matches(text);
-            nfaResults.add(nfaMatches);
+            nfaResults.add(nfa.matches(text));
         }
         
         duration = System.nanoTime() - startTime;
@@ -171,8 +170,7 @@ public final class Benchmark {
         startTime = System.nanoTime();
         
         for (String text : benchmarkData) {
-            boolean javaRegexMatches = pattern.matcher(text).matches();
-            javaResults.add(javaRegexMatches);
+            javaResults.add(pattern.matcher(text).matches());
         }
         
         duration = System.nanoTime() - startTime;

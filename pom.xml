@@ -59,12 +59,14 @@
             <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-core</artifactId>
             <version>1.3</version>
             <scope>test</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
@@ -75,6 +77,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>20</maven.compiler.source>
         <maven.compiler.target>20</maven.compiler.target>
-        <exec.mainClass>com.github.coderodde.regex.regex.RegexToolkit</exec.mainClass>
+        <exec.mainClass>io.github.coderodde.regex.benchmark.Benchmark</exec.mainClass>
     </properties>
 </project>

@@ -23,6 +23,7 @@ public final class NondeterministicFiniteAutomaton
     
     private boolean anchoredAtStart;
     private boolean anchoredAtEnd;
+    private int stateCounter;
 
     public NondeterministicFiniteAutomaton(RegexTokenizationResult result) {
         this.anchoredAtStart = result.anchoredAtStart();
@@ -31,6 +32,10 @@ public final class NondeterministicFiniteAutomaton
     
     public NondeterministicFiniteAutomaton() {
         
+    }
+    
+    public NondeterministicFiniteAutomatonState createState() {
+        return new NondeterministicFiniteAutomatonState(stateCounter++);
     }
     
     private NondeterministicFiniteAutomatonState initialState;

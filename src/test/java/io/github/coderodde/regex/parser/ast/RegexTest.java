@@ -94,8 +94,6 @@ public class RegexTest {
         DeterministicFiniteAutomaton dfa =
             nfa.convertToDetermenisticFiniteAutomaton();
         
-        System.out.println("states: " + dfa.getNumberOfStates());
-        
         assertTrue(dfa.matches("a"));
         assertTrue(dfa.matches("bef"));
         assertTrue(dfa.matches("bcef"));
@@ -137,9 +135,6 @@ public class RegexTest {
         assertFalse(dfam.matches("ef"));
         assertFalse(dfam.matches("bccd"));
         assertFalse(dfam.matches("aa"));
-        
-        System.out.println(dfah.getNumberOfStates());
-        System.out.println(dfam.getNumberOfStates());
     }
     
     @Test

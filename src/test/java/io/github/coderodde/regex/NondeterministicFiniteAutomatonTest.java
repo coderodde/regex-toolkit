@@ -18,14 +18,9 @@ public class NondeterministicFiniteAutomatonTest {
         NondeterministicFiniteAutomaton nfa =
                 new NondeterministicFiniteAutomaton();
         
-        NondeterministicFiniteAutomatonState q0 = 
-                new NondeterministicFiniteAutomatonState(0);
-       
-        NondeterministicFiniteAutomatonState q1 = 
-                new NondeterministicFiniteAutomatonState(1);
-        
-        NondeterministicFiniteAutomatonState q2 = 
-                new NondeterministicFiniteAutomatonState(2);
+        NondeterministicFiniteAutomatonState q0 = nfa.createState();
+        NondeterministicFiniteAutomatonState q1 = nfa.createState();
+        NondeterministicFiniteAutomatonState q2 = nfa.createState();
         
         nfa.setInitialState(q0);
         
@@ -567,11 +562,9 @@ public class NondeterministicFiniteAutomatonTest {
                 NondeterministicFiniteAutomaton.compile("((01)|(1|.))?");
         
         assertTrue(nfa.matches("0"));
-//        System.out.println(nfa.getNumberOfStates());
+        
         DeterministicFiniteAutomaton dfa = 
                 nfa.convertToDetermenisticFiniteAutomaton();
-        
-//        dfa.hasBothDotAndCharacterTransitions();
         
         assertTrue(dfa.matches("0"));
     }

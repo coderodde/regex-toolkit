@@ -41,6 +41,7 @@
         
         private boolean anchoredAtStart;
         private boolean anchoredAtEnd;
+        private int stateCounter;
 
         /**
          * The set of accepting states.
@@ -111,6 +112,10 @@
                                   newTarget);
                 }
             }
+        }
+        
+        public DeterministicFiniteAutomatonState createState() {
+            return new DeterministicFiniteAutomatonState(stateCounter++);
         }
 
         /**

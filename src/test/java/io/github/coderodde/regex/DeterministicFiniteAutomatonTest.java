@@ -12,16 +12,11 @@ public class DeterministicFiniteAutomatonTest {
     
     @Test
     public void on10DFA() {
-        DeterministicFiniteAutomatonState q0 = 
-                new DeterministicFiniteAutomatonState(0);
-        
-        DeterministicFiniteAutomatonState q1 = 
-                new DeterministicFiniteAutomatonState(1);
-        
-        DeterministicFiniteAutomatonState q2 = 
-                new DeterministicFiniteAutomatonState(2);
-        
         DeterministicFiniteAutomaton dfa = new DeterministicFiniteAutomaton();
+        
+        DeterministicFiniteAutomatonState q0 = dfa.createState();
+        DeterministicFiniteAutomatonState q1 = dfa.createState();
+        DeterministicFiniteAutomatonState q2 = dfa.createState();
         
         dfa.setInitialState(q0);
         
@@ -330,6 +325,26 @@ public class DeterministicFiniteAutomatonTest {
         assertFalse(dfa.find("abd"));
         
         assertFalse(dfa.find("xabc"));
+        assertFalse(dfa.find("abcy"));
+        assertFalse(dfa.find("xabcy"));
+        
+        dfa = getDfa("^abc");
+        
+        assertTrue(dfa.find("abc"));
+        assertFalse(dfa.find("ab"));
+        assertFalse(dfa.find("abd"));
+        
+        assertFalse(dfa.find("xabc"));
+        assertTrue(dfa.find("abcy"));
+        assertFalse(dfa.find("xabcy"));
+        
+        dfa = getDfa("abc$");
+        
+        assertTrue(dfa.find("abc"));
+        assertFalse(dfa.find("ab"));
+        assertFalse(dfa.find("abd"));
+        
+        assertTrue(dfa.find("xabc"));
         assertFalse(dfa.find("abcy"));
         assertFalse(dfa.find("xabcy"));
     }

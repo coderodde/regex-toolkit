@@ -129,7 +129,7 @@
             NondeterministicFiniteAutomaton nfa = 
                 new NondeterministicFiniteAutomaton();
             
-            for (DeterministicFiniteAutomatonState dfaState : states) {
+            for (DeterministicFiniteAutomatonState dfaState : this.states) {
                 m.put(dfaState, nfa.createState());
             }
             
@@ -140,7 +140,7 @@
                 nfa.addAcceptingState(m.get(acceptingState));
             }
             
-            for (DeterministicFiniteAutomatonState dfaState : states) {
+            for (DeterministicFiniteAutomatonState dfaState : this.states) {
                 
                 DeterministicFiniteAutomatonStateTransitionFunction tf = 
                     dfaState.getTransitionFunction();

@@ -75,7 +75,7 @@ public final class NondeterministicFiniteAutomatonState {
                        Set<NondeterministicFiniteAutomatonState> state) {
         
         for (int i = 0; i < size; ++i) {
-            if (entries[i].getCharacterRange().equals(codePointRange)) {
+            if (entries[i].getCodePointRange().equals(codePointRange)) {
                 entries[i].getGoalStates().addAll(state);
                 return;
             }
@@ -91,7 +91,7 @@ public final class NondeterministicFiniteAutomatonState {
         int index = size;
         
         while (index != 0 
-               && entries[index - 1].getCharacterRange()
+               && entries[index - 1].getCodePointRange()
                                     .compareTo(codePointRange) == 1) {
             
             entries[index] = entries[index - 1];
@@ -207,7 +207,7 @@ public final class NondeterministicFiniteAutomatonState {
             this.goalStates = goalStates;
         }
         
-        CodePointRange getCharacterRange() {
+        CodePointRange getCodePointRange() {
             return codePointRange;
         }
         

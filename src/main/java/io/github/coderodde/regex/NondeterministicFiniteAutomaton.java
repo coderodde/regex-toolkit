@@ -1,5 +1,6 @@
 package io.github.coderodde.regex;
 
+import io.github.coderodde.regex.NondeterministicFiniteAutomatonState.TransitionFunctionEntry;
 import io.github.coderodde.regex.parser.ast.RegexParser;
 import io.github.coderodde.regex.parser.ast.RegexTokenizationResult;
 import io.github.coderodde.regex.tokenizer.RegexTokenizer;
@@ -21,6 +22,12 @@ import java.util.Set;
 public final class NondeterministicFiniteAutomaton
         implements RegularExpressionMatcher {
     
+    /**
+     * The set of all present states in this automaton.
+     */
+    private final Set<NondeterministicFiniteAutomatonState> states = 
+        new HashSet<>();
+    
     private boolean anchoredAtStart;
     private boolean anchoredAtEnd;
     private int stateCounter;
@@ -34,8 +41,175 @@ public final class NondeterministicFiniteAutomaton
         
     }
     
+    public NondeterministicFiniteAutomaton(
+           NondeterministicFiniteAutomaton other) {
+        
+        Map<NondeterministicFiniteAutomatonState,
+            NondeterministicFiniteAutomatonState> m = new HashMap<>();
+        
+        // Copy states:
+        for (NondeterministicFiniteAutomatonState oldState : other.states) {
+            NondeterministicFiniteAutomatonState  newState = createState();
+            m.put(oldState, newState);
+        }
+        
+        // Copy initial state:
+        setInitialState(m.get(other.getInitialState()));
+        
+        // Copy accepting states:
+        for (NondeterministicFiniteAutomatonState oldState : other.states) {
+            addAcceptingState(m.get(oldState));
+        }
+        
+        // Copy state transitions:
+        for (NondeterministicFiniteAutomatonState oldState : other.states) {
+             NondeterministicFiniteAutomatonState newState = m.get(oldState);
+             
+             for (NondeterministicFiniteAutomatonState epsilonOldState 
+                 : oldState.getEpsilonStates()) {
+                 
+                 newState.addEpsilonTransition(m.get(epsilonOldState));
+             }
+             
+             newState.addDotTransition(oldState.getDotTransition());
+             
+             for (int i = 0; i < oldState.getTransitionCount(); ++i) {
+                 TransitionFunctionEntry tfe = oldState.getTransition(i);
+                 
+                 for (NondeterministicFiniteAutomatonState goal
+                     : tfe.getGoalStates()) {
+                     
+                     newState.addTransition(tfe.getCodePointRange(), 
+                                            m.get(goal));
+                 }
+             }
+        }
+    }
+    
     public NondeterministicFiniteAutomatonState createState() {
-        return new NondeterministicFiniteAutomatonState(stateCounter++);
+        NondeterministicFiniteAutomatonState state = 
+            new NondeterministicFiniteAutomatonState(stateCounter++);
+        
+        this.states.add(state);
+        return state;
+    }
+    
+    public String convertToRegex() {
+        NondeterministicFiniteAutomaton nfa =
+            new NondeterministicFiniteAutomaton(this);
+        
+        Set<NondeterministicFiniteAutomatonState> states = 
+            nfa.getAllReachableStates();
+        
+        NondeterministicFiniteAutomatonState gnfaStart  = nfa.createState();
+        NondeterministicFiniteAutomatonState gnfaAccept = nfa.createState();
+        
+        Map<NondeterministicFiniteAutomatonState,
+            Map<NondeterministicFiniteAutomatonState, String>> r = 
+                new HashMap<>();
+        
+        for (NondeterministicFiniteAutomatonState q : nfa.states) {
+            r.put(q, new HashMap<>());
+        }
+        
+        putUnion(r, gnfaStart, nfa.initialState, "");
+        
+        for (NondeterministicFiniteAutomatonState acc : nfa.acceptingStates) {
+            putUnion(r, acc, gnfaAccept, "");
+        }
+        
+        for (NondeterministicFiniteAutomatonState q 
+            : nfa.getAllReachableStates()) {
+            
+            for (int i = 0; i < q.getTransitionCount(); ++i) {
+                var e = q.getTransition(i);
+                
+                String label = rangeToRegex(e.getCodePointRange());
+                
+                for (NondeterministicFiniteAutomatonState z 
+                    : e.getGoalStates()) {
+                    
+                    putUnion(r, q, z, label);
+                }
+            }
+            
+            NondeterministicFiniteAutomatonState dot = q.getDotTransition();
+            
+            if (dot != null) {
+                putUnion(r, q, dot, ".");
+            }
+            
+            for (NondeterministicFiniteAutomatonState eps 
+                : q.getEpsilonStates()) {
+                
+                putUnion(r, q, eps, "");
+            }
+        }
+        
+        Set<NondeterministicFiniteAutomatonState> removable =
+            new HashSet<>(nfa.states);
+        
+        removable.remove(gnfaStart);
+        removable.remove(gnfaAccept);
+        
+        for (NondeterministicFiniteAutomatonState k : removable) {
+            String rkk = get(r, k, k);
+            
+            for (NondeterministicFiniteAutomatonState i : nfa.states) {
+                if (i == k) {
+                    continue;
+                }
+                
+                String rik = get(r, i, k);
+                
+                if (rik == null) {
+                    continue;
+                }
+                
+                for (NondeterministicFiniteAutomatonState j : nfa.states) {
+                    if (j == k) {
+                        continue;
+                    }
+                    
+                    String rkj = get(r, k, j);
+                    
+                    if (rkj == null) {
+                        continue;
+                    }
+                    
+                    String old = get(r, i, j);
+                    String neu = concat(rik, star(rkk), rkj);
+                    
+                    putUnion(r, i, j, neu);
+                }
+            }
+            
+            r.remove(k);
+            
+            for (Map<NondeterministicFiniteAutomatonState, String> row 
+                : r.values()) {
+                
+                row.remove(k);
+            }
+            
+            nfa.states.remove(k);
+        }
+            
+        String regex = get(r, gnfaStart, gnfaAccept);
+        
+        if (regex == null) {
+            return "";
+        }
+        
+        if (anchoredAtStart) {
+            regex = "^" + regex;
+        }
+        
+        if (anchoredAtEnd) {
+            regex = regex + "$";
+        }
+        
+        return regex;
     }
     
     private NondeterministicFiniteAutomatonState initialState;
@@ -57,12 +231,15 @@ public final class NondeterministicFiniteAutomaton
                 Objects.requireNonNull(
                         initialState,
                         "The input initial state is null.");
+        
+        this.states.add(initialState);
     }
     
     public void addAcceptingState(
             NondeterministicFiniteAutomatonState acceptingState) {
         
-        acceptingStates.add(acceptingState);
+        this.acceptingStates.add(acceptingState);
+        this.states.add(acceptingState);
     }
     
     public int getNumberOfStates() {
@@ -312,7 +489,7 @@ public final class NondeterministicFiniteAutomaton
                         .TransitionFunctionEntry e = 
                         state.getTransition(i);
                     
-                    if (intersects(e.getCharacterRange(), range)) {
+                    if (intersects(e.getCodePointRange(), range)) {
                         result.addAll(e.getGoalStates());
                     }
                 }
@@ -342,7 +519,7 @@ public final class NondeterministicFiniteAutomaton
                 
                 for (int i = 0; i < state.getTransitionCount(); ++i) {
                     CodePointRange range = 
-                        state.getTransition(i).getCharacterRange();
+                        state.getTransition(i).getCodePointRange();
                     
                     points.add(range.getMinimumCodePoint());
                     
@@ -394,5 +571,124 @@ public final class NondeterministicFiniteAutomaton
         }
         
         return transitionMap;
+    }
+        
+    private static String 
+        get(Map<NondeterministicFiniteAutomatonState,
+                Map<NondeterministicFiniteAutomatonState, String>> r, 
+            NondeterministicFiniteAutomatonState from,
+            NondeterministicFiniteAutomatonState to) {
+        
+        Map<NondeterministicFiniteAutomatonState, String> row = r.get(from);
+        
+        if (row == null) {
+            return null;
+        }
+        
+        return row.get(to);
+    }
+        
+    private static void putUnion(
+        Map<NondeterministicFiniteAutomatonState,
+            Map<NondeterministicFiniteAutomatonState, String>> r,
+        NondeterministicFiniteAutomatonState from,
+        NondeterministicFiniteAutomatonState to,
+        String label) {
+        
+        String old = get(r, from, to);
+        
+        if (old == null) {
+            r.get(from).put(to, label);
+        } else if (!old.equals(label)) {
+            r.get(from).put(to, union(old, label));
+        }
+    }
+    
+    private static String union(String a, String b) {
+        if (a.equals(b)) {
+            return a;
+        }
+        
+        return "(" + a + "|" + b + ")";
+    }
+    
+    private static String concat(String... parts) {
+        StringBuilder sb = new StringBuilder();
+        
+        for (String p : parts) {
+            if (p == null) {
+                continue;
+            }
+            
+            // Epsilon:
+            if (p.isEmpty()) {
+                continue;
+            }
+            
+            sb.append(parenthesizeIfUnion(p));
+        }
+        
+        return sb.toString();
+    }
+    
+    private static String star(String r) {
+        if (r == null || r.isEmpty()) {
+            return "";
+        }
+        
+        return parenthesizeIfNeeded(r) + "*";
+    }
+    
+    private static String parenthesizeIfNeeded(String r) {
+        if (r.length() == 1 || r.equals(".")) {
+            return r;
+        }
+        
+        if (r.startsWith("[") && r.endsWith("]")) {
+            return r;
+        }
+        
+        return "(" + r + ")";
+    }
+    
+    private static String parenthesizeIfUnion(String r) {
+        if (r.contains("|")) {
+            return "(" + r + ")";
+        }
+        
+        return r;
+    }
+    
+    private static String rangeToRegex(CodePointRange range) {
+        int min = range.getMinimumCodePoint();
+        int max = range.getMaximumCodePoint();
+        
+        if (min == max) {
+            return escapeCodePoint(min);
+        }
+        
+        return "[" + escapeInCharClass(min) + "-" + 
+                     escapeInCharClass(max) + "]";
+    }
+    
+    private static String escapeCodePoint(int cp) {
+        String s = new String(Character.toChars(cp));
+        
+        // TODO: Do I need ^ $ and friends?
+        return switch (s) {
+            case "\\", ".", "|", "*", "+", "?", "(", ")", "[", "]", "{", "}", 
+                 "^", "$" -> "\\" + s;
+                
+            default -> s;
+        };
+    }
+    
+    private static String escapeInCharClass(int cp) {
+        String s = new String(Character.toChars(cp));
+        
+        return switch (s) {
+            case "\\", "]", "^", "-" -> "\\" + s;
+            default -> s;
+        };
     }
 }

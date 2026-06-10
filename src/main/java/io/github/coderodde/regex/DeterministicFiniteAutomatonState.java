@@ -45,7 +45,7 @@ public class DeterministicFiniteAutomatonState {
 //        transitionMap = null;
     }
     
-    DeterministicFiniteAutomatonStateTransitionFunction getTransitionMap() {
+    DeterministicFiniteAutomatonStateTransitionFunction getTransitionFunction() {
         return transitionMap;
     }
     

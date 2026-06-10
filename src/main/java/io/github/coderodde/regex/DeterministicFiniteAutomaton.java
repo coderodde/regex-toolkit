@@ -99,7 +99,7 @@
                     stateMap.get(oldState);
                 
                 DeterministicFiniteAutomatonStateTransitionFunction tf = 
-                    oldState.getTransitionMap();
+                    oldState.getTransitionFunction();
                 
                 for (int i = 0; i < tf.size(); ++i) {
                     TransitionFunctionEntry entry = tf.get(i);
@@ -115,7 +115,45 @@
         }
         
         public DeterministicFiniteAutomatonState createState() {
-            return new DeterministicFiniteAutomatonState(stateCounter++);
+            DeterministicFiniteAutomatonState state = 
+                new DeterministicFiniteAutomatonState(stateCounter++);
+            
+            states.add(state);
+            return state;
+        }
+        
+        public NondeterministicFiniteAutomaton toNFA() {
+            Map<DeterministicFiniteAutomatonState,
+                NondeterministicFiniteAutomatonState> m = new HashMap<>();
+            
+            NondeterministicFiniteAutomaton nfa = 
+                new NondeterministicFiniteAutomaton();
+            
+            for (DeterministicFiniteAutomatonState dfaState : states) {
+                m.put(dfaState, nfa.createState());
+            }
+            
+            nfa.setInitialState(m.get(this.initialState));
+            
+            for (DeterministicFiniteAutomatonState acceptingState 
+                    : this.acceptingStateSet) {
+                nfa.addAcceptingState(m.get(acceptingState));
+            }
+            
+            for (DeterministicFiniteAutomatonState dfaState : states) {
+                
+                DeterministicFiniteAutomatonStateTransitionFunction tf = 
+                    dfaState.getTransitionFunction();
+                
+                NondeterministicFiniteAutomatonState nfaState = m.get(dfaState);
+                
+                for (TransitionFunctionEntry tfe : tf) {
+                    nfaState.addTransition(tfe.getCharacterRange(), 
+                                           m.get(tfe.getGoalState()));
+                }
+            }
+            
+            return nfa;
         }
 
         /**
@@ -321,7 +359,7 @@
 
                 DeterministicFiniteAutomatonStateTransitionFunction 
                         transitionMap = 
-                        dfaState.getTransitionMap();
+                        dfaState.getTransitionFunction();
 
                 for (int i = 0; i != transitionMap.size(); i++) {
                     TransitionFunctionEntry entry = transitionMap.get(i);
@@ -447,7 +485,7 @@
                     blockToStateMap.get(equivalenceClass);
                 
                 for (CodePointRange codePointRange 
-                    : representativeState.getTransitionMap().getAlphabet()) {
+                    : representativeState.getTransitionFunction().getAlphabet()) {
                     
                     DeterministicFiniteAutomatonState oldTargetState = 
                         representativeState.traverse(codePointRange);
@@ -694,7 +732,7 @@
             List<CodePointRange> alphabet = new ArrayList<>();
 
             for (DeterministicFiniteAutomatonState q : states) {
-                alphabet.addAll(q.getTransitionMap().getAlphabet());
+                alphabet.addAll(q.getTransitionFunction().getAlphabet());
             }
 
             return alphabet;
@@ -716,7 +754,7 @@
             while (!queue.isEmpty()) {
                 DeterministicFiniteAutomatonState state = queue.removeFirst();
                 DeterministicFiniteAutomatonStateTransitionFunction 
-                    transitionMap = state.getTransitionMap();
+                    transitionMap = state.getTransitionFunction();
 
                 for (int i = 0; i != transitionMap.size(); i++) {
                     TransitionFunctionEntry transitionMapEntry = 

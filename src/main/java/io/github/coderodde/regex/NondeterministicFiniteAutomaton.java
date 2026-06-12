@@ -44,11 +44,14 @@ public final class NondeterministicFiniteAutomaton
     public NondeterministicFiniteAutomaton(
            NondeterministicFiniteAutomaton other) {
         
+        Set<NondeterministicFiniteAutomatonState> oldStates = 
+            other.getAllReachableStates();
+        
         Map<NondeterministicFiniteAutomatonState,
             NondeterministicFiniteAutomatonState> m = new HashMap<>();
         
         // Copy states:
-        for (NondeterministicFiniteAutomatonState oldState : other.states) {
+        for (NondeterministicFiniteAutomatonState oldState : oldStates) {
             NondeterministicFiniteAutomatonState  newState = createState();
             m.put(oldState, newState);
         }
@@ -57,12 +60,16 @@ public final class NondeterministicFiniteAutomaton
         setInitialState(m.get(other.getInitialState()));
         
         // Copy accepting states:
-        for (NondeterministicFiniteAutomatonState oldState : other.states) {
-            addAcceptingState(m.get(oldState));
+        for (NondeterministicFiniteAutomatonState oldAcceptingState 
+            : other.acceptingStates) {
+            
+            if (oldStates.contains(oldAcceptingState)) {
+                addAcceptingState(m.get(oldAcceptingState));
+            }
         }
         
         // Copy state transitions:
-        for (NondeterministicFiniteAutomatonState oldState : other.states) {
+        for (NondeterministicFiniteAutomatonState oldState : oldStates) {
              NondeterministicFiniteAutomatonState newState = m.get(oldState);
              
              for (NondeterministicFiniteAutomatonState epsilonOldState 
@@ -71,7 +78,12 @@ public final class NondeterministicFiniteAutomaton
                  newState.addEpsilonTransition(m.get(epsilonOldState));
              }
              
-             newState.addDotTransition(oldState.getDotTransition());
+             NondeterministicFiniteAutomatonState dotState = 
+                 oldState.getDotTransition();
+             
+             if (dotState != null) {
+                 newState.addDotTransition(m.get(dotState));
+             }
              
              for (int i = 0; i < oldState.getTransitionCount(); ++i) {
                  TransitionFunctionEntry tfe = oldState.getTransition(i);
@@ -118,8 +130,7 @@ public final class NondeterministicFiniteAutomaton
             putUnion(r, acc, gnfaAccept, "");
         }
         
-        for (NondeterministicFiniteAutomatonState q 
-            : nfa.getAllReachableStates()) {
+        for (NondeterministicFiniteAutomatonState q : states) {
             
             for (int i = 0; i < q.getTransitionCount(); ++i) {
                 var e = q.getTransition(i);

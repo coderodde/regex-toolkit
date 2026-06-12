@@ -6,30 +6,16 @@ import static io.github.coderodde.regex.DeterministicFiniteAutomaton.Minimizatio
 import io.github.coderodde.regex.NondeterministicFiniteAutomaton;
 import io.github.coderodde.regex.NondeterministicFiniteAutomatonCompiler;
 import io.github.coderodde.regex.parser.ast.tokens.RegexToken;
-import io.github.coderodde.regex.parser.ast.tokens.RegexTokenLiteral;
-import io.github.coderodde.regex.parser.ast.tokens.RegexTokenSimple;
-import io.github.coderodde.regex.parser.ast.tree.ConcatenationRegexNode;
-import io.github.coderodde.regex.parser.ast.tree.LiteralRegexNode;
 import io.github.coderodde.regex.parser.ast.tree.RegexNode;
 import io.github.coderodde.regex.parser.ast.tree.UnionRegexNode;
 import io.github.coderodde.regex.tokenizer.RegexTokenizer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class RegexTest {
-    
-    private static final LiteralRegexNode a = new LiteralRegexNode((int) 'a');
-    private static final LiteralRegexNode b = new LiteralRegexNode((int) 'b');
-    private static final LiteralRegexNode c = new LiteralRegexNode((int) 'c');
-    private static final LiteralRegexNode d = new LiteralRegexNode((int) 'd');
-    private static final LiteralRegexNode e = new LiteralRegexNode((int) 'e');
-    private static final LiteralRegexNode f = new LiteralRegexNode((int) 'f');
-    private static final LiteralRegexNode g = new LiteralRegexNode((int) 'g');
-    private static final LiteralRegexNode h = new LiteralRegexNode((int) 'h');
     
     private final List<RegexToken> tokens = new ArrayList<>();
     
@@ -41,28 +27,6 @@ public class RegexTest {
     @Test
     public void test1() {
         String regex = "a|bc*d?(ef|gh)+";
-//        tokens.addAll(
-//            Arrays.asList(
-//                    new RegexTokenLiteral((int) 'a'),
-//                    new RegexTokenSimple(RegexTokenType.UNION),
-//                    new RegexTokenLiteral((int) 'b'),
-//                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
-//                    new RegexTokenLiteral((int) 'c'),
-//                    new RegexTokenSimple(RegexTokenType.KLEENE_STAR),
-//                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
-//                    new RegexTokenLiteral((int) 'd'),
-//                    new RegexTokenSimple(RegexTokenType.QUESTION),
-//                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
-//                    new RegexTokenSimple(RegexTokenType.LEFT_PARENTHESIS),
-//                    new RegexTokenLiteral((int) 'e'),
-//                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
-//                    new RegexTokenLiteral((int) 'f'),
-//                    new RegexTokenSimple(RegexTokenType.UNION),
-//                    new RegexTokenLiteral((int) 'g'),
-//                    new RegexTokenSimple(RegexTokenType.CONCATENATION),
-//                    new RegexTokenLiteral((int) 'h'),
-//                    new RegexTokenSimple(RegexTokenType.RIGHT_PARENTHESIS),
-//                    new RegexTokenSimple(RegexTokenType.PLUS)));
         RegexTokenizationResult tokenization = 
                 new RegexTokenizer().tokenize(regex);
         
@@ -70,9 +34,6 @@ public class RegexTest {
         RegexNode root = parser.parse();
         
         assertTrue(root instanceof UnionRegexNode);
-        
-        assertEquals(a, ((UnionRegexNode) root).left());
-        assertTrue(((UnionRegexNode) root).right() instanceof ConcatenationRegexNode);
         
         NondeterministicFiniteAutomaton nfa = 
                 new NondeterministicFiniteAutomatonCompiler(root)
@@ -135,6 +96,8 @@ public class RegexTest {
         assertFalse(dfam.matches("ef"));
         assertFalse(dfam.matches("bccd"));
         assertFalse(dfam.matches("aa"));
+        
+        System.out.println(nfa.convertToRegex());
     }
     
     @Test

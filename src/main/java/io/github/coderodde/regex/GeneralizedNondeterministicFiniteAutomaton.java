@@ -4,10 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 
- * @author Rodion "rodde" Efremov
- * @version 1.6 (Nov 25, 2023)
- * @since 1.6 (Nov 25, 2023)
+ * This class implements GNFA (Generalized Nondeterministic Finite Automaton) 
+ * for converting DFAs into their respective regular languages.
  */
 public final class GeneralizedNondeterministicFiniteAutomaton { // TODO: remove public?
     
@@ -98,8 +96,35 @@ public final class GeneralizedNondeterministicFiniteAutomaton { // TODO: remove 
             GeneralizedNondeterministicFiniteAutomatonState stateToRip,
             GeneralizedNondeterministicFiniteAutomatonState incomingState,
             GeneralizedNondeterministicFiniteAutomatonState outgoingState) {
-        StringBuilder stringBuilder = new StringBuilder();
         
+        StringBuilder sb = new StringBuilder();
         
+        if (incomingState.equals(outgoingState)) {
+            sb.append(incomingState.getRegularExpression(incomingState));
+            sb.append("|");
+            sb.append(incomingState.getRegularExpression(stateToRip));
+            sb.append("(");
+            sb.append(stateToRip.getRegularExpression(stateToRip));
+            sb.append(")*");
+            sb.append(stateToRip.getRegularExpression(incomingState));
+            incomingState.setRegularExpression(outgoingState, sb.toString());
+        } else {
+            sb.append("(");
+            sb.append(incomingState.getRegularExpression(stateToRip));
+            String s = stateToRip.getRegularExpression(stateToRip);
+            
+            if (s.length() > 1) {
+                sb.append("(");
+                sb.append(s);
+                sb.append(")*");
+            } else if (s.length() == 1) {
+                sb.append(s);
+                sb.append("*");
+            }
+            
+            sb.append(stateToRip.getRegularExpression(outgoingState));
+            sb.append(")|");
+            sb.append(incomingState.getRegularExpression(outgoingState));
+        }
     }
 }

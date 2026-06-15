@@ -2,14 +2,14 @@ package io.github.coderodde.regex;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- *
- * @author Rodion "rodde" Efremov
- * @version 1.6 (Nov 25, 2023)
- * @since 1.6 (Nov 25, 2023)
+ * This class implements the 
+ * <a href="https://en.wikipedia.org/wiki/Generalized_nondeterministic_finite_automaton">Generalized Nondeterministic Finite Automaton</a>.
+ * It is used for converting DFAs into their respective regular languages.
  */
 final class GeneralizedNondeterministicFiniteAutomatonState {
     
@@ -18,12 +18,12 @@ final class GeneralizedNondeterministicFiniteAutomatonState {
     private final Map<GeneralizedNondeterministicFiniteAutomatonState, 
                       String> map = new HashMap<>();
     
+    private final Set<GeneralizedNondeterministicFiniteAutomatonState> 
+            epsilonSet = new HashSet<>();
+    
     private final Set<GeneralizedNondeterministicFiniteAutomatonState>
             incomingStates = new HashSet<>();
     
-    private final Set<GeneralizedNondeterministicFiniteAutomatonState>
-            epsilonSet = new HashSet<>();
-
     GeneralizedNondeterministicFiniteAutomatonState(int id) {
         this.id = id;
     }
@@ -41,18 +41,18 @@ final class GeneralizedNondeterministicFiniteAutomatonState {
         return id;
     }
     
-    void addRegularExpression(
+    void setRegularExpression(
             GeneralizedNondeterministicFiniteAutomatonState followerState, 
             String regularExpression) {
         
         map.put(followerState, regularExpression);
         followerState.incomingStates.add(this);
     }
-   
+    
     void addEpsilonTransition(
-            GeneralizedNondeterministicFiniteAutomatonState state) {
+        GeneralizedNondeterministicFiniteAutomatonState nextState) {
         
-        epsilonSet.add(state);
+        epsilonSet.add(nextState);
     }
     
     Set<GeneralizedNondeterministicFiniteAutomatonState> getIncomingStates() {

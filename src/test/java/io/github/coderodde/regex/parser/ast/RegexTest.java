@@ -97,7 +97,9 @@ public class RegexTest {
         assertFalse(dfam.matches("bccd"));
         assertFalse(dfam.matches("aa"));
         
-        System.out.println(nfa.convertToRegex());
+        System.out.println(dfa.computeRegularExression());
+        System.out.println(dfam.computeRegularExression());
+        System.out.println(dfah.computeRegularExression());
     }
     
     @Test

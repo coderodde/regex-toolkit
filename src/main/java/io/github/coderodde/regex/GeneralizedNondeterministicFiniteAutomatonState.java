@@ -2,7 +2,6 @@ package io.github.coderodde.regex;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,10 +29,9 @@ final class GeneralizedNondeterministicFiniteAutomatonState {
     
     @Override
     public boolean equals(Object o) {
-        GeneralizedNondeterministicFiniteAutomatonState other = 
-                (GeneralizedNondeterministicFiniteAutomatonState) o;
-        
-        return id == other.id;
+        return o instanceof 
+            GeneralizedNondeterministicFiniteAutomatonState other 
+            && other.id == id;
     }
     
     @Override
@@ -42,17 +40,49 @@ final class GeneralizedNondeterministicFiniteAutomatonState {
     }
     
     void setRegularExpression(
-            GeneralizedNondeterministicFiniteAutomatonState followerState, 
-            String regularExpression) {
+        GeneralizedNondeterministicFiniteAutomatonState followerState, 
+        String regularExpression) {
         
-        map.put(followerState, regularExpression);
+        String old = map.get(followerState);
+        
+        if (old == null || old.isEmpty()) {
+            map.put(followerState, regularExpression);
+        } else if (regularExpression != null && !regularExpression.isEmpty()) {
+            map.put(followerState, "(" + old + ")|(" + regularExpression + ")");
+        }
+        
         followerState.incomingStates.add(this);
+    }
+    
+    void removeRegularExpression(
+        GeneralizedNondeterministicFiniteAutomatonState targetState) {
+        
+        String removeRegex = map.remove(targetState);
+    
+        if (removeRegex != null) {
+            targetState.incomingStates.remove(this);
+        }
     }
     
     void addEpsilonTransition(
         GeneralizedNondeterministicFiniteAutomatonState nextState) {
+        setRegularExpression(nextState, "");
+    }
+    
+    void clearTransitions() {
+        for (GeneralizedNondeterministicFiniteAutomatonState target 
+            : new HashSet<>(map.keySet())) {
+            
+            removeRegularExpression(target);
+        }
         
-        epsilonSet.add(nextState);
+        for (GeneralizedNondeterministicFiniteAutomatonState source
+            : new HashSet<>(incomingStates)) {
+            
+            source.removeRegularExpression(this);
+        }
+        
+        incomingStates.clear();
     }
     
     Set<GeneralizedNondeterministicFiniteAutomatonState> getIncomingStates() {

@@ -24,6 +24,10 @@ public final class CodePointRange implements Comparable<CodePointRange>,
         this(0);
     }
     
+    boolean isSingleCodePoint() {
+        return minimumCodePoint == maximumCodePoint;
+    }
+    
     int getMinimumCodePoint() {
         return minimumCodePoint;
     }

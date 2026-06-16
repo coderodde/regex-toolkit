@@ -11,16 +11,16 @@ public final class CodePointRange implements Comparable<CodePointRange>,
     private int minimumCodePoint;
     private int maximumCodePoint;
     
-    CodePointRange(int minimumCharacter, int maximumCharacter) {
+    public CodePointRange(int minimumCharacter, int maximumCharacter) {
         this.minimumCodePoint = minimumCharacter;
         this.maximumCodePoint = maximumCharacter;
     }
     
-    CodePointRange(int character) {
+    public CodePointRange(int character) {
         this(character, character);
     }
     
-    CodePointRange() {
+    public CodePointRange() {
         this(0);
     }
     

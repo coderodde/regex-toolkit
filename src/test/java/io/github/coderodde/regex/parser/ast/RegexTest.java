@@ -120,4 +120,13 @@ public class RegexTest {
         assertFalse(dfa.matches("abcy"));
         assertFalse(dfa.matches("xabcy"));
     }
+    
+    @Test
+    public void characterClass1() {
+        RegexTokenizer tokenizer = new RegexTokenizer();
+        RegexTokenizationResult res = tokenizer.tokenize("[abc][a-cg-m]");
+        List<RegexToken> tokens = res.tokens();
+        System.out.println("oh fuck yeah");
+        System.out.println(tokens);
+    }
 }

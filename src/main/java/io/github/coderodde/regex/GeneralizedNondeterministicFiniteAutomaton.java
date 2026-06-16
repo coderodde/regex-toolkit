@@ -119,12 +119,6 @@ public final class GeneralizedNondeterministicFiniteAutomaton { // TODO: remove 
             }
         }
         
-        for (GeneralizedNondeterministicFiniteAutomatonState q 
-            : new HashSet<>(stateSet)) {
-            
-            q.removeRegularExpression(rippedState);
-        }
-        
         rippedState.clearTransitions();
         stateSet.remove(rippedState);
     }
@@ -148,36 +142,80 @@ public final class GeneralizedNondeterministicFiniteAutomaton { // TODO: remove 
     }
     
     private void ripImpl(
-            GeneralizedNondeterministicFiniteAutomatonState incomingState,
-            GeneralizedNondeterministicFiniteAutomatonState rippedState,
-            GeneralizedNondeterministicFiniteAutomatonState outgoingState) {
+            GeneralizedNondeterministicFiniteAutomatonState i,
+            GeneralizedNondeterministicFiniteAutomatonState r,
+            GeneralizedNondeterministicFiniteAutomatonState j) {
         
-        String rij = incomingState.getRegularExpression(outgoingState);
-        String rir = incomingState.getRegularExpression(rippedState);
-        String rrr = rippedState.getRegularExpression(rippedState);
-        String rrj = rippedState.getRegularExpression(outgoingState);
+        String rir = i.getRegularExpression(r);
+        String rrr = r.getRegularExpression(r);
+        String rrj = r.getRegularExpression(j);
+        
+        String throughR = concat(rir, star(rrr), rrj);
+        
+        i.setRegularExpression(j, throughR);
+    }
+    
+    private static String concat(String... parts) {
+        StringBuilder sb = new StringBuilder();
+        
+        for (String part : parts) {
+            if (part == null) {
+                return null;
+            }
+            
+            if (!part.isEmpty()) {
+                if (part.length() == 1) {
+                    sb.append(part);
+                } else {
+                    sb.append("(").append(part).append(")");
+                }
+            }
+        }
+        
+        return sb.toString();
+    }
+    
+    private static String star(String regex) {
+        if (regex == null || regex.isEmpty()) {
+            return "";
+        }
+        
+        if (regex.length() == 1) {
+            return regex + "*";
+        } else {
+            return "(" + regex + ")*";
+        }
+    }
+    
+    static String union(String a, String b) {
+        if (a == null) {
+            return b;
+        }
+        
+        if (b == null) {
+            return a;
+        }
+        
+        if (a.equals(b)) {
+            return a;
+        }
         
         StringBuilder sb = new StringBuilder();
         
-        if (rij != null && !rij.isEmpty()) {
-            sb.append("(").append(rij).append(")|");
+        if (a.length() == 1) {
+            sb.append(a);
+        } else {
+            sb.append("(").append(a).append(")");
         }
         
-        sb.append("(").append(rir).append(")");
+        sb.append("|");
         
-        if (rrr != null && !rrr.isEmpty()) {
-            sb.append("(").append(rrr).append(")*");
+        if (b.length() == 1) {
+            sb.append(b);
+        } else {
+            sb.append("(").append(b).append(")");
         }
         
-        sb.append("(").append(rrj).append(")");
-        
-        incomingState.setRegularExpression(outgoingState, sb.toString());
-        
-        for (GeneralizedNondeterministicFiniteAutomatonState q : stateSet) {
-            q.removeRegularExpression(rippedState);
-        }
-        
-        rippedState.clearTransitions();
-        stateSet.remove(rippedState);
+        return sb.toString();
     }
 }

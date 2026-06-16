@@ -1,10 +1,12 @@
 package io.github.coderodde.regex.tokenizer;
 
+import io.github.coderodde.regex.CodePointRange;
 import io.github.coderodde.regex.InvalidRegexException;
 import io.github.coderodde.regex.Utils;
 import io.github.coderodde.regex.parser.ast.tokens.RegexToken;
 import io.github.coderodde.regex.parser.ast.RegexTokenType;
 import io.github.coderodde.regex.parser.ast.RegexTokenizationResult;
+import io.github.coderodde.regex.parser.ast.tokens.RegexTokenCharacterClass;
 import io.github.coderodde.regex.parser.ast.tokens.RegexTokenLiteral;
 import io.github.coderodde.regex.parser.ast.tokens.RegexTokenSimple;
 import java.util.ArrayList;
@@ -47,27 +49,30 @@ public final class RegexTokenizer {
             new RegexTokenSimple(RegexTokenType.RIGHT_PARENTHESIS);
     }
     
+    private int index;
+    private String regex;
+    
     /**
      * Converts the input regular expression into the list of {@link RegexToken}
      * objects encoding the same regular language as the input regular 
      * expression.
      * 
-     * @param regex the regular expression to tokenize.
+     * @param rgx the regular expression to tokenize.
      * @return the list of {@link RegexToken} objects.
      */
-    public RegexTokenizationResult tokenize(String regex) {
-        Objects.requireNonNull(regex, "The input regex is null.");
+    public RegexTokenizationResult tokenize(String rgx) {
+        Objects.requireNonNull(rgx, "The input regex is null.");
         
-        regex = regex.trim();
+        this.regex = rgx.trim();
         
-        if (regex.isEmpty()) {
+        if (rgx.isEmpty()) {
             return new RegexTokenizationResult(List.of(), false, false);
         }
         
-        Utils.validateRegularExpressionParentheses(regex);
-        Utils.characterClassBracketsValid(regex);
+        Utils.validateRegularExpressionParentheses(rgx);
+        Utils.characterClassBracketsValid(rgx);
         
-        int startOfLineSymbols = Utils.countNonescapedStartOfLineSymbols(regex);
+        int startOfLineSymbols = Utils.countNonescapedStartOfLineSymbols(rgx);
         
         if (startOfLineSymbols > 1) {
             throw new InvalidRegexException(
@@ -75,7 +80,7 @@ public final class RegexTokenizer {
                 " times. At most one expected.");
         }
         
-        int endOfLineSymbols = Utils.countNonescapedEndOfLineSymbols(regex);
+        int endOfLineSymbols = Utils.countNonescapedEndOfLineSymbols(rgx);
         
         if (endOfLineSymbols > 1) {
             throw new InvalidRegexException(
@@ -86,51 +91,54 @@ public final class RegexTokenizer {
         boolean anchoredAtEnd   = false;
         
         if (startOfLineSymbols == 1) {
-            if (regex.charAt(0) != '^') {
+            if (rgx.charAt(0) != '^') {
                 throw new InvalidRegexException("Misplaced ^ symbol.");
             }
             
             anchoredAtStart = true;
-            regex = regex.substring(1);
+            rgx = rgx.substring(1);
         }
         
         if (endOfLineSymbols == 1) {
-            if (!regex.endsWith("$")) {
+            if (!rgx.endsWith("$")) {
                 throw new InvalidRegexException("Misplaceed $ symbol.");
             }
             
             anchoredAtEnd = true;
-            regex = regex.substring(0, regex.length() - 1);
+            rgx = rgx.substring(0, rgx.length() - 1);
         }
         
-        List<RegexToken> tokens = tokenizeImpl(regex);
+        List<RegexToken> tokens = tokenizeImpl();
         
         return new RegexTokenizationResult(tokens, 
                                            anchoredAtStart, 
                                            anchoredAtEnd);
     }
     
-    
-    private List<RegexToken> tokenizeImpl(String regex) {
+    private List<RegexToken> tokenizeImpl() {
         List<RegexToken> tokens = new ArrayList<>();
         int previousCodePoint = 0;
-        int[] regexCodePoints = regex.codePoints().toArray();
+        index = 0;
         
-        for (int i = 0, n = regexCodePoints.length; i != n; i++) {
-            int cp = regexCodePoints[i];
+        while (!isAtEnd()) {
+            int cp = peekCodePoint();
             
             switch (cp) {
                 case (int) '*':
-                    if (i == 0) {
+                    advance();
+                    
+                    if (previousCodePoint == 0) {
                         throw new InvalidRegexException(
-                            "The regex starts with Kleene star.");
+                            "The regex starts with Kleene * star.");
                     }
                     
                     tokens.add(REGEX_TOKEN_KLEENE_STAR);
                     break;
                     
                 case (int) '+':
-                    if (i == 0) {
+                    advance();
+                    
+                    if (previousCodePoint == 0) {
                         throw new InvalidRegexException(
                             "The regex starts with the + operator.");
                     }
@@ -139,7 +147,9 @@ public final class RegexTokenizer {
                     break;
                     
                 case (int) '?':
-                    if (i == 0) {
+                    advance();
+                    
+                    if (previousCodePoint == 0) {
                         throw new InvalidRegexException(
                             "The regex starts with ? operator.");
                     }
@@ -148,12 +158,9 @@ public final class RegexTokenizer {
                     break;
                     
                 case (int) '.':
-                    if (isTextCodePoint(previousCodePoint) // i == 0?
-                            || previousCodePoint == (int) '*'
-                            || previousCodePoint == (int) '+'
-                            || previousCodePoint == (int) '?'
-                            || previousCodePoint == (int) '.'
-                            || previousCodePoint == (int) ')') {
+                    advance();
+                    
+                    if (needsConcatBefore(previousCodePoint)) {
                         tokens.add(REGEX_TOKEN_CONCAT);
                     }
                     
@@ -161,16 +168,14 @@ public final class RegexTokenizer {
                     break;
                     
                 case (int) '|':
+                    advance();
                     tokens.add(REGEX_TOKEN_UNION);
                     break;
                     
                 case (int) '(':
-                    if (isTextCodePoint(previousCodePoint)
-                            || previousCodePoint == (int) '*'
-                            || previousCodePoint == (int) '+'
-                            || previousCodePoint == (int) '.'
-                            || previousCodePoint == (int) '?'
-                            || previousCodePoint == (int) ')') {
+                    advance();
+                    
+                    if (needsConcatBefore(previousCodePoint)) {
                         tokens.add(REGEX_TOKEN_CONCAT);
                     }
                     
@@ -178,17 +183,22 @@ public final class RegexTokenizer {
                     break;
                     
                 case (int) ')':
+                    advance();
                     tokens.add(REGEX_TOKEN_RIGHT_PARENTHESIS);
                     break;
                     
+                case (int) '[':
+                    if (needsConcatBefore(previousCodePoint)) {
+                        tokens.add(REGEX_TOKEN_CONCAT);
+                    }
+                    
+                    tokens.add(readCharacterClass());
+                    break;
+                    
                 default:
-                    // Once here, the ch is an alphabet character:
-                    if (isTextCodePoint(previousCodePoint)
-                            || previousCodePoint == (int) '*'
-                            || previousCodePoint == (int) '+'
-                            || previousCodePoint == (int) '?'
-                            || previousCodePoint == (int) '.'
-                            || previousCodePoint == (int) ')') {
+                    advance();
+                    
+                    if (needsConcatBefore(previousCodePoint)) {
                         tokens.add(REGEX_TOKEN_CONCAT);
                     }
                     
@@ -202,6 +212,83 @@ public final class RegexTokenizer {
         return tokens;   
     }
     
+    private static boolean needsConcatBefore(int previousCodePoint) {
+        return isTextCodePoint(previousCodePoint)
+            || previousCodePoint == '*'
+            || previousCodePoint == '+'
+            || previousCodePoint == '?'
+            || previousCodePoint == '.'
+            || previousCodePoint == ')'
+            || previousCodePoint == ']';
+    }
+    
+    private RegexToken readCharacterClass() {
+        advance();
+        
+        List<CodePointRange> ranges = new ArrayList<>();
+        
+        while (!isAtEnd() && peekCodePoint() != ']') {
+            int first = readEscapedOrRawCodePoint();
+            
+            if (!isAtEnd() && peekCodePoint() == '-') {
+                advance();
+
+                if (isAtEnd() || peekCodePoint() == ']') {
+                    throw new InvalidRegexException(
+                        "Dangling '-' in character class.");
+                }
+
+                int last = readEscapedOrRawCodePoint();
+
+                if (first > last) {
+                    throw new InvalidRegexException(
+                        "Bad range in character class.");
+                }
+
+                ranges.add(new CodePointRange(first, last));
+            } else {
+                ranges.add(new CodePointRange(first));
+            }
+        }
+        
+        if (isAtEnd()) {
+            throw new InvalidRegexException("Unclosed character class.");
+        }
+        
+        advance();
+        
+        return new RegexTokenCharacterClass(ranges);
+    }
+    
+    private boolean isAtEnd() {
+        return index >= regex.length();
+    }
+    
+    private int peekCodePoint() {
+        return regex.codePointAt(index);
+    }
+    
+    private int advance() {
+        int cp = regex.codePointAt(index);
+        index += Character.charCount(cp);
+        return cp;
+    }
+    
+    private int readEscapedOrRawCodePoint() {
+        int cp = advance();
+        
+        if (cp != '\\') {
+            return cp;
+        }
+        
+        if (isAtEnd()) {
+            throw new InvalidRegexException("Dangling escape.");
+        }
+        
+        return advance();
+    }
+    
+    // TODO: Funkify here.
     private static boolean isTextCodePoint(int cp) {
         switch (cp) {
             case (int) '*':

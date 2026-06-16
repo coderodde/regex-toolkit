@@ -58,7 +58,6 @@ public final class Benchmark {
         System.out.println("The regex length is: " + regex.length());
         
         List<String> benchmarkData  = new ArrayList<>(BENCHMARK_RUNS);
-        List<Boolean> nfaResults    = new ArrayList<>(BENCHMARK_RUNS);
         List<Boolean> dfaResults    = new ArrayList<>(BENCHMARK_RUNS);
         List<Boolean> javaResults   = new ArrayList<>(BENCHMARK_RUNS);
         List<Boolean> luceneResults = new ArrayList<>(BENCHMARK_RUNS);
@@ -206,6 +205,10 @@ public final class Benchmark {
         }
         
         return automaton.isAccept(state);
+    }
+    
+    private static void largeCharacterClasses() {
+        
     }
     
     private static void bruteForceFindFailing() {

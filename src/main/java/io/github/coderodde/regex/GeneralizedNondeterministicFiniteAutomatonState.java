@@ -1,5 +1,6 @@
 package io.github.coderodde.regex;
 
+import static io.github.coderodde.regex.GeneralizedNondeterministicFiniteAutomaton.union;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -43,14 +44,12 @@ final class GeneralizedNondeterministicFiniteAutomatonState {
         GeneralizedNondeterministicFiniteAutomatonState followerState, 
         String regularExpression) {
         
-        String old = map.get(followerState);
-        
-        if (old == null || old.isEmpty()) {
-            map.put(followerState, regularExpression);
-        } else if (regularExpression != null && !regularExpression.isEmpty()) {
-            map.put(followerState, "(" + old + ")|(" + regularExpression + ")");
+        if (regularExpression == null) {
+            return;
         }
         
+        String old = map.get(followerState);
+        map.put(followerState, union(old, regularExpression));
         followerState.incomingStates.add(this);
     }
     

@@ -63,7 +63,7 @@ public final class RegexTokenizer {
     public RegexTokenizationResult tokenize(String rgx) {
         Objects.requireNonNull(rgx, "The input regex is null.");
         
-        this.regex = rgx.trim();
+        rgx = rgx.trim();
         
         if (rgx.isEmpty()) {
             return new RegexTokenizationResult(List.of(), false, false);
@@ -85,13 +85,13 @@ public final class RegexTokenizer {
         if (endOfLineSymbols > 1) {
             throw new InvalidRegexException(
                 "The $ token appears " + endOfLineSymbols + " times.");
-        }
+        } 
         
         boolean anchoredAtStart = false;
         boolean anchoredAtEnd   = false;
         
         if (startOfLineSymbols == 1) {
-            if (rgx.charAt(0) != '^') {
+            if (!rgx.startsWith("^")) {
                 throw new InvalidRegexException("Misplaced ^ symbol.");
             }
             
@@ -108,9 +108,10 @@ public final class RegexTokenizer {
             rgx = rgx.substring(0, rgx.length() - 1);
         }
         
-        List<RegexToken> tokens = tokenizeImpl();
+        this.regex = rgx;
+        this.index = 0;
         
-        return new RegexTokenizationResult(tokens, 
+        return new RegexTokenizationResult(tokenizeImpl(), 
                                            anchoredAtStart, 
                                            anchoredAtEnd);
     }
@@ -118,7 +119,6 @@ public final class RegexTokenizer {
     private List<RegexToken> tokenizeImpl() {
         List<RegexToken> tokens = new ArrayList<>();
         int previousCodePoint = 0;
-        index = 0;
         
         while (!isAtEnd()) {
             int cp = peekCodePoint();
@@ -193,7 +193,8 @@ public final class RegexTokenizer {
                     }
                     
                     tokens.add(readCharacterClass());
-                    break;
+                    previousCodePoint = ']';
+                    continue;
                     
                 default:
                     advance();
@@ -223,7 +224,7 @@ public final class RegexTokenizer {
     }
     
     private RegexToken readCharacterClass() {
-        advance();
+        advance(); // Skip '['
         
         List<CodePointRange> ranges = new ArrayList<>();
         
@@ -298,6 +299,8 @@ public final class RegexTokenizer {
             case (int) '|':
             case (int) '(':
             case (int) ')':
+            case (int) '[':
+            case (int) ']':
             case (int) '\0':
             case (int) '^':
             case (int) '$':

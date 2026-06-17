@@ -355,7 +355,7 @@ public class DeterministicFiniteAutomatonTest {
                 new RegexParser(result.tokens())
                 .parse())
                 .compile(result)
-                .convertToDetermenisticFiniteAutomaton();
+                .convertToDeterministicFiniteAutomaton();
     }
      
 //    @Test 

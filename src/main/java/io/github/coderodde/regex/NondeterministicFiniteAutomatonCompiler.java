@@ -27,8 +27,23 @@ public final class NondeterministicFiniteAutomatonCompiler {
     
     public NondeterministicFiniteAutomaton 
         compile(RegexTokenizationResult result) {
-            
+        
         Fragment fragment = build(syntaxTreeRoot);
+        
+        if (fragment == null) {
+            throw new IllegalStateException(
+                "Compiler produceed null fragment.");
+        }
+        
+        if (fragment.start == null) {
+            throw new IllegalStateException(
+                "Compiler produced null start state.");
+        }
+        
+        if (fragment.accept == null) {
+            throw new IllegalStateException(
+                "Compiler produced null accept state.");
+        }
         
         NondeterministicFiniteAutomaton nfa =
             new NondeterministicFiniteAutomaton(result);
@@ -73,10 +88,6 @@ public final class NondeterministicFiniteAutomatonCompiler {
         }
         
         throw new IllegalArgumentException("Unknown AST node: " + node);
-    }
-    
-    private void addTransition() {
-        
     }
     
     private Fragment literal(int codePoint) {
@@ -167,6 +178,8 @@ public final class NondeterministicFiniteAutomatonCompiler {
     private NondeterministicFiniteAutomatonState newState() {
         return new NondeterministicFiniteAutomatonState(stateId++);
     }
+    
+    
 }
 
 final class Fragment {

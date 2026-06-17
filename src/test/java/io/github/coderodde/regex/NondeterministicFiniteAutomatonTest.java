@@ -114,7 +114,7 @@ public class NondeterministicFiniteAutomatonTest {
         assertTrue(nfa.matches("000"));
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(dfa.matches(""));
         assertTrue(dfa.matches("1"));
@@ -141,7 +141,7 @@ public class NondeterministicFiniteAutomatonTest {
         state1.addEpsilonTransition(state2);
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(nfa.matches(""));
         assertTrue(nfa.matches("1"));
@@ -162,7 +162,7 @@ public class NondeterministicFiniteAutomatonTest {
         assertFalse(nfa.matches("aa"));
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(dfa.matches("a"));
         assertFalse(dfa.matches(""));
@@ -182,7 +182,7 @@ public class NondeterministicFiniteAutomatonTest {
         assertFalse(nfa.matches("aa"));
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(dfa.matches("ab"));
         
@@ -206,7 +206,7 @@ public class NondeterministicFiniteAutomatonTest {
         assertFalse(nfa.matches("1"));
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(dfa.matches("a"));
         assertTrue(dfa.matches("b"));
@@ -238,7 +238,7 @@ public class NondeterministicFiniteAutomatonTest {
         assertFalse(nfa.matches("baab"));
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(dfa.matches(""));
         assertTrue(dfa.matches("c"));
@@ -273,7 +273,7 @@ public class NondeterministicFiniteAutomatonTest {
         assertFalse(nfa.matches("1"));
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(dfa.matches(""));
         assertTrue(dfa.matches("a"));
@@ -300,7 +300,7 @@ public class NondeterministicFiniteAutomatonTest {
         assertFalse(nfa.matches("ab"));
         
         DeterministicFiniteAutomaton dfa =
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(dfa.matches(""));
         assertTrue(dfa.matches("a"));
@@ -316,7 +316,7 @@ public class NondeterministicFiniteAutomatonTest {
                 NondeterministicFiniteAutomaton.compile(".|.");
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(nfa.matches("a"));
         assertTrue(nfa.matches("b"));
@@ -341,7 +341,7 @@ public class NondeterministicFiniteAutomatonTest {
                 NondeterministicFiniteAutomaton.compile(".");
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(dfa.matches("a"));
         assertTrue(dfa.matches("b"));
@@ -354,7 +354,7 @@ public class NondeterministicFiniteAutomatonTest {
                 NondeterministicFiniteAutomaton.compile("..|.+");
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(dfa.matches("00"));
         assertTrue(dfa.matches("01"));
@@ -371,7 +371,7 @@ public class NondeterministicFiniteAutomatonTest {
                 NondeterministicFiniteAutomaton.compile(".+");
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertFalse(dfa.matches(""));
         assertTrue(dfa.matches("1"));
@@ -385,7 +385,7 @@ public class NondeterministicFiniteAutomatonTest {
                 NondeterministicFiniteAutomaton.compile("(.|1)+.");
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertFalse(dfa.matches(""));
         assertTrue(dfa.matches("10"));
@@ -405,7 +405,7 @@ public class NondeterministicFiniteAutomatonTest {
         assertTrue(nfa.matches(acceptingText));
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(dfa.matches(acceptingText));
     }
@@ -416,7 +416,7 @@ public class NondeterministicFiniteAutomatonTest {
                 NondeterministicFiniteAutomaton.compile("1|...");
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(nfa.matches("1"));
         assertTrue(nfa.matches("111"));
@@ -437,7 +437,7 @@ public class NondeterministicFiniteAutomatonTest {
                 NondeterministicFiniteAutomaton.compile("(1|...)?");
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(nfa.matches(""));
         assertTrue(nfa.matches("1"));
@@ -458,7 +458,7 @@ public class NondeterministicFiniteAutomatonTest {
                 NondeterministicFiniteAutomaton.compile("(1|...)*(0|1)+");
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(nfa.matches("0"));
         assertTrue(nfa.matches("1"));
@@ -497,7 +497,7 @@ public class NondeterministicFiniteAutomatonTest {
                 NondeterministicFiniteAutomaton.compile("(.|...)*");
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(nfa.matches("a"));
         assertTrue(nfa.matches("aaa"));
@@ -516,7 +516,7 @@ public class NondeterministicFiniteAutomatonTest {
                 NondeterministicFiniteAutomaton.compile("..?.");
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(nfa.matches("ac"));
         assertTrue(nfa.matches("abc"));
@@ -537,7 +537,7 @@ public class NondeterministicFiniteAutomatonTest {
                 NondeterministicFiniteAutomaton.compile("(a.b)?");
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(nfa.matches(""));
         assertTrue(nfa.matches("a0b"));
@@ -564,7 +564,7 @@ public class NondeterministicFiniteAutomatonTest {
         assertTrue(nfa.matches("0"));
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(dfa.matches("0"));
     }
@@ -575,7 +575,7 @@ public class NondeterministicFiniteAutomatonTest {
                 NondeterministicFiniteAutomaton.compile("((01)|.)?");
         
         DeterministicFiniteAutomaton dfa =
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(nfa.matches("01"));
         assertTrue(nfa.matches("0"));
@@ -600,7 +600,7 @@ public class NondeterministicFiniteAutomatonTest {
                 NondeterministicFiniteAutomaton.compile("(.|1|0)?");
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(nfa.matches("2"));
         assertTrue(nfa.matches("1"));
@@ -628,7 +628,7 @@ public class NondeterministicFiniteAutomatonTest {
         assertFalse(nfa.matches("111"));
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(dfa.matches("1"));
         assertTrue(dfa.matches("0"));

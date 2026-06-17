@@ -92,7 +92,7 @@ public final class Benchmark {
         startTime = System.nanoTime();
         
         DeterministicFiniteAutomaton dfa = 
-                nfa.convertToDetermenisticFiniteAutomaton();
+                nfa.convertToDeterministicFiniteAutomaton();
         
         duration = System.nanoTime() - startTime;
         
@@ -230,7 +230,7 @@ public final class Benchmark {
                         NondeterministicFiniteAutomaton.compile(regex);
                 
                 DeterministicFiniteAutomaton dfa = 
-                        nfa.convertToDetermenisticFiniteAutomaton();
+                        nfa.convertToDeterministicFiniteAutomaton();
                 
                 if (!nfa.matches(text)) {
                     System.out.println("NFA regex: " + regex);

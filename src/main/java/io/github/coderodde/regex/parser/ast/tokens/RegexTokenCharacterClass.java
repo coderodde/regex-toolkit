@@ -12,7 +12,7 @@ public final class RegexTokenCharacterClass implements RegexToken {
     private final List<CodePointRange> ranges;
     
     public RegexTokenCharacterClass(List<CodePointRange> ranges) {
-        this.ranges = ranges;
+        this.ranges = List.copyOf(ranges);
     }
     
     @Override

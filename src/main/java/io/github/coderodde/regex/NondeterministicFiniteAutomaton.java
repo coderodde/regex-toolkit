@@ -336,7 +336,7 @@ public final class NondeterministicFiniteAutomaton
     }
     
     public DeterministicFiniteAutomaton 
-        convertToDetermenisticFiniteAutomaton() {
+        convertToDeterministicFiniteAutomaton() {
         return new NFAToDFAConverter(this).convert();
     }
         

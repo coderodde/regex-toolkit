@@ -5,6 +5,7 @@ import static io.github.coderodde.regex.DeterministicFiniteAutomaton.Minimizatio
 import static io.github.coderodde.regex.DeterministicFiniteAutomaton.MinimizationAlgorithm.MOORE;
 import io.github.coderodde.regex.NondeterministicFiniteAutomaton;
 import io.github.coderodde.regex.NondeterministicFiniteAutomatonCompiler;
+import io.github.coderodde.regex.RegexToolkit;
 import io.github.coderodde.regex.parser.ast.tokens.RegexToken;
 import io.github.coderodde.regex.parser.ast.tree.RegexNode;
 import io.github.coderodde.regex.parser.ast.tree.UnionRegexNode;
@@ -53,7 +54,7 @@ public class RegexTest {
         assertFalse(nfa.matches("aa"));
         
         DeterministicFiniteAutomaton dfa =
-            nfa.convertToDetermenisticFiniteAutomaton();
+            nfa.convertToDeterministicFiniteAutomaton();
         
         assertTrue(dfa.matches("a"));
         assertTrue(dfa.matches("bef"));
@@ -111,7 +112,7 @@ public class RegexTest {
         DeterministicFiniteAutomaton dfa = 
             new NondeterministicFiniteAutomatonCompiler(parser.parse())
                 .compile(tokenization)
-                .convertToDetermenisticFiniteAutomaton();
+                .convertToDeterministicFiniteAutomaton();
         
         assertTrue(dfa.matches("abc"));
         
@@ -123,10 +124,12 @@ public class RegexTest {
     
     @Test
     public void characterClass1() {
-        RegexTokenizer tokenizer = new RegexTokenizer();
-        RegexTokenizationResult res = tokenizer.tokenize("[abc][a-cg-m]");
-        List<RegexToken> tokens = res.tokens();
-        System.out.println("oh fuck yeah");
-        System.out.println(tokens);
+        var dfa = RegexToolkit.compile("[abc][a-cxzg-m]");
+        
+        assertTrue(dfa.matches("ab"));
+        assertTrue(dfa.matches("cx"));
+        assertTrue(dfa.matches("bm"));
+        assertFalse(dfa.matches("db"));
+        assertFalse(dfa.matches("dg"));
     }
 }

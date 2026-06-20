@@ -226,7 +226,13 @@ public final class RegexTokenizer {
     private RegexToken readCharacterClass() {
         advance(); // Skip '['
         
+        boolean negated = false;
         List<CodePointRange> ranges = new ArrayList<>();
+        
+        if (!isAtEnd() && peekCodePoint() == '^') {
+            negated = true;
+            advance();
+        }
         
         while (!isAtEnd() && peekCodePoint() != ']') {
             int first = readEscapedOrRawCodePoint();
@@ -258,7 +264,7 @@ public final class RegexTokenizer {
         
         advance();
         
-        return new RegexTokenCharacterClass(ranges);
+        return new RegexTokenCharacterClass(ranges, negated);
     }
     
     private boolean isAtEnd() {

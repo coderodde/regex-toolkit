@@ -1,7 +1,9 @@
 package io.github.coderodde.regex;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,9 +38,11 @@ public final class GeneralizedNondeterministicFiniteAutomaton { // TODO: remove 
         acceptingState = createState();
         
         initialState.addEpsilonTransition(m.get(dfa.getInitialState()));
+        initialState.setRegularExpression(m.get(dfa.getInitialState()), null);
         
         for (DeterministicFiniteAutomatonState q : dfa.getAcceptingStates()) {
             m.get(q).addEpsilonTransition(acceptingState);
+            m.get(q).setRegularExpression(acceptingState, null);
         }
         
         // Copy state transitions:
@@ -56,6 +60,13 @@ public final class GeneralizedNondeterministicFiniteAutomaton { // TODO: remove 
                 DeterministicFiniteAutomatonState next = tfe.getGoalState();
                 GeneralizedNondeterministicFiniteAutomatonState nextGnfa = 
                     m.get(next);
+                
+                CharacterClassString ccs = 
+                    new CharacterClassString(
+                        tfe.getCharacterRange().isNegated());
+                
+                
+                CharacterClassString ccs = new CharacterClassString(false, tfe.getCharacterRange());
                 
                 CodePointRange cpr = tfe.getCharacterRange();
                 qq.setRegularExpression(nextGnfa, codePointRangeToRegex(cpr));
@@ -93,34 +104,67 @@ public final class GeneralizedNondeterministicFiniteAutomaton { // TODO: remove 
     
     void rip() {
         GeneralizedNondeterministicFiniteAutomatonState rippedState = 
-                getStateToRip();
+            getStateToRip();
         
-        Set<GeneralizedNondeterministicFiniteAutomatonState> incomingStates =
-            new HashSet<>(rippedState.getIncomingStates());
+        Set<GeneralizedNondeterministicFiniteAutomatonState> incomingStates = 
+            rippedState.getIncomingStates();
         
         Set<GeneralizedNondeterministicFiniteAutomatonState> outgoingStates = 
-            new HashSet<>(rippedState.getOutgoingStates());
+            rippedState.getOutgoingStates();
         
-        for (GeneralizedNondeterministicFiniteAutomatonState incomingState 
+        for (GeneralizedNondeterministicFiniteAutomatonState in
             : incomingStates) {
             
-            if (incomingState.equals(rippedState)) {
+            if (in.equals(rippedState) || in.equals(initialState)) {
                 continue;
             }
             
-            for (GeneralizedNondeterministicFiniteAutomatonState outgoingState 
+            for (GeneralizedNondeterministicFiniteAutomatonState out
                 : outgoingStates) {
                 
-                if (outgoingState.equals(rippedState)) {
+                if (out.equals(rippedState) || out.equals(acceptingState)) {
                     continue;
                 }
                 
-                ripImpl(incomingState, rippedState, outgoingState);
+                ripImpl(in, rippedState, out);
             }
         }
         
         rippedState.clearTransitions();
         stateSet.remove(rippedState);
+    }
+    
+    private void disconnectFrom(
+        GeneralizedNondeterministicFiniteAutomatonState head,
+        GeneralizedNondeterministicFiniteAutomatonState tail) {
+        
+        head.getOutgoingStates().remove(tail);
+    }
+    
+    private void ripImpl(GeneralizedNondeterministicFiniteAutomatonState in,
+                         GeneralizedNondeterministicFiniteAutomatonState ripped,
+                         GeneralizedNondeterministicFiniteAutomatonState out) {
+        if (!in.equals(out)) {
+            if (!in.getOutgoingStates().contains(out)) {
+                in.setRegularExpression(out, "");
+            } else {
+                disconnectFrom(in, out);
+            }
+        }
+        
+        String rir = in.getRegularExpression(ripped);
+        String rrr = ripped.getRegularExpression(ripped);
+        String rrj = ripped.getRegularExpression(out);
+        
+        rir = addParenthesesIfNeeded(rir);
+        rrr = addParenthesesIfNeeded(rrr);
+        rrj = addParenthesesIfNeeded(rrj);
+        
+        in.setRegularExpression(out, rir + rrr + "*" + rrj);
+    }
+    
+    private String addParenthesesIfNeeded(String regex) {
+        return regex.length() > 1 ? ("(" + regex + ")") : regex;
     }
         
     public String toRegularExpression() {
@@ -141,81 +185,43 @@ public final class GeneralizedNondeterministicFiniteAutomaton { // TODO: remove 
         throw new IllegalStateException("No state to rip.");
     }
     
-    private void ripImpl(
-            GeneralizedNondeterministicFiniteAutomatonState i,
-            GeneralizedNondeterministicFiniteAutomatonState r,
-            GeneralizedNondeterministicFiniteAutomatonState j) {
+    static final class CharacterClassString {
+        private final boolean negated;
+        private final List<CodePointRange> ranges = new ArrayList<>();
         
-        String rir = i.getRegularExpression(r);
-        String rrr = r.getRegularExpression(r);
-        String rrj = r.getRegularExpression(j);
+        CharacterClassString(boolean negated) {
+            this.negated = negated;
+        }
         
-        String throughR = concat(rir, star(rrr), rrj);
+        void addCodePointRange(CodePointRange range) {
+            ranges.add(range);
+        }
         
-        i.setRegularExpression(j, throughR);
-    }
-    
-    private static String concat(String... parts) {
-        StringBuilder sb = new StringBuilder();
-        
-        for (String part : parts) {
-            if (part == null) {
-                return null;
+        @Override
+        public String toString() {
+            if (ranges.size() == 1 && ranges.get(0).isSingleCodePoint()) {
+                return new String(Character.toChars(
+                    ranges.get(0).getMaximumCodePoint()));
             }
             
-            if (!part.isEmpty()) {
-                if (part.length() == 1) {
-                    sb.append(part);
-                } else {
-                    sb.append("(").append(part).append(")");
-                }
+            StringBuilder sb = new StringBuilder();
+            
+            ranges.sort((CodePointRange o1, 
+                         CodePointRange o2) -> 
+                            Integer.compare(o1.getMinimumCodePoint(),
+                                            o2.getMinimumCodePoint()));
+            
+            sb.append("[");
+            
+            if (negated) {
+                sb.append("^");
             }
+            
+            for (CodePointRange range : ranges) {
+                sb.append(range);
+            }
+            
+            return sb.append("]").toString();
         }
-        
-        return sb.toString();
-    }
-    
-    private static String star(String regex) {
-        if (regex == null || regex.isEmpty()) {
-            return "";
-        }
-        
-        if (regex.length() == 1) {
-            return regex + "*";
-        } else {
-            return "(" + regex + ")*";
-        }
-    }
-    
-    static String union(String a, String b) {
-        if (a == null) {
-            return b;
-        }
-        
-        if (b == null) {
-            return a;
-        }
-        
-        if (a.equals(b)) {
-            return a;
-        }
-        
-        StringBuilder sb = new StringBuilder();
-        
-        if (a.length() == 1) {
-            sb.append(a);
-        } else {
-            sb.append("(").append(a).append(")");
-        }
-        
-        sb.append("|");
-        
-        if (b.length() == 1) {
-            sb.append(b);
-        } else {
-            sb.append("(").append(b).append(")");
-        }
-        
-        return sb.toString();
     }
 }

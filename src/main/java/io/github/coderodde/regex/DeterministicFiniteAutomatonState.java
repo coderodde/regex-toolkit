@@ -41,8 +41,6 @@ public class DeterministicFiniteAutomatonState {
     
     void clear() {
         transitionMap.clear();
-        // TODO: Figure out.
-//        transitionMap = null;
     }
     
     DeterministicFiniteAutomatonStateTransitionFunction getTransitionFunction() {

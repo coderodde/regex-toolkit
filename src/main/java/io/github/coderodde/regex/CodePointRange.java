@@ -8,20 +8,33 @@ import java.util.Iterator;
 public final class CodePointRange implements Comparable<CodePointRange>,
                                              Iterable<Integer> {
     
+    private final boolean negated;
     private int minimumCodePoint;
     private int maximumCodePoint;
     
-    public CodePointRange(int minimumCharacter, int maximumCharacter) {
+    public CodePointRange(boolean negated,
+                          int minimumCharacter, 
+                          int maximumCharacter) {
+        this.negated          = negated;
         this.minimumCodePoint = minimumCharacter;
         this.maximumCodePoint = maximumCharacter;
     }
     
+    public CodePointRange(int minimumCharacter,
+                          int maximumCharacter) {
+        this(false, minimumCharacter, maximumCharacter);
+    }
+    
     public CodePointRange(int character) {
-        this(character, character);
+        this(false, character, character);
     }
     
     public CodePointRange() {
         this(0);
+    }
+    
+    boolean isNegated() {
+        return negated;
     }
     
     boolean isSingleCodePoint() {
@@ -36,24 +49,23 @@ public final class CodePointRange implements Comparable<CodePointRange>,
         return maximumCodePoint;
     }
     
-    void setMinimumCodePoint(int minimumCodePoint) {
-        this.minimumCodePoint = minimumCodePoint;
-    }
-    
-    void setMaximumCodePoint(int maximumCodePoint) {
-        this.maximumCodePoint = maximumCodePoint;
-    }
-    
     boolean codePointIsWithinRange(int codePoint) {
-        return minimumCodePoint <= codePoint && codePoint <= maximumCodePoint;
+        boolean withinRange = minimumCodePoint <= codePoint &&
+                               codePoint <= maximumCodePoint;
+        
+        return negated ? (!withinRange) : withinRange;
     }
     
     boolean codePointRangeSmallerThan(int codePoint) {
         return maximumCodePoint < codePoint;
     }
     
-    boolean codePointRangeGreaterThan(int codePoint) {
-        return codePoint < minimumCodePoint;
+    public void setMinimumCodePoint(int minimumCodePoint) {
+        this.minimumCodePoint = minimumCodePoint;
+    }
+    
+    public void setMaximumCodePoint(int maximumCodePoint) {
+        this.maximumCodePoint = maximumCodePoint;
     }
     
     @Override

@@ -1,6 +1,6 @@
 package io.github.coderodde.regex;
 
-import static io.github.coderodde.regex.GeneralizedNondeterministicFiniteAutomaton.union;
+import io.github.coderodde.regex.GeneralizedNondeterministicFiniteAutomaton.CharacterClassString;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,10 +16,7 @@ final class GeneralizedNondeterministicFiniteAutomatonState {
     private final int id;
     
     private final Map<GeneralizedNondeterministicFiniteAutomatonState, 
-                      String> map = new HashMap<>();
-    
-    private final Set<GeneralizedNondeterministicFiniteAutomatonState> 
-            epsilonSet = new HashSet<>();
+                      CharacterClassString> map = new HashMap<>();
     
     private final Set<GeneralizedNondeterministicFiniteAutomatonState>
             incomingStates = new HashSet<>();
@@ -40,23 +37,23 @@ final class GeneralizedNondeterministicFiniteAutomatonState {
         return id;
     }
     
+    CharacterClassString getRegularExpression(
+        GeneralizedNondeterministicFiniteAutomatonState followerState) {
+        
+        return map.get(followerState);
+    }
+    
     void setRegularExpression(
         GeneralizedNondeterministicFiniteAutomatonState followerState, 
-        String regularExpression) {
+        CharacterClassString characterClassString) {
         
-        if (regularExpression == null) {
-            return;
-        }
-        
-        String old = map.get(followerState);
-        map.put(followerState, union(old, regularExpression));
-        followerState.incomingStates.add(this);
+        map.put(followerState, characterClassString);
     }
     
     void removeRegularExpression(
         GeneralizedNondeterministicFiniteAutomatonState targetState) {
         
-        String removeRegex = map.remove(targetState);
+        CharacterClassString removeRegex = map.remove(targetState);
     
         if (removeRegex != null) {
             targetState.incomingStates.remove(this);
@@ -65,7 +62,7 @@ final class GeneralizedNondeterministicFiniteAutomatonState {
     
     void addEpsilonTransition(
         GeneralizedNondeterministicFiniteAutomatonState nextState) {
-        setRegularExpression(nextState, "");
+        setRegularExpression(nextState, null);
     }
     
     void clearTransitions() {
@@ -90,10 +87,5 @@ final class GeneralizedNondeterministicFiniteAutomatonState {
     
     Set<GeneralizedNondeterministicFiniteAutomatonState> getOutgoingStates() {
         return map.keySet();
-    }
-    
-    String getRegularExpression(
-            GeneralizedNondeterministicFiniteAutomatonState state) {
-        return map.get(state);
     }
 }

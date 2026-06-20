@@ -10,9 +10,16 @@ import java.util.List;
 public final class RegexTokenCharacterClass implements RegexToken {
 
     private final List<CodePointRange> ranges;
+    private final boolean negated;
     
-    public RegexTokenCharacterClass(List<CodePointRange> ranges) {
+    public RegexTokenCharacterClass(List<CodePointRange> ranges,
+                                    boolean negated) {
         this.ranges = List.copyOf(ranges);
+        this.negated = negated;
+    }
+    
+    public boolean isNegated() {
+        return negated;
     }
     
     @Override

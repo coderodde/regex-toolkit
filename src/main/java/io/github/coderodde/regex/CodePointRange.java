@@ -1,11 +1,8 @@
 package io.github.coderodde.regex;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * This class implements a simple code point range.
@@ -50,21 +47,17 @@ public final class CodePointRange implements Comparable<CodePointRange>,
                 CodePointRange otherLo = cprp2.lo();
                 CodePointRange otherHi = cprp2.hi();
                 
-                return otherLo.getMaximumCodePoint() <
-                        thisLo.getMinimumCodePoint()
+                return otherLo.getMaximumCodePoint() <=
+                        thisLo.getMaximumCodePoint()
                         && 
-                        otherHi.getMinimumCodePoint() > 
-                         thisHi.getMaximumCodePoint();
+                        otherHi.getMinimumCodePoint() >= 
+                         thisHi.getMinimumCodePoint();
             } else {
-                return (thisLo.getMaximumCodePoint() >= 
-                         other.getMaximumCodePoint() && 
-                        thisLo.getMinimumCodePoint() <= 
-                         other.getMinimumCodePoint()) 
-                        ||
-                       (thisHi.getMaximumCodePoint() >=
-                         other.getMaximumCodePoint() && 
+                return thisLo.getMaximumCodePoint() >= 
+                        other.getMaximumCodePoint() 
+                        || 
                         thisHi.getMinimumCodePoint() <= 
-                         other.getMinimumCodePoint());
+                         other.getMinimumCodePoint();
             }
         } else {
             if (other.negated) {
@@ -72,15 +65,8 @@ public final class CodePointRange implements Comparable<CodePointRange>,
                 CodePointRange otherLo = cprp.lo();
                 CodePointRange otherHi = cprp.hi();
                 
-                return (otherLo.getMinimumCodePoint() <= 
-                                   minimumCodePoint && 
-                        otherLo.getMaximumCodePoint() >= 
-                                   maximumCodePoint)
-                        ||
-                       (otherHi.getMinimumCodePoint() <= 
-                                   minimumCodePoint && 
-                        otherHi.getMaximumCodePoint() >= 
-                                   maximumCodePoint);
+                return minimumCodePoint <= otherLo.getMaximumCodePoint() ||
+                       maximumCodePoint >= otherHi.getMinimumCodePoint();
             } else {
                 return minimumCodePoint <= other.minimumCodePoint &&
                        maximumCodePoint >= other.maximumCodePoint;

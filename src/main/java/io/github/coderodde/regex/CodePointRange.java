@@ -1,7 +1,10 @@
 package io.github.coderodde.regex;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -33,6 +36,56 @@ public final class CodePointRange implements Comparable<CodePointRange>,
     
     public CodePointRange() {
         this(0);
+    }
+    
+    boolean includes(CodePointRange other) {
+        
+        if (negated) {   
+            CodePointRangePair cprp = negate(this);   
+            CodePointRange thisLo = cprp.lo();
+            CodePointRange thisHi = cprp.hi();
+            
+            if (other.negated) {
+                CodePointRangePair cprp2 = negate(other);
+                CodePointRange otherLo = cprp2.lo();
+                CodePointRange otherHi = cprp2.hi();
+                
+                return otherLo.getMaximumCodePoint() <
+                        thisLo.getMinimumCodePoint()
+                        && 
+                        otherHi.getMinimumCodePoint() > 
+                         thisHi.getMaximumCodePoint();
+            } else {
+                return (thisLo.getMaximumCodePoint() >= 
+                         other.getMaximumCodePoint() && 
+                        thisLo.getMinimumCodePoint() <= 
+                         other.getMinimumCodePoint()) 
+                        ||
+                       (thisHi.getMaximumCodePoint() >=
+                         other.getMaximumCodePoint() && 
+                        thisHi.getMinimumCodePoint() <= 
+                         other.getMinimumCodePoint());
+            }
+        } else {
+            if (other.negated) {
+                CodePointRangePair cprp = negate(other);
+                CodePointRange otherLo = cprp.lo();
+                CodePointRange otherHi = cprp.hi();
+                
+                return (otherLo.getMinimumCodePoint() <= 
+                                   minimumCodePoint && 
+                        otherLo.getMaximumCodePoint() >= 
+                                   maximumCodePoint)
+                        ||
+                       (otherHi.getMinimumCodePoint() <= 
+                                   minimumCodePoint && 
+                        otherHi.getMaximumCodePoint() >= 
+                                   maximumCodePoint);
+            } else {
+                return minimumCodePoint <= other.minimumCodePoint &&
+                       maximumCodePoint >= other.maximumCodePoint;
+            }
+        }
     }
     
     boolean isNegated() {
@@ -72,9 +125,12 @@ public final class CodePointRange implements Comparable<CodePointRange>,
     
     @Override
     public boolean equals(Object o) {
-        CodePointRange other = (CodePointRange) o;
-        return minimumCodePoint == other.minimumCodePoint &&
-               maximumCodePoint == other.maximumCodePoint;
+        if (o instanceof CodePointRange other) {
+            return minimumCodePoint == other.minimumCodePoint &&
+                   maximumCodePoint == other.maximumCodePoint;
+        }
+            
+        return false;
     }
     
     @Override
@@ -92,9 +148,17 @@ public final class CodePointRange implements Comparable<CodePointRange>,
     
     @Override
     public String toString() {
+        if (negated) {
+            return "[From '\\u0000' to '" 
+                    + new String(Character.toChars(minimumCodePoint - 1)) 
+                    + "' and from '"
+                    + new String(Character.toChars(maximumCodePoint + 1))
+                    + "' to '\\u10FFFF']";
+        }
+        
         String min = new String(Character.toChars(minimumCodePoint));
         String max = new String(Character.toChars(maximumCodePoint));
-        
+
         return "[From '" + min + "' to '" + max + "']";
     }
 
@@ -131,34 +195,25 @@ public final class CodePointRange implements Comparable<CodePointRange>,
     }
     
     public static CodePointRange[] combine(CodePointRange... ranges) {
-        Set<CodePointRange> singletonRanges    = new HashSet<>();
-        Set<CodePointRange> nonSingletonRanges = new HashSet<>();
+        List<CodePointRange> winners = new ArrayList<>();
         
-        for (CodePointRange range : ranges) {
-            if (range.isSingleCodePoint()) {
-                singletonRanges.add(range);
-            } else {
-                nonSingletonRanges.add(range);
-            }
-        }
-        
-        Iterator<CodePointRange> it = singletonRanges.iterator();
-        
-        while (it.hasNext()) {
-            CodePointRange range = it.next();
+        outer:
+        for (int i = 0; i < ranges.length; ++i) {
+            CodePointRange candidate = ranges[i];
             
-            for (CodePointRange nonSingleton : nonSingletonRanges) {
-                if (nonSingleton.codePointIsWithinRange(
-                    range.getMinimumCodePoint())) {
-                    
-                    it.remove();
+            for (int j = i + 1; j < ranges.length; ++j) {
+                CodePointRange testRange = ranges[j];
+                
+                if (testRange.includes(candidate)) {
+                    continue outer;
                 }
             }
+            
+            winners.add(candidate);
         }
         
-        
-        
-        return null;
+        winners.sort(CodePointRange::compareTo);
+        return winners.toArray(CodePointRange[]::new);
     }
     
     public final record CodePointRangePair(CodePointRange lo,

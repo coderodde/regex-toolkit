@@ -52,6 +52,10 @@ public final class GeneralizedNondeterministicFiniteAutomaton { // TODO: remove 
             
             DeterministicFiniteAutomatonStateTransitionFunction tf = 
                 q.getTransitionFunction();
+
+            CharacterClassString ccs = 
+                new CharacterClassString(
+                    tfe.getCharacterRange().isNegated());
             
             for (int i = 0; i < tf.size(); ++i) {
                 DeterministicFiniteAutomatonStateTransitionFunction
@@ -60,10 +64,6 @@ public final class GeneralizedNondeterministicFiniteAutomaton { // TODO: remove 
                 DeterministicFiniteAutomatonState next = tfe.getGoalState();
                 GeneralizedNondeterministicFiniteAutomatonState nextGnfa = 
                     m.get(next);
-                
-                CharacterClassString ccs = 
-                    new CharacterClassString(
-                        tfe.getCharacterRange().isNegated());
                 
                 
                 CharacterClassString ccs = new CharacterClassString(false, tfe.getCharacterRange());

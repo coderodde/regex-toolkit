@@ -1,6 +1,8 @@
 package io.github.coderodde.regex;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * This class implements a simple code point range.
@@ -111,5 +113,61 @@ public final class CodePointRange implements Comparable<CodePointRange>,
                 return nextCodePoint++;
             }
         };
+    }
+    
+    public static CodePointRangePair negate(CodePointRange range) {
+        if (!range.isNegated()) {
+            throw new IllegalArgumentException(
+                "The input range is expected to be negated.");
+        }
+        
+        CodePointRange lo = new CodePointRange(0,
+                                               range.getMinimumCodePoint() - 1);
+        
+        CodePointRange hi = new CodePointRange(range.getMaximumCodePoint() + 1,
+                                               Character.MAX_CODE_POINT);
+        
+        return new CodePointRangePair(lo, hi);
+    }
+    
+    public static CodePointRange[] combine(CodePointRange... ranges) {
+        Set<CodePointRange> singletonRanges    = new HashSet<>();
+        Set<CodePointRange> nonSingletonRanges = new HashSet<>();
+        
+        for (CodePointRange range : ranges) {
+            if (range.isSingleCodePoint()) {
+                singletonRanges.add(range);
+            } else {
+                nonSingletonRanges.add(range);
+            }
+        }
+        
+        Iterator<CodePointRange> it = singletonRanges.iterator();
+        
+        while (it.hasNext()) {
+            CodePointRange range = it.next();
+            
+            for (CodePointRange nonSingleton : nonSingletonRanges) {
+                if (nonSingleton.codePointIsWithinRange(
+                    range.getMinimumCodePoint())) {
+                    
+                    it.remove();
+                }
+            }
+        }
+        
+        
+        
+        return null;
+    }
+    
+    public final record CodePointRangePair(CodePointRange lo,
+                                           CodePointRange hi) {
+        
+        public CodePointRangePair(CodePointRange lo,
+                                  CodePointRange hi) {
+            this.lo = lo;
+            this.hi = hi;
+        }
     }
 }

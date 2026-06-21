@@ -73,35 +73,6 @@ implements Iterable<TransitionFunctionEntry> {
         this.stateSet.addAll(other.stateSet);
     }
     
-    /**
-     * Prunes away all nodes in {@code unreachableStateSet} from this 
-     * @param unreachableStateSet 
-     */
-    void pruneUnreachableStates(
-            Set<DeterministicFiniteAutomatonState> unreachableStateSet) {
-        
-        Iterator<DeterministicFiniteAutomatonState> iterator =
-                stateSet.iterator();
-    
-        while (iterator.hasNext()) {
-            DeterministicFiniteAutomatonState state = iterator.next();
-            
-            state.clear();
-            
-            if (unreachableStateSet.contains(state)) {
-                iterator.remove();
-            }
-        }
-    }
-    
-    void addDotTransitionState(DeterministicFiniteAutomatonState state) {
-        this.dotTransitionState = state;
-    }
-    
-    DeterministicFiniteAutomatonState getDotTransitionState() {
-        return this.dotTransitionState;
-    }
-    
     void addTransition(CodePointRange characterRange, 
                        DeterministicFiniteAutomatonState goalState) {
         
@@ -124,15 +95,6 @@ implements Iterable<TransitionFunctionEntry> {
         entries[index] = targetTransitionMapEntry;
         size++;
     }
-    
-//    void addTransition(int codePoint,
-//                       DeterministicFiniteAutomatonState sourceState,
-//                       DeterministicFiniteAutomatonState targetState) {
-//        
-//        CodePointRange characterRange = new CodePointRange(codePoint);
-//        
-//        addTransition(characterRange, targetState);
-//    }
     
     int size() {
         return size;

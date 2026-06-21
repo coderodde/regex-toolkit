@@ -16,7 +16,7 @@ final class GeneralizedNondeterministicFiniteAutomatonState {
     private final int id;
     
     private final Map<GeneralizedNondeterministicFiniteAutomatonState, 
-                      CharacterClassString> map = new HashMap<>();
+                      String> map = new HashMap<>();
     
     private final Set<GeneralizedNondeterministicFiniteAutomatonState>
             incomingStates = new HashSet<>();
@@ -37,7 +37,7 @@ final class GeneralizedNondeterministicFiniteAutomatonState {
         return id;
     }
     
-    CharacterClassString getRegularExpression(
+    String getRegularExpression(
         GeneralizedNondeterministicFiniteAutomatonState followerState) {
         
         return map.get(followerState);
@@ -45,15 +45,15 @@ final class GeneralizedNondeterministicFiniteAutomatonState {
     
     void setRegularExpression(
         GeneralizedNondeterministicFiniteAutomatonState followerState, 
-        CharacterClassString characterClassString) {
+        String regex) {
         
-        map.put(followerState, characterClassString);
+        map.put(followerState, regex);
     }
     
     void removeRegularExpression(
         GeneralizedNondeterministicFiniteAutomatonState targetState) {
         
-        CharacterClassString removeRegex = map.remove(targetState);
+        String removeRegex = map.remove(targetState);
     
         if (removeRegex != null) {
             targetState.incomingStates.remove(this);
